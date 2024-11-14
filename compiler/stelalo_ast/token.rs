@@ -52,12 +52,24 @@ pub enum TokenKind {
 
 
     Eof,
+
+    Question, // 分からない
 }
 
+impl Token {
+    pub fn dummy() -> Self{
+        Self {
+            kind: TokenKind::Question,
+            line: 1,
+            start: 0,
+            end: 0,
+    }
+    }
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum LiteralKind {
-    Bool,
+    Bool(bool),
     Char,
     Integer,
     Float,

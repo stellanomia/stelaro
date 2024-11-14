@@ -1,5 +1,9 @@
 use std::{cell::RefCell, collections::HashMap};
 
+thread_local! {
+    static INTERNER: Interner = Interner::new();
+}
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Symbol(u32);
 
@@ -8,14 +12,28 @@ impl Symbol {
         Symbol(idx)
     }
 
-    pub fn as_u32(&self) -> u32 {
-        self.0 as u32
-    }
-
     pub fn as_usize(&self) -> usize {
         self.0 as usize
     }
+
+    pub fn intern(string: &str) -> Self {
+        INTERNER.with(|interner| {
+            interner.intern(string)
+        })
+    }
+
+    /// 注意: 返り値のライフタイムは&selfとは異なり、実際には
+    /// 基礎となるインターナーのライフタイムに紐付いている
+    /// インターナーは長命で、この関数は通常短命な用途で使用されるため、実際には問題ない
+    pub fn as_str(&self) -> &str {
+        INTERNER.with(|interner| {
+            unsafe {std::mem::transmute::<&str, &str>(interner.get(*self))}
+        })
+    }
 }
+
+
+pub struct Interner(RefCell<InternerInner>);
 
 struct InternerInner {
     strings: HashMap<&'static str, u32>,
@@ -23,7 +41,6 @@ struct InternerInner {
     next_idx: u32
 }
 
-pub struct Interner(RefCell<InternerInner>);
 
 impl Interner {
     pub fn new() -> Self {
@@ -47,8 +64,8 @@ impl Interner {
 
         let idx = inner.next_idx;
 
-        // 安全: symbolsが生きている間しかこの参照にアクセスできないため
-        // ライフタイムを'static に拡張できる
+        // 安全: Internersが生きている間しかこの参照にアクセスできない
+        // ライフタイムを'static に拡張
         let string: &'static str = unsafe {&*(string as *const str) };
 
         inner.strings.insert(string, idx);
@@ -59,6 +76,7 @@ impl Interner {
         Symbol::new(idx)
     }
 
+    // symbolsに存在するSymbolでしかアクセスされない
     pub fn get(&self, idx: Symbol) -> &str {
         self.0.borrow().symbols.get(idx.as_usize()).unwrap()
     }

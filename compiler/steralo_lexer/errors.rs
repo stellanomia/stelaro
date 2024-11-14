@@ -14,10 +14,6 @@ impl LexerError {
         LexerError(Box::new(core))
     }
 
-    pub fn unknown_character() -> Self {
-        todo!()
-    }
-
     pub fn unexpected_character(line: u32, start: u32, end: u32, found: char) -> Self {
         LexerError::new(
             ErrorCore {

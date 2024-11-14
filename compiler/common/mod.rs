@@ -1,6 +1,8 @@
 pub mod error;
 pub mod symbol;
 
+pub use symbol::Symbol;
+
 #[cfg(test)]
 mod tests {
     use symbol::{Interner, Symbol};
@@ -10,13 +12,27 @@ mod tests {
     #[test]
     fn interner_tests() {
         let interner = Interner::new();
-        assert_eq!(interner.intern("abc").as_u32(), 0);
-        assert_eq!(interner.intern("abc").as_u32(), 0);
-        assert_eq!(interner.intern("def").as_u32(), 1);
-        assert_eq!(interner.intern("ghi").as_u32(), 2);
-        assert_eq!(interner.intern("def").as_u32(), 1);
+        assert_eq!(interner.intern("abc").as_usize(), 0);
+        assert_eq!(interner.intern("abc").as_usize(), 0);
+        assert_eq!(interner.intern("def").as_usize(), 1);
+        assert_eq!(interner.intern("ghi").as_usize(), 2);
+        assert_eq!(interner.intern("def").as_usize(), 1);
 
         assert_eq!("ghi", interner.get(Symbol::new(2)));
         assert_eq!("def", interner.get(Symbol::new(1)));
     }
+
+
+    #[test]
+    fn test_symbol() {
+        let str = "Hello, World!";
+        let symbol1 = Symbol::intern(&str[0..5]);
+        let symbol2 = Symbol::intern(&str[5..7]);
+        let symbol3 = Symbol::intern(&str[7..]);
+
+        assert_eq!("Hello", symbol1.as_str());
+        assert_eq!(", ", symbol2.as_str());
+        assert_eq!("World!", symbol3.as_str());
+    }
+
 }

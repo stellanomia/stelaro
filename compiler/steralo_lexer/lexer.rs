@@ -1,14 +1,11 @@
 
-use crate::{common::symbol::Interner, steralo_lexer::{cursor::Cursor, token::{LiteralKind, TokenKind}}};
-
-use super::{errors::LexerError, token::{Token, TokenStream}};
+use crate::{common::Symbol, stelalo_ast::token::{LiteralKind, Token, TokenKind, TokenStream}, steralo_lexer::cursor::Cursor};
+use super::errors::LexerError;
 
 
 pub struct Lexer<'src> {
     src: &'src str,
     cursor: Cursor<'src>,
-    literals: &'src Interner,
-    idents: &'src Interner,
     pos: u32,
     line: u32,
     col: u32,
@@ -18,9 +15,6 @@ pub struct Lexer<'src> {
 impl<'src> Lexer<'src> {
     pub fn new(
         src: &'src str,
-        literals: &'src
-        Interner,
-        idents: &'src Interner
     ) -> Self {
         Self {
             src,
@@ -28,8 +22,6 @@ impl<'src> Lexer<'src> {
             pos: 0,
             line: 1,
             col: 0,
-            literals,
-            idents,
             is_terminated: false,
         }
     }
@@ -126,6 +118,9 @@ impl<'src> Lexer<'src> {
 
                 if self.cursor.first() == '/' {
                     self.bump();
+                    while self.cursor.first() != '\n' {
+                        self.bump();
+                    }
                     TokenKind::LineComment
                 }else {
                     TokenKind::Slash
@@ -176,75 +171,22 @@ impl<'src> Lexer<'src> {
                 let lit_kind = self.lex_number(col)?;
                 TokenKind::Literal {
                     kind: lit_kind,
-                    symbol: self.literals.intern(&self.src[pos as usize..self.pos as usize])
+                    symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize])
                 }
             },
             '"' => {
                 self.bump();
 
-                loop {
-                    match self.cursor.first() {
-                        '\\' => {
-                            self.bump();
-                            match self.cursor.first() {
-                                'n' | 'r' | 't' | '0' | '\'' | '"' | '\\' => {
-                                    self.bump();
-                                },
-                                _ => {
-                                    self.bump();
-                                    self.is_terminated = true;
-                                    Err(
-                                        LexerError::invalid_escape_sequence(
-                                            line,
-                                            self.col - 1,
-                                            self.col,
-                                        )
-                                    )?
-                                }
-
-                            }
-                        },
-                        '"' => {
-                            self.bump();
-                            break;
-                        },
-                        '\n' => {
-                            self.bump();
-                            self.is_terminated = true;
-                            Err(
-                                LexerError::unterminated_string_literal(
-                                    line,
-                                    self.col,
-                                    col,
-                                )
-                            )?
-                        }
-                        _ => {
-                            self.bump();
-                        }
-                    }
-                }
+                self.lex_str_lit(line, col)?;
 
                 TokenKind::Literal {
                     kind: LiteralKind::Str,
-                    symbol: self.literals.intern(&self.src[pos as usize..self.pos as usize])
+                    symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize])
                 }
             },
             c if c.is_alphabetic() => {
                 self.bump();
-
-                while matches!(self.cursor.first(), c if c.is_alphabetic() || c == '_') {
-                    self.bump();
-                }
-
-                let keyword_or_ident = &self.src[pos as usize..self.pos as usize];
-
-                match self.as_keyword(keyword_or_ident) {
-                    Some(keyword) => keyword,
-                    None => TokenKind::Ident(
-                        self.idents.intern(keyword_or_ident)
-                    ),
-                }
+                self.lex_word(pos)?
             },
             '\0' => {
                 self.bump();
@@ -352,8 +294,85 @@ impl<'src> Lexer<'src> {
                 Ok(LiteralKind::Integer)
             }
         } else {
-            panic!("不正な数値を読み取りました"); //設計ミス以外でここが実行されることはない
+            unreachable!()
         }
+    }
+
+    fn lex_str_lit(&mut self, line: u32, col: u32) -> Result<(), LexerError> {
+        loop {
+            match self.cursor.first() {
+                '\\' => {
+                    self.bump();
+                    match self.cursor.first() {
+                        'n' | 'r' | 't' | '0' | '\'' | '"' | '\\' => {
+                            self.bump();
+                        },
+                        _ => {
+                            self.bump();
+                            self.is_terminated = true;
+                            Err(
+                                LexerError::invalid_escape_sequence(
+                                    line,
+                                    self.col - 1,
+                                    self.col,
+                                )
+                            )?
+                        }
+
+                    }
+                },
+                '"' => {
+                    self.bump();
+                    break Ok(());
+                },
+                '\n' => {
+                    self.bump();
+                    self.is_terminated = true;
+                    Err(
+                        LexerError::unterminated_string_literal(
+                            line,
+                            self.col,
+                            col,
+                        )
+                    )?
+                }
+                _ => {
+                    self.bump();
+                }
+            }
+        }
+    }
+
+    fn lex_word(&mut self, pos: u32 ) -> Result<TokenKind, LexerError> {
+
+        while matches!(self.cursor.first(), c if c.is_alphabetic() || c == '_' || c.is_numeric()) {
+            self.bump();
+        }
+
+        let keyword_or_ident = &self.src[pos as usize..self.pos as usize];
+
+        Ok(
+            match self.as_keyword(keyword_or_ident) {
+                Some(keyword) => keyword,
+                None => {
+                    if keyword_or_ident == "true" {
+                        TokenKind::Literal {
+                            kind: LiteralKind::Bool(true),
+                            symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize]),
+                        }
+                    } else if keyword_or_ident == "false" {
+                        TokenKind::Literal {
+                            kind: LiteralKind::Bool(false),
+                            symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize]),
+                        }
+                    }else {
+                        TokenKind::Ident(
+                            Symbol::intern(keyword_or_ident)
+                        )
+                    }
+                },
+            }
+        )
     }
 
     fn as_keyword(&self, string: &str) -> Option<TokenKind> {

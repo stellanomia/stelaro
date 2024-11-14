@@ -1,4 +1,4 @@
-use compiler::{common::symbol::{Interner, Symbol}, steralo_lexer::{token::{LiteralKind, Token, TokenKind}, Lexer}};
+use compiler::{common::symbol::Symbol, stelalo_ast::token::{LiteralKind, Token, TokenKind}, steralo_lexer::Lexer};
 
 #[test]
 fn test_complex_expression() {
@@ -8,12 +8,12 @@ fn main() {
     if x > 10 {
         print "Hello";
     }
+    // line comment
+    while true {}
 }
 "#.trim();
 
-    let literals = Interner::new();
-    let idents = Interner::new();
-    let mut lexer = Lexer::new(input, &literals, &idents);
+    let mut lexer = Lexer::new(input);
 
     let tokens = lexer.lex().unwrap();
 
@@ -28,7 +28,7 @@ fn main() {
         TokenKind::Equal,
         TokenKind::Literal {
             kind: LiteralKind::Float,
-            symbol: Symbol::new(0), // 42.0
+            symbol: Symbol::new(2), // 42.0
         },
         TokenKind::Semicolon,
         TokenKind::If,
@@ -36,15 +36,23 @@ fn main() {
         TokenKind::Greater,
         TokenKind::Literal {
             kind: LiteralKind::Integer,
-            symbol: Symbol::new(1), // 10
+            symbol: Symbol::new(3), // 10
         },
         TokenKind::LBrace,
         TokenKind::Print,
         TokenKind::Literal {
             kind: LiteralKind::Str,
-            symbol: Symbol::new(2) // "Hello"
+            symbol: Symbol::new(4) // "Hello"
         },
         TokenKind::Semicolon,
+        TokenKind::RBrace,
+        TokenKind::LineComment,
+        TokenKind::While,
+        TokenKind::Literal {
+            kind: LiteralKind::Bool(true),
+            symbol: Symbol::new(5) // true
+        },
+        TokenKind::LBrace,
         TokenKind::RBrace,
         TokenKind::RBrace,
         TokenKind::Eof,
@@ -55,8 +63,8 @@ fn main() {
         expected_kinds
     );
 
-    assert_eq!("x", idents.get(Symbol::new(1)));
-    assert_eq!("\"Hello\"", literals.get(Symbol::new(2)));
+    assert_eq!("x", Symbol::new(1).as_str());
+    assert_eq!("\"Hello\"", Symbol::new(4).as_str());
 }
 
 
@@ -68,9 +76,7 @@ let str = "Hello, World!";
 fn f() {}
 "#.trim();
 
-    let literals = Interner::new();
-    let idents = Interner::new();
-    let mut lexer = Lexer::new(input, &literals, &idents);
+    let mut lexer = Lexer::new(input);
 
     let tokens = lexer.lex().unwrap();
 
@@ -98,7 +104,7 @@ fn f() {}
         Token {
             kind: TokenKind::Literal {
                 kind: LiteralKind::Str,
-                symbol: Symbol::new(0),
+                symbol: Symbol::new(1),
             },
             line: 1,
             start: 10,
@@ -119,7 +125,7 @@ fn f() {}
         Token {
             kind: TokenKind::Literal {
                 kind: LiteralKind::Str,
-                symbol: Symbol::new(1),
+                symbol: Symbol::new(2),
             },
             line: 2,
             start: 10,
@@ -139,7 +145,7 @@ fn f() {}
         },
         Token {
             kind: TokenKind::Ident(
-                Symbol::new(1),
+                Symbol::new(3),
             ),
             line: 3,
             start: 3,
