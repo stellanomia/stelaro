@@ -1,4 +1,4 @@
-use crate::common::error::ErrorCore;
+use crate::stelaro_common::error::ErrorCore;
 
 #[derive(Debug)]
 pub struct LexerError(Box<ErrorCore>);

@@ -1,7 +1,18 @@
 pub mod error;
 pub mod symbol;
+pub mod span;
+pub mod source_map;
 
 pub use symbol::Symbol;
+
+use source_map::SourceMap;
+use symbol::Interner;
+
+thread_local! {
+    static INTERNER: Interner = Interner::new();
+    static SOURCEMAP: SourceMap = SourceMap::new();
+}
+
 
 #[cfg(test)]
 mod tests {

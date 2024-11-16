@@ -1,5 +1,5 @@
 
-use crate::{common::Symbol, stelalo_ast::token::{LiteralKind, Token, TokenKind, TokenStream}, steralo_lexer::cursor::Cursor};
+use crate::{stelaro_common::{span::Span, Symbol}, stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream}, stelaro_lexer::cursor::Cursor};
 use super::errors::LexerError;
 
 
@@ -109,6 +109,10 @@ impl<'src> Lexer<'src> {
                 self.bump();
                 TokenKind::Star
             },
+            '%' => {
+                self.bump();
+                TokenKind::Percent
+            }
             ';' => {
                 self.bump();
                 TokenKind::Semicolon
@@ -169,20 +173,24 @@ impl<'src> Lexer<'src> {
             ('0'..='9') => {
                 // LiteralKind::Integer, Floatのどちらかをとりうる
                 let lit_kind = self.lex_number(col)?;
-                TokenKind::Literal {
-                    kind: lit_kind,
-                    symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize])
-                }
+                TokenKind::Literal (
+                    Lit {
+                        kind: lit_kind,
+                        symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize])
+                    }
+                )
             },
             '"' => {
                 self.bump();
 
                 self.lex_str_lit(line, col)?;
 
-                TokenKind::Literal {
-                    kind: LiteralKind::Str,
-                    symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize])
-                }
+                TokenKind::Literal (
+                    Lit {
+                        kind: LiteralKind::Str,
+                        symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize])
+                    }
+                )
             },
             c if c.is_alphabetic() => {
                 self.bump();
@@ -212,9 +220,11 @@ impl<'src> Lexer<'src> {
         Ok(
             Token {
                 kind: token_kind,
-                line,
-                start: col,
-                end: self.col,
+                span: Span {
+                    line,
+                    start: pos,
+                    end: self.pos,
+                }
             }
         )
     }
@@ -356,15 +366,19 @@ impl<'src> Lexer<'src> {
                 Some(keyword) => keyword,
                 None => {
                     if keyword_or_ident == "true" {
-                        TokenKind::Literal {
-                            kind: LiteralKind::Bool(true),
-                            symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize]),
-                        }
+                        TokenKind::Literal (
+                            Lit {
+                                kind: LiteralKind::Bool(true),
+                                symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize]),
+                            }
+                        )
                     } else if keyword_or_ident == "false" {
-                        TokenKind::Literal {
-                            kind: LiteralKind::Bool(false),
-                            symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize]),
-                        }
+                        TokenKind::Literal (
+                            Lit {
+                                kind: LiteralKind::Bool(false),
+                                symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize]),
+                            }
+                        )
                     }else {
                         TokenKind::Ident(
                             Symbol::intern(keyword_or_ident)

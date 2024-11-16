@@ -1,10 +1,10 @@
-use steralo_lexer::Lexer;
-use steralo_parse::parser::Parser;
+use stelaro_lexer::Lexer;
+use stelaro_parse::parser::Parser;
 
-pub mod steralo_lexer;
-pub mod steralo_parse;
-pub mod stelalo_ast;
-pub mod common;
+pub mod stelaro_lexer;
+pub mod stelaro_parse;
+pub mod stelaro_ast;
+pub mod stelaro_common;
 
 pub fn eval(src: &str) {
     let mut lexer = Lexer::new(src);

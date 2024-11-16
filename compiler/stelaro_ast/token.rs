@@ -1,41 +1,63 @@
 use std::collections::{vec_deque::Iter, VecDeque};
 
-use crate::common::symbol::Symbol;
+use crate::stelaro_common::{span::Span, symbol::Symbol};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Token {
     pub kind: TokenKind,
-    pub line: u32,
-    pub start: u32,
-    pub end: u32,
+    pub span: Span,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenKind {
-    LParen, // (
-    RParen, // )
-    LBrace, // {
-    RBrace, // }
-    Comma, // ,
-    Dot, // .
-    Plus, // +
-    Minus, // -
-    Star, // *
-    Semicolon, // ;
+    /// '('
+    LParen,
+    /// ')'
+    RParen,
+    /// '{'
+    LBrace,
+    /// '}'
+    RBrace,
+    /// ','
+    Comma,
+    /// '.'
+    Dot,
+    /// '+'
+    Plus,
+    /// '-'
+    Minus,
+    /// '*'
+    Star,
+    /// '%'
+    Percent,
+    /// ';'
+    Semicolon,
 
-    Slash, // /
-    LineComment, // //
-    Bang, // !
-    BangEqual, // !=
-    Equal, // =
-    EqualEqual, // ==
-    Greater, // >
-    GreaterEqual, // >=
-    Less, // <
-    LessEqual, // <=
+    /// '/'
+    Slash,
+    /// '//'
+    LineComment,
+    /// '!'
+    Bang,
+    /// '!='
+    BangEqual,
+    /// '='
+    Equal,
+    /// '=='
+    EqualEqual,
+    /// '>'
+    Greater,
+    /// '>='
+    GreaterEqual,
+    /// '<'
+    Less,
+    // '<='
+    LessEqual,
 
     Ident(Symbol),
-    Literal {kind: LiteralKind, symbol: Symbol},
+
+    // ExprKind が直接Litを保持するため、この構造体に抽象化している
+    Literal(Lit),
 
     // Keywords
     Null, // null
@@ -60,11 +82,19 @@ impl Token {
     pub fn dummy() -> Self{
         Self {
             kind: TokenKind::Question,
-            line: 1,
-            start: 0,
-            end: 0,
+            span: Span {
+                line: 1,
+                start: 0,
+                end: 0
+            },
+        }
     }
-    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Lit {
+    pub kind: LiteralKind,
+    pub symbol: Symbol,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
@@ -121,7 +151,7 @@ impl TokenStream {
     }
 
     pub fn current_line(&self) -> Option<u32> {
-        self.peek().map(|t| t.line)
+        self.peek().map(|t| t.span.line)
     }
 
     pub fn check(&self, kind: TokenKind) -> bool {

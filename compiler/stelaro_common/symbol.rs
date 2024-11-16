@@ -1,10 +1,9 @@
 use std::{cell::RefCell, collections::HashMap};
 
-thread_local! {
-    static INTERNER: Interner = Interner::new();
-}
+use super::INTERNER;
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Symbol(u32);
 
 impl Symbol {
