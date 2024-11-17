@@ -1,6 +1,6 @@
-use crate::stelaro_common::error::ErrorCore;
+use crate::stelaro_common::error_core::ErrorCore;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct LexerError(Box<ErrorCore>);
 
 impl From<LexerError> for ErrorCore {

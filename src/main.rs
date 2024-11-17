@@ -1,8 +1,7 @@
-use compiler::eval;
-
+use stelaro::仮;
 
 fn main() {
-    eval(r#"
+    仮(r#"
 let str = "Hello, World!";
     print "";
 fn f() {}

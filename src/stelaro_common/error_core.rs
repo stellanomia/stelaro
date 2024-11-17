@@ -1,7 +1,7 @@
 use core::fmt;
 use std::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct ErrorCore {
     pub msg: String,
     pub line: u32,

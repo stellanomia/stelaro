@@ -1,7 +1,7 @@
+use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
+use crate::stelaro_common::{span::Span, Symbol};
 
-use crate::{stelaro_common::{span::Span, Symbol}, stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream}, stelaro_lexer::cursor::Cursor};
-use super::errors::LexerError;
-
+use super::{cursor::Cursor, errors::LexerError};
 
 pub struct Lexer<'src> {
     src: &'src str,
@@ -323,7 +323,7 @@ impl<'src> Lexer<'src> {
                             Err(
                                 LexerError::invalid_escape_sequence(
                                     line,
-                                    self.col - 1,
+                                    col,
                                     self.col,
                                 )
                             )?
@@ -338,11 +338,14 @@ impl<'src> Lexer<'src> {
                 '\n' => {
                     self.bump();
                     self.is_terminated = true;
+
+                    // 通常の文字列リテラル中に改行が見つかった場合はエラー
                     Err(
                         LexerError::unterminated_string_literal(
                             line,
-                            self.col,
                             col,
+                            //改行文字の次の文字を指さないように -1 しておく
+                            self.col-1,
                         )
                     )?
                 }

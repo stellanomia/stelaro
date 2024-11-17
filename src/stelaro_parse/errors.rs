@@ -1,4 +1,4 @@
-use crate::stelaro_common::error::ErrorCore;
+use crate::stelaro_common::error_core::ErrorCore;
 
 #[derive(Debug)]
 pub struct ParseError(Box<ErrorCore>);

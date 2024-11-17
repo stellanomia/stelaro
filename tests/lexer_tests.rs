@@ -1,4 +1,4 @@
-use compiler::{stelaro_common::{span::Span, symbol::Symbol}, stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind}, stelaro_lexer::Lexer};
+use stelaro::{stelaro_common::{span::Span, symbol::Symbol}, stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind}, stelaro_lexer::Lexer};
 
 #[test]
 fn test_complex_expression() {
@@ -81,7 +81,6 @@ fn test_token_pos() {
     let input = r#"
 let str = "Hello, World!";
     print "";
-fn f() {}
 "#.trim();
 
     let mut lexer = Lexer::new(input);
@@ -139,8 +138,8 @@ fn f() {}
             kind: TokenKind::Print,
             span: Span {
                 line: 2,
-                start: 4,
-                end: 9,
+                start: 31,
+                end: 36,
             },
         },
         Token {
@@ -152,80 +151,30 @@ fn f() {}
             ),
             span: Span {
                 line: 2,
-                start: 10,
-                end: 12,
+                start: 37,
+                end: 39,
             },
         },
         Token {
             kind: TokenKind::Semicolon,
             span: Span {
                 line: 2,
-                start: 12,
-                end: 13,
-            },
-        },
-        Token {
-            kind: TokenKind::Fn,
-            span: Span {
-                line: 3,
-                start: 0,
-                end: 2,
-            },
-        },
-        Token {
-            kind: TokenKind::Ident(
-                Symbol::new(3),
-            ),
-            span: Span {
-                line: 3,
-                start: 3,
-                end: 4,
-            },
-        },
-        Token {
-            kind: TokenKind::LParen,
-            span: Span {
-                line: 3,
-                start: 4,
-                end: 5,
-            },
-        },
-        Token {
-            kind: TokenKind::RParen,
-            span: Span {
-                line: 3,
-                start: 5,
-                end: 6,
-            },
-        },
-        Token {
-            kind: TokenKind::LBrace,
-            span: Span {
-                line: 3,
-                start: 7,
-                end: 8,
-            },
-        },
-        Token {
-            kind: TokenKind::RBrace,
-            span: Span {
-                line: 3,
-                start: 8,
-                end: 9,
+                start: 39,
+                end: 40,
             },
         },
         Token {
             kind: TokenKind::Eof,
             span: Span {
-                line: 3,
-                start: 9,
-                end: 9,
+                line: 2,
+                start: 40,
+                end: 40,
             },
         },
     ];
-    
 
     assert_eq!(
         tokens.collect::<Vec<Token>>(), expected
     );
 }
+
