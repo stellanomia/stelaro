@@ -1,7 +1,7 @@
-use stelaro::仮;
+use stelaro::temp;
 
 fn main() {
-    仮(r#"
+    temp(r#"
 let str = "Hello, World!";
     print "";
 fn f() {}

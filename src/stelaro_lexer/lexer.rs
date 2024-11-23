@@ -9,6 +9,7 @@ pub struct Lexer<'src> {
     pos: u32,
     line: u32,
     col: u32,
+    // 処理を終了または中断するかを判定するため
     is_terminated: bool,
 }
 
@@ -68,6 +69,7 @@ impl<'src> Lexer<'src> {
     fn next_token(&mut self) -> Result<Token, LexerError> {
         self.skip_whitespace();
 
+        // 読み始めるトークンの最初の位置を保持しておくため
         let pos = self.pos;
         let col = self.col;
         let line = self.line;
@@ -183,6 +185,7 @@ impl<'src> Lexer<'src> {
             '"' => {
                 self.bump();
 
+                // 文字列リテラルの終端まで位置を進める
                 self.lex_str_lit(line, col)?;
 
                 TokenKind::Literal (
@@ -194,16 +197,19 @@ impl<'src> Lexer<'src> {
             },
             c if c.is_alphabetic() => {
                 self.bump();
+                // キーワード、Identifier、boolean値を解析する
                 self.lex_word(pos)?
             },
             '\0' => {
                 self.bump();
+                // 次の入力が存在しないため
                 self.is_terminated = true;
 
                 TokenKind::Eof
             }
             c => {
                 self.bump();
+                // 予期しない文字
                 self.is_terminated = true;
 
                 Err(

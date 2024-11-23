@@ -1,28 +1,70 @@
-use std::{cell::RefCell, path::PathBuf, rc::Rc};
+use std::io;
+use std::rc::Rc;
+use std::{cell::RefCell, fs, hash::{DefaultHasher, Hash, Hasher}, path::{Path, PathBuf}};
 
 pub struct SourceMap {
-    // TODO: 複数ファイル対応(filesに変更)
+    // TODO: 単一ファイルでコードが評価出来たら複数ファイル対応(files: SourceMapFilesに変更)
     file: RefCell<Rc<SourceFile>>,
-    file_loader: Box<FileLoader>
+    file_loader: FileLoader
 }
 
 impl SourceMap {
     pub fn new() -> Self {
-        todo!()
+        SourceMap {
+            file: Default::default(),
+            file_loader: FileLoader,
+        }
     }
 
-    pub fn load_file() -> Rc<SourceFile> {
-        todo!() 
+    pub fn load_file(&self, path: &Path) -> io::Result<Rc<SourceFile>> {
+        let src = self.file_loader.read_file(path)?;
+        let filename = path.to_owned();
+        Ok(self.new_source_file(filename, src))
+    }
+
+    pub fn new_source_file(&self, path: PathBuf, src: String) -> Rc<SourceFile> {
+        // 複数ファイルの場合、filesにこのpathから得たFileIdが存在しないか確認する
+        // 存在する場合、filesからRc<SourceFile>を取得し、
+        // 存在しない場合、SourceFile::new()し、filesにregisterする。
+        Rc::new(SourceFile::new(path, src))
     }
 }
 
-pub struct SourceFile {
-    pub name: PathBuf,
-    pub src: Rc<String>,
-}
 
 struct FileLoader;
 
 impl FileLoader {
+    pub fn file_exists(&self, path: &Path) -> bool {
+        path.exists()
+    }
 
+    fn read_file(&self, path: &Path) -> io::Result<String> {
+        fs::read_to_string(path)
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct SourceFile {
+    pub name: PathBuf,
+    pub src: Rc<String>,
+    pub file_id: FileId,
+}
+
+impl SourceFile {
+    pub fn new(name: PathBuf, src: String) -> Self {
+        let file_id = FileId::from_file_name(&name);
+
+        SourceFile { name, src: Rc::new(src), file_id }
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct FileId(u64);
+
+impl FileId {
+    pub fn from_file_name(filename: &Path) -> FileId {
+        let mut hasher = DefaultHasher::new();
+        filename.hash(&mut hasher);
+        FileId(hasher.finish())
+    }
 }

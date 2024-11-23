@@ -1,17 +1,17 @@
+use std::rc::Rc;
+
 use crate::stelaro_common::error_core::ErrorCore;
 
 #[derive(Debug, PartialEq)]
-pub struct LexerError(Box<ErrorCore>);
-
-impl From<LexerError> for ErrorCore {
-    fn from(value: LexerError) -> Self {
-        *value.0
-    }
-}
+pub struct LexerError(Rc<ErrorCore>);
 
 impl LexerError {
     fn new(core: ErrorCore) -> Self {
-        LexerError(Box::new(core))
+        LexerError(Rc::new(core))
+    }
+
+    pub fn core(&self) -> Rc<ErrorCore> {
+        Rc::clone(&self.0)
     }
 
     pub fn unexpected_character(line: u32, start: u32, end: u32, found: char) -> Self {

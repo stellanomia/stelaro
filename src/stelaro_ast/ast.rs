@@ -1,21 +1,31 @@
-use super::token::{Lit, LiteralKind};
+use crate::stelaro_common::span::Span;
+
+use super::token::Lit;
 
 
 pub struct Expr {
     id: NodeId,
     kind: ExprKind,
-    line: u32,
-    start: u32,
-    end: u32,
+    span: Span,
 }
 
 pub enum ExprKind {
-    Binary(BinOpKind, Box<Expr>, Box<Expr>),
-    Unary(BinOpKind, Box<Expr>, Box<Expr>),
+    Binary(BinOp, Box<Expr>, Box<Expr>),
+    Unary(UnOp, Box<Expr>),
     Lit(Lit),
     Return(Option<Box<Expr>>),
+
+    Assign(Box<Expr>, Box<Expr>, Span),
+    AssignOp(BinOp, Box<Expr>, Box<Expr>),
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct BinOp {
+    kind: BinOpKind,
+    span: Span,
+}
+
+#[derive(Debug, Clone, Copy)]
 pub enum BinOpKind {
     /// The `+` operator (addition)
     Add,
@@ -44,5 +54,14 @@ pub enum BinOpKind {
     /// The `>` operator (greater than)
     Gt
 }
+
+#[derive(Debug)]
+pub enum UnOp {
+    /// The `!` operator for logical inversion
+    Not,
+    /// The `-` operator for negation
+    Neg,
+}
+
 
 struct NodeId(u32);

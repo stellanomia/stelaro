@@ -1,4 +1,8 @@
-use stelaro::{stelaro_common::{span::Span, symbol::Symbol}, stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind}, stelaro_lexer::Lexer};
+use stelaro::{
+    stelaro_common::{span::Span, symbol::Symbol},
+    stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind},
+    stelaro_lexer::Lexer
+};
 
 #[test]
 fn test_complex_expression() {
