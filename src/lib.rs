@@ -21,5 +21,12 @@ pub fn temp(src: &str) {
         }
     };
 
-    let parser = Parser::new(token_stream);
+    let _parser = Parser::new(token_stream);
+}
+
+
+pub fn run() {
+    let _args = &std::env::args().collect::<Vec<String>>()[1..];
+
+    
 }

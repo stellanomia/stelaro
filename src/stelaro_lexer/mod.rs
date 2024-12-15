@@ -1,6 +1,6 @@
 pub mod cursor;
 pub mod lexer;
-mod errors;
+pub mod errors;
 
 pub use lexer::Lexer;
 
