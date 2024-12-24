@@ -64,6 +64,7 @@ impl Interner {
         let idx = inner.next_idx;
 
         // 安全: Internerが生きている間しかこの参照にアクセスできない
+        // また、&'static str は外部へ持ち込まれない
         // ライフタイムを'static に拡張
         let string: &'static str = unsafe {&*(string as *const str) };
 
