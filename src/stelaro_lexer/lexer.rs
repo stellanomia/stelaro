@@ -8,8 +8,8 @@ pub struct Lexer<'src> {
     src: &'src str,
     cursor: Cursor<'src>,
     pos: usize,
-    line: u32,
-    col: usize,
+    // line: u32,
+    // col: usize,
 }
 
 impl<'src> Lexer<'src> {
@@ -20,8 +20,8 @@ impl<'src> Lexer<'src> {
             src,
             cursor: Cursor::new(src),
             pos: 0,
-            line: 1,
-            col: 0,
+            // line: 1,
+            // col: 0,
         }
     }
 
@@ -51,10 +51,10 @@ impl<'src> Lexer<'src> {
 
         // 読み始めるトークンの最初の位置を保持しておくため
         let pos = self.pos;
-        let col = self.col;
-        let line = self.line;
+        // let col = self.col;
+        // let line = self.line;
 
-        let token_kind = match self.cursor.first() {
+        let token_kind = match self.first() {
             '(' => {
                 self.bump();
                 TokenKind::LParen
@@ -102,9 +102,9 @@ impl<'src> Lexer<'src> {
             '/' => {
                 self.bump();
 
-                if self.cursor.first() == '/' {
+                if self.first() == '/' {
                     self.bump();
-                    while self.cursor.first() != '\n' {
+                    while self.first() != '\n' {
                         self.bump();
                     }
                     TokenKind::LineComment
@@ -115,7 +115,7 @@ impl<'src> Lexer<'src> {
             '!' => {
                 self.bump();
 
-                if self.cursor.first() == '=' {
+                if self.first() == '=' {
                     self.bump();
                     TokenKind::BangEqual
                 }else {
@@ -125,7 +125,7 @@ impl<'src> Lexer<'src> {
             '=' => {
                 self.bump();
 
-                if self.cursor.first() == '=' {
+                if self.first() == '=' {
                     self.bump();
                     TokenKind::EqualEqual
                 }else {
@@ -135,7 +135,7 @@ impl<'src> Lexer<'src> {
             '>' => {
                 self.bump();
 
-                if self.cursor.first() == '=' {
+                if self.first() == '=' {
                     self.bump();
                     TokenKind::GreaterEqual
                 }else {
@@ -145,7 +145,7 @@ impl<'src> Lexer<'src> {
             '<' => {
                 self.bump();
 
-                if self.cursor.first() == '=' {
+                if self.first() == '=' {
                     self.bump();
                     TokenKind::LessEqual
                 }else {
@@ -154,7 +154,7 @@ impl<'src> Lexer<'src> {
             },
             ('0'..='9') => {
                 // LiteralKind::Integer, Floatのどちらかをとりうる
-                let lit_kind = self.lex_number(col)?;
+                let lit_kind = self.lex_number(pos)?;
                 TokenKind::Literal (
                     Lit {
                         kind: lit_kind,
@@ -166,7 +166,7 @@ impl<'src> Lexer<'src> {
                 self.bump();
 
                 // 文字列リテラルの終端まで位置を進める
-                self.lex_str_lit(line, col)?;
+                self.lex_str_lit(pos)?;
 
                 TokenKind::Literal (
                     Lit {
@@ -211,36 +211,24 @@ impl<'src> Lexer<'src> {
         )
     }
 
+    fn first(&self) -> char {
+        self.cursor.first()
+    }
+
     fn bump(&mut self) -> Option<char> {
-        let c = self.cursor.bump()?;
-
         self.pos += 1;
-        self.col += 1;
-
-        Some(c)
+        self.cursor.bump()
     }
 
     fn skip_whitespace(&mut self) {
-        while self.cursor.first().is_whitespace() {
-            match self.cursor.first() {
-                '\n' => {
-                    self.cursor.bump();
-                    self.pos += 1;
-                    self.col = 0;
-                    self.line += 1;
-                },
-                _ => {
-                    self.cursor.bump();
-                    self.pos += 1;
-                    self.col += 1;
-                }
-            }
+        while self.first().is_whitespace() {
+            self.bump();
         }
     }
 
     fn lex_number(&mut self, start: usize) -> Result<LiteralKind, ErrorEmitted> {
         // 最初に'.'が入力になることはない
-        if let '0'..='9' = self.cursor.first() {
+        if let '0'..='9' = self.first() {
             self.bump();
 
             let mut is_float = false;
@@ -292,7 +280,7 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    fn lex_str_lit(&mut self, line: u32, col: usize) -> Result<(), ErrorEmitted> {
+    fn lex_str_lit(&mut self, pos: usize) -> Result<(), ErrorEmitted> {
         loop {
             match self.cursor.first() {
                 '\\' => {
