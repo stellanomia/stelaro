@@ -24,6 +24,7 @@ impl Symbol {
     /// 注意: 返り値のライフタイムは&selfとは異なり、実際には
     /// 基礎となるインターナーのライフタイムに紐付いている
     /// インターナーは長命で、この関数は通常短命な用途で使用されるため、実際には問題ない
+    /// ※インターナーが参照する文字列が解放された後にこれを呼び出してはいけない
     pub fn as_str(&self) -> &str {
         INTERNER.with(|interner| {
             unsafe {std::mem::transmute::<&str, &str>(interner.get(*self))}
@@ -43,15 +44,7 @@ struct InternerInner {
 
 impl Interner {
     pub fn new() -> Self {
-        Interner(
-            RefCell::new(
-                InternerInner {
-                    strings: HashMap::with_capacity(1024),
-                    symbols: Vec::with_capacity(1024),
-                    next_idx: 0,
-                }
-            )
-        )
+        Interner::default()
     }
 
     pub fn intern(&self, string: &str) -> Symbol {
@@ -76,8 +69,22 @@ impl Interner {
         Symbol::new(idx)
     }
 
-    // symbolsに存在するSymbolでしかアクセスされない
     pub fn get(&self, idx: Symbol) -> &str {
+        // symbolsに存在するSymbolでしかアクセスされない
         self.0.borrow().symbols.get(idx.as_usize()).unwrap()
+    }
+}
+
+impl Default for Interner {
+    fn default() -> Self {
+        Interner(
+            RefCell::new(
+                InternerInner {
+                    strings: HashMap::with_capacity(1024),
+                    symbols: Vec::with_capacity(1024),
+                    next_idx: 0,
+                }
+            )
+        )
     }
 }

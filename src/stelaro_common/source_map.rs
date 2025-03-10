@@ -30,6 +30,12 @@ impl SourceMap {
     }
 }
 
+impl Default for SourceMap {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 
 struct FileLoader;
 

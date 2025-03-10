@@ -1,13 +1,14 @@
+use std::ops::Range;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Span {
-    pub line: u32,
-    pub start: u32,
-    pub end: u32,
+    pub start: usize,
+    pub end: usize,
 }
 
 impl Span {
     pub fn len(&self) -> usize {
-        (self.end - self.start) as usize
+        self.end - self.start
     }
 
     pub fn is_empty(&self) -> bool {
@@ -19,9 +20,19 @@ impl Span {
         Self {
             start: self.start.min(other.start),
             end: self.end.max(other.end),
-            // 開始行をlineとする
-            line: self.line,
         }
     }
+}
 
+
+impl From<Range<usize>> for Span {
+    fn from(value: Range<usize>) -> Self {
+        Span { start: value.start, end: value.end }
+    }
+}
+
+impl From<Span> for Range<usize> {
+    fn from(value: Span) -> Self {
+        value.start..value.end
+    }
 }

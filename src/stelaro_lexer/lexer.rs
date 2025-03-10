@@ -1,16 +1,15 @@
 use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
 use crate::stelaro_common::{span::Span, Symbol};
+use crate::stelaro_diagnostic::diag::ErrorEmitted;
 
-use super::{cursor::Cursor, errors::LexerError};
+use super::cursor::Cursor;
 
 pub struct Lexer<'src> {
     src: &'src str,
     cursor: Cursor<'src>,
-    pos: u32,
+    pos: usize,
     line: u32,
-    col: u32,
-    // 処理を終了または中断するかを判定するため
-    is_terminated: bool,
+    col: usize,
 }
 
 impl<'src> Lexer<'src> {
@@ -23,50 +22,31 @@ impl<'src> Lexer<'src> {
             pos: 0,
             line: 1,
             col: 0,
-            is_terminated: false,
         }
     }
 
-    pub fn lex(&mut self) -> Result<TokenStream, Vec<LexerError>> {
+    pub fn lex(&mut self) -> Result<TokenStream, ErrorEmitted> {
         let mut ts = TokenStream::empty();
-        let mut errors: Vec<LexerError> = Vec::new();
 
         loop {
             match self.next_token() {
                 Ok(token) => {
                     ts.push(token);
-                },
+
+                    if token.kind == TokenKind::Eof {
+                        break;
+                    }
+                }
                 Err(e) => {
-                    errors.push(e);
-                },
-            }
-
-            if self.is_terminated {
-                break;
+                    return Err(e);
+                }
             }
         }
-
-        if !errors.is_empty() {
-            return Err(errors);
-        }
-
-        if !self.cursor.is_eof() {
-            let remaining = &self.src[self.pos as usize..];
-            errors.push(
-                LexerError::unconsumed_input(
-                    self.line,
-                    self.col,
-                    remaining
-                )
-            );
-            return Err(errors);
-        }
-
 
         Ok(ts)
     }
 
-    fn next_token(&mut self) -> Result<Token, LexerError> {
+    fn next_token(&mut self) -> Result<Token, ErrorEmitted> {
         self.skip_whitespace();
 
         // 読み始めるトークンの最初の位置を保持しておくため
@@ -178,7 +158,7 @@ impl<'src> Lexer<'src> {
                 TokenKind::Literal (
                     Lit {
                         kind: lit_kind,
-                        symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize])
+                        symbol: Symbol::intern(&self.src[pos..self.pos])
                     }
                 )
             },
@@ -191,7 +171,7 @@ impl<'src> Lexer<'src> {
                 TokenKind::Literal (
                     Lit {
                         kind: LiteralKind::Str,
-                        symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize])
+                        symbol: Symbol::intern(&self.src[pos..self.pos])
                     }
                 )
             },
@@ -202,24 +182,21 @@ impl<'src> Lexer<'src> {
             },
             '\0' => {
                 self.bump();
-                // 次の入力が存在しないため
-                self.is_terminated = true;
 
                 TokenKind::Eof
             }
             c => {
                 self.bump();
-                // 予期しない文字
-                self.is_terminated = true;
 
-                Err(
-                    LexerError::unexpected_character(
-                        line,
-                        col,
-                        self.col,
-                        c,
-                    )
-                )?
+                // Err(
+                //     LexerError::unexpected_character(
+                //         line,
+                //         col,
+                //         self.col,
+                //         c,
+                //     )
+                // )?
+                todo!()
             },
         };
 
@@ -227,7 +204,6 @@ impl<'src> Lexer<'src> {
             Token {
                 kind: token_kind,
                 span: Span {
-                    line,
                     start: pos,
                     end: self.pos,
                 }
@@ -262,7 +238,7 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    fn lex_number(&mut self, start: u32) -> Result<LiteralKind, LexerError> {
+    fn lex_number(&mut self, start: usize) -> Result<LiteralKind, ErrorEmitted> {
         // 最初に'.'が入力になることはない
         if let '0'..='9' = self.cursor.first() {
             self.bump();
@@ -275,15 +251,16 @@ impl<'src> Lexer<'src> {
                         self.bump();
                     },
                     '.' => {
-                        if is_float {
-                            Err(
-                                LexerError::invalid_float_format(
-                                    self.line,
-                                    start,
-                                    self.col,
-                                )
-                            )?
-                        }
+                        // if is_float {
+                        //     Err(
+                        //         LexerError::invalid_float_format(
+                        //             self.line,
+                        //             start,
+                        //             self.col,
+                        //         )
+                        //     )?
+                        // }
+                        todo!();
 
                         is_float = true;
                         self.bump();
@@ -295,13 +272,14 @@ impl<'src> Lexer<'src> {
 
             //最後の入力が'.'である(e.g. "123.")
             if self.cursor.prev == '.' {
-                Err(
-                    LexerError::missing_fractional_part(
-                        self.line,
-                        start,
-                        self.col
-                    )
-                )?
+                // Err(
+                //     LexerError::missing_fractional_part(
+                //         self.line,
+                //         start,
+                //         self.col
+                //     )
+                // )?
+                todo!()
             }
 
             if is_float {
@@ -314,7 +292,7 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    fn lex_str_lit(&mut self, line: u32, col: u32) -> Result<(), LexerError> {
+    fn lex_str_lit(&mut self, line: u32, col: usize) -> Result<(), ErrorEmitted> {
         loop {
             match self.cursor.first() {
                 '\\' => {
@@ -325,14 +303,14 @@ impl<'src> Lexer<'src> {
                         },
                         _ => {
                             self.bump();
-                            self.is_terminated = true;
-                            Err(
-                                LexerError::invalid_escape_sequence(
-                                    line,
-                                    col,
-                                    self.col,
-                                )
-                            )?
+                            // Err(
+                            //     LexerError::invalid_escape_sequence(
+                            //         line,
+                            //         col,
+                            //         self.col,
+                            //     )
+                            // )?
+                            todo!()
                         }
 
                     }
@@ -343,17 +321,17 @@ impl<'src> Lexer<'src> {
                 },
                 '\n' => {
                     self.bump();
-                    self.is_terminated = true;
 
                     // 通常の文字列リテラル中に改行が見つかった場合はエラー
-                    Err(
-                        LexerError::unterminated_string_literal(
-                            line,
-                            col,
-                            //改行文字の次の文字を指さないように -1 しておく
-                            self.col-1,
-                        )
-                    )?
+                    // Err(
+                    //     LexerError::unterminated_string_literal(
+                    //         line,
+                    //         col,
+                    //         //改行文字の次の文字を指さないように -1 しておく
+                    //         self.col-1,
+                    //     )
+                    // )?
+                    todo!()
                 }
                 _ => {
                     self.bump();
@@ -362,13 +340,13 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    fn lex_word(&mut self, pos: u32 ) -> Result<TokenKind, LexerError> {
+    fn lex_word(&mut self, pos: usize) -> Result<TokenKind, ErrorEmitted> {
 
         while matches!(self.cursor.first(), c if c.is_alphabetic() || c == '_' || c.is_numeric()) {
             self.bump();
         }
 
-        let keyword_or_ident = &self.src[pos as usize..self.pos as usize];
+        let keyword_or_ident = &self.src[pos..self.pos];
 
         Ok(
             match self.as_keyword(keyword_or_ident) {
@@ -378,14 +356,14 @@ impl<'src> Lexer<'src> {
                         TokenKind::Literal (
                             Lit {
                                 kind: LiteralKind::Bool(true),
-                                symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize]),
+                                symbol: Symbol::intern(&self.src[pos..self.pos]),
                             }
                         )
                     } else if keyword_or_ident == "false" {
                         TokenKind::Literal (
                             Lit {
                                 kind: LiteralKind::Bool(false),
-                                symbol: Symbol::intern(&self.src[pos as usize..self.pos as usize]),
+                                symbol: Symbol::intern(&self.src[pos..self.pos]),
                             }
                         )
                     }else {
