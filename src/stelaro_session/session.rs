@@ -1,17 +1,16 @@
 use std::rc::Rc;
 
-use crate::stelaro_common::source_map::SourceMap;
+use crate::{stelaro_common::source_map::SourceMap, stelaro_diagnostic::DiagCtxt};
 
 
 pub struct Session {
     source_map: Rc<SourceMap>,
+    dcx: DiagCtxt,
 }
 
 impl Session {
-    pub fn new() -> Self {
-        let source_map = Rc::new(SourceMap::new());
-
-        Self { source_map }
+    pub fn new(dcx: DiagCtxt, source_map: Rc<SourceMap>) -> Self {
+        Self { source_map, dcx }
     }
 
     pub fn source_map(&self) -> &SourceMap {

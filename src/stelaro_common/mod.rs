@@ -1,4 +1,3 @@
-pub mod error_core;
 pub mod symbol;
 pub mod span;
 pub mod source_map;

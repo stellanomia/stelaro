@@ -75,18 +75,13 @@ pub enum TokenKind {
 
     Eof,
 
-    Question, // 分からない
 }
 
 impl Token {
     pub fn dummy() -> Self{
         Self {
-            kind: TokenKind::Question,
-            span: Span {
-                line: 1,
-                start: 0,
-                end: 0
-            },
+            kind: TokenKind::Eof, // 便宜上EOFとする
+            span: (0..0).into()
         }
     }
 }
@@ -150,16 +145,12 @@ impl TokenStream {
         self.0.len()
     }
 
-    pub fn current_line(&self) -> Option<u32> {
-        self.peek().map(|t| t.span.line)
-    }
-
     pub fn check(&self, kind: TokenKind) -> bool {
-        self.peek().map_or(false, |t| t.kind == kind)
+        self.peek().is_some_and(|t| t.kind == kind)
     }
 
     pub fn check_nth(&self, n: usize, kind: TokenKind) -> bool {
-        self.peek_nth(n).map_or(false, |t| t.kind == kind)
+        self.peek_nth(n).is_some_and(|t| t.kind == kind)
     }
 
     pub fn match_token(&mut self, kind: TokenKind) -> bool {

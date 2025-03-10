@@ -2,7 +2,6 @@ use crate::stelaro_common::span::Span;
 
 use super::token::Lit;
 
-
 pub struct Expr {
     id: NodeId,
     kind: ExprKind,
@@ -27,39 +26,39 @@ pub struct BinOp {
 
 #[derive(Debug, Clone, Copy)]
 pub enum BinOpKind {
-    /// The `+` operator (addition)
+    /// `+` 演算子 (addition)
     Add,
-    /// The `-` operator (subtraction)
+    /// `-` 演算子 (subtraction)
     Sub,
-    /// The `*` operator (multiplication)
+    /// `*` 演算子 (multiplication)
     Mul,
-    /// The `/` operator (division)
+    /// `/` 演算子 (division)
     Div,
-    /// The `%` operator (modulus)
+    /// `%` 演算子 (modulus)
     Mod,
-    /// The `and` operator (logical and)
+    /// `and` 演算子 (logical and)
     And,
-    /// The `or` operator (logical or)
+    /// `or` 演算子 (logical or)
     Or,
-    /// The `==` operator (equality)
+    /// `==` 演算子 (equality)
     Eq,
-    /// The `<` operator (less than)
+    /// `<` 演算子 (less than)
     Lt,
-    /// The `<=` operator (less than or equal to)
+    /// `<=` 演算子 (less than or equal to)
     Le,
-    /// The `!=` operator (not equal to)
+    /// `!=` 演算子 (not equal to)
     Ne,
-    /// The `>=` operator (greater than or equal to)
+    /// `>=` 演算子 (greater than or equal to)
     Ge,
-    /// The `>` operator (greater than)
+    /// `>` 演算子 (greater than)
     Gt
 }
 
 #[derive(Debug)]
 pub enum UnOp {
-    /// The `!` operator for logical inversion
+    ///  `!` 演算子: 論理反転
     Not,
-    /// The `-` operator for negation
+    ///  `-` 演算子 負の値
     Neg,
 }
 

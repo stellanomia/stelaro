@@ -1,2 +1,2 @@
 # steralo
-An interpreter written in Rust.
+An compiler written in Rust.

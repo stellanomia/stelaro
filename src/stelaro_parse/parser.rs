@@ -1,5 +1,4 @@
-use crate::stelaro_ast::token::{Token, TokenStream};
-use super::errors::ParseError;
+use crate::{stelaro_ast::token::{Token, TokenStream}, stelaro_diagnostic::diag::ErrorEmitted};
 
 
 pub struct Parser {
@@ -27,7 +26,4 @@ impl Parser {
 
     }
 
-    pub fn expect(&mut self, token: &Token) -> Result<(), ParseError> {
-        todo!()
-    }
 }

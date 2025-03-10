@@ -94,7 +94,6 @@ let str = "Hello, World!";
         Token {
             kind: TokenKind::Let,
             span: Span {
-                line: 1,
                 start: 0,
                 end: 3,
             },
@@ -104,7 +103,6 @@ let str = "Hello, World!";
                 Symbol::new(0),
             ),
             span: Span {
-                line: 1,
                 start: 4,
                 end: 7,
             },
@@ -112,7 +110,6 @@ let str = "Hello, World!";
         Token {
             kind: TokenKind::Equal,
             span: Span {
-                line: 1,
                 start: 8,
                 end: 9,
             },
@@ -125,7 +122,6 @@ let str = "Hello, World!";
                 }
             ),
             span: Span {
-                line: 1,
                 start: 10,
                 end: 25,
             },
@@ -133,7 +129,6 @@ let str = "Hello, World!";
         Token {
             kind: TokenKind::Semicolon,
             span: Span {
-                line: 1,
                 start: 25,
                 end: 26,
             },
@@ -141,7 +136,6 @@ let str = "Hello, World!";
         Token {
             kind: TokenKind::Print,
             span: Span {
-                line: 2,
                 start: 31,
                 end: 36,
             },
@@ -154,7 +148,6 @@ let str = "Hello, World!";
                 }
             ),
             span: Span {
-                line: 2,
                 start: 37,
                 end: 39,
             },
@@ -162,7 +155,6 @@ let str = "Hello, World!";
         Token {
             kind: TokenKind::Semicolon,
             span: Span {
-                line: 2,
                 start: 39,
                 end: 40,
             },
@@ -170,7 +162,6 @@ let str = "Hello, World!";
         Token {
             kind: TokenKind::Eof,
             span: Span {
-                line: 2,
                 start: 40,
                 end: 40,
             },
