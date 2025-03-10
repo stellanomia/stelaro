@@ -18,7 +18,7 @@ pub trait EmissionGuarantee: Sized {
 }
 
 #[derive(Debug)]
-pub enum Fatal {}
+pub enum FatalError {}
 
 impl EmissionGuarantee for ErrorEmitted {
     fn emit_producing_guarantee(diag: Diag<'_, Self>) -> Self::EmitResult {
@@ -27,8 +27,8 @@ impl EmissionGuarantee for ErrorEmitted {
 }
 
 /// 致命的エラーは発散する（プログラムを終了）
-impl EmissionGuarantee for Fatal {
-    type EmitResult = !;  // never型で戻らないことを表現
+impl EmissionGuarantee for FatalError {
+    type EmitResult = !;
 
     fn emit_producing_guarantee(diag: Diag<'_, Self>) -> ! {
         diag.emit_producing_nothing();
@@ -105,7 +105,7 @@ impl Deref for DiagCtxtHandle<'_> {
 
 #[derive(Debug)]
 pub enum Level {
-    Fatal,
+    FatalError,
     Error,
     Warning,
     Help,
@@ -124,7 +124,7 @@ impl<'a> DiagCtxtHandle<'a> {
         Diag::new(self, span, Level::Help)
     }
 
-    pub fn struct_fatal(self, span: Span) -> Diag<'a, Fatal> {
+    pub fn struct_fatal(self, span: Span) -> Diag<'a, FatalError> {
         Diag::new(self, span, Level::Help)
     }
 
@@ -217,6 +217,6 @@ fn level_to_ariadne_kind(level: Level) -> ariadne::ReportKind<'static> {
         Level::Error => ariadne::ReportKind::Error,
         Level::Warning => ariadne::ReportKind::Warning,
         Level::Help => ariadne::ReportKind::Advice,
-        Level::Fatal => ariadne::ReportKind::Custom("fatal", ariadne::Color::BrightRed),
+        Level::FatalError => ariadne::ReportKind::Custom("fatal", ariadne::Color::BrightRed),
     }
 }
