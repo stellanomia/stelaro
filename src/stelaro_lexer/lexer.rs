@@ -212,6 +212,10 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
         self.cursor.first()
     }
 
+    fn prev(&self) -> char {
+        self.cursor.prev
+    }
+
     fn bump(&mut self) -> Option<char> {
         self.pos += 1;
         self.cursor.bump()
@@ -252,7 +256,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             }
 
             //最後の入力が'.'である(e.g. "123.")
-            if self.cursor.prev == '.' {
+            if self.prev() == '.' {
                 Err(
                     DiagsLexer::missing_fractional_part(
                         self.sess.dcx(),
