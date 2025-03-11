@@ -27,7 +27,7 @@ fn main() {
 
     let sess = &create_sess(src.to_string());
 
-    let mut lexer = Lexer::new(src, sess);
+    let mut lexer = Lexer::new(sess, src);
 
     let tokens = lexer.lex().unwrap();
 
@@ -98,7 +98,7 @@ let str = "Hello, World!";
 "#.trim().to_string();
 
     let sess = &create_sess(src.to_string());
-    let mut lexer = Lexer::new(&src, sess);
+    let mut lexer = Lexer::new(sess, &src);
 
 
     let tokens = lexer.lex().unwrap();

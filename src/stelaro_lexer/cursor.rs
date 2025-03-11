@@ -24,11 +24,11 @@ impl<'a> Cursor<'a> {
     }
 
     // 入力から2つ次の文字を読み取る。
-    pub fn second(&self) -> char {
-        let mut chars = self.chars.clone();
-        chars.next();
-        chars.next().unwrap_or(EOF_CHAR)
-    }
+    // pub fn second(&self) -> char {
+    //     let mut chars = self.chars.clone();
+    //     chars.next();
+    //     chars.next().unwrap_or(EOF_CHAR)
+    // }
 
     //入力文字を一つ進める
     pub fn bump(&mut self) -> Option<char> {

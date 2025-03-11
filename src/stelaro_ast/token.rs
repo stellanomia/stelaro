@@ -133,10 +133,6 @@ impl TokenStream {
         self.0.get(n)
     }
 
-    pub fn next(&mut self) -> Option<Token> {
-        self.0.pop_front()
-    }
-
     pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
