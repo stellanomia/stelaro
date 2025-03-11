@@ -1,2 +1,2 @@
 # steralo
-An compiler written in Rust.
+An compiler written in Rust.(WIP)
