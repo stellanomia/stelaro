@@ -1,4 +1,4 @@
-use std::{marker::PhantomData, ops::Deref, rc::Rc};
+use std::{marker::PhantomData, ops::Deref, process, rc::Rc};
 
 use ariadne::{Label, Report, Source};
 
@@ -125,6 +125,11 @@ impl<'a> DiagCtxtHandle<'a> {
 
     pub fn struct_fatal(self, span: Span) -> Diag<'a, FatalError> {
         Diag::new(self, span, Level::Help)
+    }
+
+    pub fn emit_fatal(self, msg: String) -> ! {
+        format!("\x1b[31merror:\x1b[0m {}", msg);
+        process::exit(1)
     }
 
     fn emit_diagnostic(&self, diag: DiagInner) -> Option<ErrorEmitted> {

@@ -15,8 +15,8 @@ pub struct Lexer<'src , 'sess> {
 
 impl<'src, 'sess> Lexer<'src, 'sess> {
     pub fn new(
+        sess: &'sess Session,
         src: &'src str,
-        sess: &'sess Session
     ) -> Self {
         Self {
             src,
@@ -220,10 +220,6 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
 
     fn first(&self) -> char {
         self.cursor.first()
-    }
-
-    fn second(&self) -> char {
-        self.cursor.second()
     }
 
     fn prev(&self) -> char {

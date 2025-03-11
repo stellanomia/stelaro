@@ -5,17 +5,20 @@ use parser::Parser;
 use crate::{stelaro_diagnostic::diag::ErrorEmitted, stelaro_lexer::Lexer, stelaro_session::Session};
 
 pub mod parser;
+mod diagnostics;
+mod expr;
 
-pub fn new_parser_from_file<'a>(sess: &'a Session, path: &Path) -> Result<Parser, ErrorEmitted>{
+type PResult<T> = Result<T, ErrorEmitted>;
+
+pub fn new_parser_from_file<'sess>(sess: &'sess Session, path: &Path) -> Result<Parser<'sess>, ErrorEmitted> {
     let file = sess.source_map().load_file(path).unwrap_or_else(|e| {
-
-        todo!()
+        sess.dcx().emit_fatal(format!("{e}"));
     });
 
-    let mut lexer = Lexer::new(file.src.as_ref(), sess);
+    let mut lexer = Lexer::new(sess, file.src.as_ref(),);
 
     match lexer.lex() {
-        Ok(ts) => Ok(Parser::new(ts)),
+        Ok(ts) => Ok(Parser::new(sess, ts)),
         Err(errs) => Err(errs)?,
     }
 }

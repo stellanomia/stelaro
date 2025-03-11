@@ -22,7 +22,7 @@ pub fn temp(src: String) {
     let dcx = DiagCtxt::new(Rc::clone(&src));
     let source_map = Rc::new(SourceMap::new());
     let sess = Session::new(dcx, source_map);
-    let mut lexer = Lexer::new(src.as_str(), &sess);
+    let mut lexer = Lexer::new(&sess, &src);
     let token_stream = match lexer.lex() {
         Ok(ts) => {
             // dbg!(&ts);
@@ -33,7 +33,7 @@ pub fn temp(src: String) {
         }
     };
 
-    let _parser = Parser::new(token_stream);
+    let _parser = Parser::new(&sess, token_stream);
 }
 
 
