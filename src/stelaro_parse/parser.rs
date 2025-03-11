@@ -1,5 +1,3 @@
-use std::mem;
-
 use crate::{stelaro_ast::token::{Token, TokenStream}, stelaro_session::Session};
 
 pub struct Parser<'sess> {
