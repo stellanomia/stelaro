@@ -1,4 +1,3 @@
-
 use std::{marker::PhantomData, ops::Deref, rc::Rc};
 
 use ariadne::{Label, Report, Source};

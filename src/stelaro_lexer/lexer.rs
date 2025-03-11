@@ -1,27 +1,28 @@
 use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
 use crate::stelaro_common::{span::Span, Symbol};
 use crate::stelaro_diagnostic::diag::ErrorEmitted;
+use crate::stelaro_session::Session;
 
-use super::cursor::Cursor;
+use super::cursor::{Cursor, EOF_CHAR};
+use super::diagnostics::DiagsLexer;
 
-pub struct Lexer<'src> {
+pub struct Lexer<'src , 'sess> {
     src: &'src str,
     cursor: Cursor<'src>,
     pos: usize,
-    // line: u32,
-    // col: usize,
+    sess: &'sess Session,
 }
 
-impl<'src> Lexer<'src> {
+impl<'src, 'sess> Lexer<'src, 'sess> {
     pub fn new(
         src: &'src str,
+        sess: &'sess Session
     ) -> Self {
         Self {
             src,
             cursor: Cursor::new(src),
             pos: 0,
-            // line: 1,
-            // col: 0,
+            sess,
         }
     }
 
@@ -49,10 +50,8 @@ impl<'src> Lexer<'src> {
     fn next_token(&mut self) -> Result<Token, ErrorEmitted> {
         self.skip_whitespace();
 
-        // 読み始めるトークンの最初の位置を保持しておくため
+        // 読み始めるトークンの最初の位置を保持する
         let pos = self.pos;
-        // let col = self.col;
-        // let line = self.line;
 
         let token_kind = match self.first() {
             '(' => {
@@ -180,7 +179,7 @@ impl<'src> Lexer<'src> {
                 // キーワード、Identifier、boolean値を解析する
                 self.lex_word(pos)?
             },
-            '\0' => {
+            EOF_CHAR => {
                 self.bump();
 
                 TokenKind::Eof
@@ -188,15 +187,13 @@ impl<'src> Lexer<'src> {
             c => {
                 self.bump();
 
-                // Err(
-                //     LexerError::unexpected_character(
-                //         line,
-                //         col,
-                //         self.col,
-                //         c,
-                //     )
-                // )?
-                todo!()
+                Err(
+                    DiagsLexer::unexpected_character(
+                        self.sess.dcx(),
+                        c,
+                        (pos..pos+1).into()
+                    ).emit()
+                )?
             },
         };
 
@@ -226,48 +223,42 @@ impl<'src> Lexer<'src> {
         }
     }
 
-    fn lex_number(&mut self, start: usize) -> Result<LiteralKind, ErrorEmitted> {
-        // 最初に'.'が入力になることはない
+    fn lex_number(&mut self, pos: usize) -> Result<LiteralKind, ErrorEmitted> {
         if let '0'..='9' = self.first() {
             self.bump();
 
             let mut is_float = false;
 
-            while let c @ ('0'..='9') | c@ '.' = self.cursor.first() {
+            while let c @ ('0'..='9') | c@ '.' = self.first() {
                 match c {
                     '0'..='9' => {
                         self.bump();
                     },
                     '.' => {
-                        // if is_float {
-                        //     Err(
-                        //         LexerError::invalid_float_format(
-                        //             self.line,
-                        //             start,
-                        //             self.col,
-                        //         )
-                        //     )?
-                        // }
-                        todo!();
+                        if is_float {
+                            Err(
+                                DiagsLexer::invalid_float_format(
+                                    self.sess.dcx(),
+                                    (pos..self.pos).into()
+                                ).emit()
+                            )?
+                        }
 
                         is_float = true;
                         self.bump();
                     },
                     _ => unreachable!()
                 }
-
             }
 
             //最後の入力が'.'である(e.g. "123.")
             if self.cursor.prev == '.' {
-                // Err(
-                //     LexerError::missing_fractional_part(
-                //         self.line,
-                //         start,
-                //         self.col
-                //     )
-                // )?
-                todo!()
+                Err(
+                    DiagsLexer::missing_fractional_part(
+                        self.sess.dcx(),
+                        (pos..self.pos).into(),
+                    ).emit()
+                )?
             }
 
             if is_float {
@@ -276,29 +267,29 @@ impl<'src> Lexer<'src> {
                 Ok(LiteralKind::Integer)
             }
         } else {
+            // 最初に'.'が入力になることはない
             unreachable!()
         }
     }
 
     fn lex_str_lit(&mut self, pos: usize) -> Result<(), ErrorEmitted> {
         loop {
-            match self.cursor.first() {
+            match self.first() {
                 '\\' => {
                     self.bump();
-                    match self.cursor.first() {
+                    match self.first() {
                         'n' | 'r' | 't' | '0' | '\'' | '"' | '\\' => {
                             self.bump();
                         },
                         _ => {
                             self.bump();
-                            // Err(
-                            //     LexerError::invalid_escape_sequence(
-                            //         line,
-                            //         col,
-                            //         self.col,
-                            //     )
-                            // )?
-                            todo!()
+                            Err(
+                                DiagsLexer::invalid_escape_sequence(
+                                    self.sess.dcx(),
+                                    self.first(),
+                                    (pos..self.pos).into()
+                                ).emit()
+                            )?
                         }
 
                     }
@@ -311,15 +302,12 @@ impl<'src> Lexer<'src> {
                     self.bump();
 
                     // 通常の文字列リテラル中に改行が見つかった場合はエラー
-                    // Err(
-                    //     LexerError::unterminated_string_literal(
-                    //         line,
-                    //         col,
-                    //         //改行文字の次の文字を指さないように -1 しておく
-                    //         self.col-1,
-                    //     )
-                    // )?
-                    todo!()
+                    Err(
+                        DiagsLexer::unterminated_string_literal(
+                            self.sess.dcx(),
+                            (pos..self.pos-1).into()
+                        ).emit()
+                    )?
                 }
                 _ => {
                     self.bump();
@@ -329,8 +317,8 @@ impl<'src> Lexer<'src> {
     }
 
     fn lex_word(&mut self, pos: usize) -> Result<TokenKind, ErrorEmitted> {
-
-        while matches!(self.cursor.first(), c if c.is_alphabetic() || c == '_' || c.is_numeric()) {
+        // アンダースコア、数字がここに来ることはない
+        while matches!(self.first(), c if c.is_alphabetic() || c == '_' || c.is_numeric()) {
             self.bump();
         }
 

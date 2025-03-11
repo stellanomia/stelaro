@@ -1,12 +1,20 @@
+use std::rc::Rc;
+
 use stelaro::{
-    stelaro_common::{span::Span, symbol::Symbol},
-    stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind},
-    stelaro_lexer::Lexer
+    stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind}, stelaro_common::{source_map::SourceMap, span::Span, symbol::Symbol}, stelaro_diagnostic::DiagCtxt, stelaro_lexer::Lexer, stelaro_session::Session
 };
+
+fn create_sess(src: String) -> Session {
+    let src = Rc::new(src);
+    let dcx = DiagCtxt::new(Rc::clone(&src));
+    let source_map = Rc::new(SourceMap::new());
+    Session::new(dcx, source_map)
+}
+
 
 #[test]
 fn test_complex_expression() {
-    let input = r#"
+    let src = r#"
 fn main() {
     let x = 42.0;
     if x > 10 {
@@ -17,7 +25,9 @@ fn main() {
 }
 "#.trim();
 
-    let mut lexer = Lexer::new(input);
+    let sess = &create_sess(src.to_string());
+
+    let mut lexer = Lexer::new(src, sess);
 
     let tokens = lexer.lex().unwrap();
 
@@ -82,12 +92,14 @@ fn main() {
 
 #[test]
 fn test_token_pos() {
-    let input = r#"
+    let src = r#"
 let str = "Hello, World!";
     print "";
-"#.trim();
+"#.trim().to_string();
 
-    let mut lexer = Lexer::new(input);
+    let sess = &create_sess(src.to_string());
+    let mut lexer = Lexer::new(&src, sess);
+
 
     let tokens = lexer.lex().unwrap();
     let expected = vec![
