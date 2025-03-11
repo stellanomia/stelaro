@@ -25,11 +25,10 @@ pub fn temp(src: String) {
     let mut lexer = Lexer::new(src.as_str(), &sess);
     let token_stream = match lexer.lex() {
         Ok(ts) => {
-            dbg!(&ts);
+            // dbg!(&ts);
             ts
         },
-        Err(errors) => {
-            dbg!(errors);
+        Err(_) => {
             todo!()
         }
     };
