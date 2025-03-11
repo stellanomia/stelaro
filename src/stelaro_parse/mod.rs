@@ -12,7 +12,7 @@ pub fn new_parser_from_file<'a>(sess: &'a Session, path: &Path) -> Result<Parser
         todo!()
     });
 
-    let mut lexer = Lexer::new(file.src.as_ref());
+    let mut lexer = Lexer::new(file.src.as_ref(), sess);
 
     match lexer.lex() {
         Ok(ts) => Ok(Parser::new(ts)),

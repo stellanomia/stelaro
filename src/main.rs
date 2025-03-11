@@ -5,5 +5,5 @@ fn main() {
 let str = "Hello, World!";
     print "";
 fn f() {}
-"#.trim());
+"#.trim().to_string());
 }

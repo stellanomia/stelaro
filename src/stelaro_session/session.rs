@@ -1,11 +1,11 @@
 use std::rc::Rc;
 
-use crate::{stelaro_common::source_map::SourceMap, stelaro_diagnostic::DiagCtxt};
+use crate::{stelaro_common::source_map::SourceMap, stelaro_diagnostic::{diag::DiagCtxtHandle, DiagCtxt}};
 
 
 pub struct Session {
-    source_map: Rc<SourceMap>,
     dcx: DiagCtxt,
+    pub source_map: Rc<SourceMap>,
 }
 
 impl Session {
@@ -19,5 +19,9 @@ impl Session {
 
     pub fn source_map_clone(&self) -> Rc<SourceMap> {
         Rc::clone(&self.source_map)
+    }
+
+    pub fn dcx(&self) -> DiagCtxtHandle<'_> {
+        self.dcx.handle()
     }
 }
