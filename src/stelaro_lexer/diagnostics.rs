@@ -59,8 +59,45 @@ impl<'dcx> DiagsLexer {
     ) -> Diag<'dcx, ErrorEmitted> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(104);
-        diag.set_message("閉じられていない文字列".to_string());
+        diag.set_message("閉じられていない文字列リテラル".to_string());
         diag.set_label(span, "文字列が閉じられていません".to_string());
+
+        diag
+    }
+
+    pub fn unexpected_quote (
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(105);
+        diag.set_message("予期しない`'`".to_string());
+        diag.set_label(span, "不正な`'`が見つかりました".to_string());
+
+        diag
+    }
+
+    pub fn unterminated_char_literal (
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(106);
+        diag.set_message("閉じられていない文字リテラル".to_string());
+        diag.set_label(span, "文字リテラルが閉じられていません".to_string());
+
+        diag
+    }
+
+    pub fn multiple_characters_in_char_literal (
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(107);
+        diag.set_message("無効な複数文字の文字リテラル".to_string());
+        diag.set_label(span, "文字リテラルに複数の文字が含まれています".to_string());
+        diag.set_help("一文字にするか、文字列に変更してください".to_string());
 
         diag
     }
