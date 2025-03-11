@@ -2,6 +2,7 @@ use std::str::Chars;
 
 pub const EOF_CHAR: char = '\0';
 
+#[derive(Debug, Clone)]
 pub struct Cursor<'a> {
     chars: Chars<'a>,
     pub prev: char,
@@ -27,10 +28,6 @@ impl<'a> Cursor<'a> {
         let mut chars = self.chars.clone();
         chars.next();
         chars.next().unwrap_or(EOF_CHAR)
-    }
-
-    pub fn is_eof(&self) -> bool {
-        self.chars.as_str().is_empty()
     }
 
     //入力文字を一つ進める

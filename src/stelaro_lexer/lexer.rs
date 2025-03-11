@@ -174,6 +174,16 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                     }
                 )
             },
+            '\'' => {
+                self.bump();
+                let symbol = self.lex_char_lit(pos)?;
+                TokenKind::Literal(
+                    Lit {
+                        kind: LiteralKind::Char,
+                        symbol
+                    }
+                )
+            }
             c if c.is_alphabetic() => {
                 self.bump();
                 // キーワード、Identifier、boolean値を解析する
@@ -210,6 +220,10 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
 
     fn first(&self) -> char {
         self.cursor.first()
+    }
+
+    fn second(&self) -> char {
+        self.cursor.second()
     }
 
     fn prev(&self) -> char {
@@ -276,33 +290,41 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
         }
     }
 
+    fn lex_escape_sequence(&mut self) -> Result<(), ErrorEmitted> {
+        if '\\' == self.first() {
+            self.bump();
+            match self.first() {
+                'n' | 'r' | 't' | '0' | '\'' | '"' | '\\' => {
+                    self.bump();
+                    Ok(())
+                },
+                _ => {
+                    self.bump();
+                    Err(
+                        DiagsLexer::invalid_escape_sequence(
+                            self.sess.dcx(),
+                            self.prev(),
+                            (self.pos-1..self.pos).into()
+                        ).emit()
+                    )?
+                }
+            }
+        } else {
+            unreachable!()
+        }
+    }
+
     fn lex_str_lit(&mut self, pos: usize) -> Result<(), ErrorEmitted> {
         loop {
             match self.first() {
                 '\\' => {
-                    self.bump();
-                    match self.first() {
-                        'n' | 'r' | 't' | '0' | '\'' | '"' | '\\' => {
-                            self.bump();
-                        },
-                        _ => {
-                            self.bump();
-                            Err(
-                                DiagsLexer::invalid_escape_sequence(
-                                    self.sess.dcx(),
-                                    self.first(),
-                                    (pos..self.pos).into()
-                                ).emit()
-                            )?
-                        }
-
-                    }
+                    self.lex_escape_sequence()?;
                 },
                 '"' => {
                     self.bump();
                     break Ok(());
                 },
-                '\n' => {
+                '\n' | EOF_CHAR => {
                     self.bump();
 
                     // 通常の文字列リテラル中に改行が見つかった場合はエラー
@@ -318,6 +340,68 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 }
             }
         }
+    }
+
+    fn lex_char_lit(&mut self, pos: usize) -> Result<Symbol, ErrorEmitted> {
+        let symbol = match self.first() {
+            '\\' => {
+                self.lex_escape_sequence()?;
+                Symbol::intern(&self.src[pos..self.pos])
+            },
+            '\n' => {
+                self.bump();
+
+                Err(
+                    DiagsLexer::unexpected_quote(
+                        self.sess.dcx(),
+                        (pos..self.pos-1).into()
+                    ).emit()
+                )?
+            },
+            _ => {
+                self.bump();
+                Symbol::intern(&self.src[pos..self.pos])
+            }
+        };
+
+        if self.first() != '\'' {
+            // 内部的にはただのイテレータで、コストは低い
+            let mut cursor = self.cursor.clone();
+            let mut next = cursor.first();
+            let mut quote_not_found = false;
+            let mut end = self.pos;
+
+            while next != '\'' {
+                if next == '\n' || next == EOF_CHAR {
+                    quote_not_found = true;
+                    break;
+                }
+                end += 1;
+
+                cursor.bump();
+                next = cursor.first();
+            }
+
+            if quote_not_found {
+                Err(
+                    DiagsLexer::unterminated_char_literal(
+                        self.sess.dcx(),
+                        (end-1..end).into()
+                    ).emit()
+                )?
+            } else {
+                Err(
+                    DiagsLexer::multiple_characters_in_char_literal(
+                        self.sess.dcx(),
+                        (pos..end+1).into()
+                    ).emit()
+                )?
+            }
+        } else {
+            self.bump();
+        }
+
+        Ok(symbol)
     }
 
     fn lex_word(&mut self, pos: usize) -> Result<TokenKind, ErrorEmitted> {
