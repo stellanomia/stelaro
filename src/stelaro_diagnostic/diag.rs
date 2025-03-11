@@ -128,7 +128,7 @@ impl<'a> DiagCtxtHandle<'a> {
     }
 
     pub fn emit_fatal(self, msg: String) -> ! {
-        format!("\x1b[31merror:\x1b[0m {}", msg);
+        println!("\x1b[31merror:\x1b[0m {}", msg);
         process::exit(1)
     }
 

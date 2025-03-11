@@ -1,4 +1,4 @@
-use std::collections::{vec_deque::Iter, VecDeque};
+use std::{collections::{vec_deque::Iter, VecDeque}, fmt};
 
 use crate::stelaro_common::{span::Span, symbol::Symbol};
 
@@ -193,5 +193,61 @@ impl std::ops::Index<usize> for TokenStream {
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.0[index]
+    }
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.kind)
+    }
+}
+
+#[macro_export]
+macro_rules! wrt {
+    ($formatter:expr, $expr:expr) => {
+        write!($formatter, "{}", $expr)
+    };
+}
+
+
+impl fmt::Display for TokenKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TokenKind::LParen => wrt!(f, "("),
+            TokenKind::RParen => wrt!(f, ")"),
+            TokenKind::LBrace => wrt!(f, "{"),
+            TokenKind::RBrace => wrt!(f, "}"),
+            TokenKind::Comma => wrt!(f, ","),
+            TokenKind::Dot => wrt!(f, "."),
+            TokenKind::Plus => wrt!(f, "+"),
+            TokenKind::Minus => wrt!(f, "-"),
+            TokenKind::Star => wrt!(f, "*"),
+            TokenKind::Percent => wrt!(f, "%"),
+            TokenKind::Semicolon => wrt!(f, ";"),
+            TokenKind::Slash => wrt!(f, "/"),
+            TokenKind::LineComment => wrt!(f, "コメント"),
+            TokenKind::Bang => wrt!(f, "!"),
+            TokenKind::BangEqual => wrt!(f, "!="),
+            TokenKind::Equal => wrt!(f, "="),
+            TokenKind::EqualEqual => wrt!(f, "=="),
+            TokenKind::Greater => wrt!(f, ">"),
+            TokenKind::GreaterEqual => wrt!(f, ">="),
+            TokenKind::Less => wrt!(f, "<"),
+            TokenKind::LessEqual => wrt!(f, "<="),
+            TokenKind::Ident(symbol) => wrt!(f, symbol.as_str()),
+            TokenKind::Literal(lit) => wrt!(f, lit.symbol.as_str()),
+            TokenKind::Null => wrt!(f, "null"),
+            TokenKind::Fn => wrt!(f, "fn"),
+            TokenKind::Return => wrt!(f, "return"),
+            TokenKind::Let => wrt!(f, "let"),
+            TokenKind::If => wrt!(f, "if"),
+            TokenKind::Else => wrt!(f, "else"),
+            TokenKind::And => wrt!(f, "and"),
+            TokenKind::Or => wrt!(f, "or"),
+            TokenKind::For => wrt!(f, "for"),
+            TokenKind::Print => wrt!(f, "print"),
+            TokenKind::While => wrt!(f, "while"),
+            TokenKind::Eof => wrt!(f, "入力の終端"),
+        }
     }
 }
