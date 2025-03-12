@@ -79,9 +79,14 @@ impl AssocOp {
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
  enum Precedence {
+    Assign,     // = += -= *= /=
+    Or,         // or
+    And,        // and
+    Cmp,        // < > <= >= == !=
     Sum,        // + -
     Product,    // * / %
-    Prefix,     // ^
+    Prefix,     // 単項演算子 -
+    Unambiguous,// 関数呼び出しなど
 }
 
 pub struct Parser<'sess> {
