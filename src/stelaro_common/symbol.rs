@@ -1,6 +1,12 @@
 use std::{cell::RefCell, collections::HashMap};
 
-use super::INTERNER;
+use super::{span::Span, INTERNER};
+
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
+pub struct Ident {
+    pub name: Symbol,
+    pub span: Span,
+}
 
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
