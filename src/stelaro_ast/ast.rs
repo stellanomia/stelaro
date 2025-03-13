@@ -1,6 +1,6 @@
 use crate::stelaro_common::{span::Span, symbol::Ident};
 
-use super::token::{Lit, TokenKind};
+use super::token::{Lit, Token, TokenKind};
 
 #[derive(Debug)]
 pub struct Stelo {
@@ -57,9 +57,10 @@ pub enum ExprKind {
     Unary(UnOp, Box<Expr>),
     Lit(Lit),
     Return(Option<Box<Expr>>),
-
-    Assign(Box<Expr>, Box<Expr>, Span),
+    Paren(Box<Expr>),
+    Assign(Box<Expr>, Box<Expr>),
     AssignOp(BinOp, Box<Expr>, Box<Expr>),
+    Ident(Ident),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -69,11 +70,11 @@ pub struct BinOp {
 }
 
 impl BinOp {
-    pub fn from_token(kind: TokenKind, span: Span) -> Self {
+    pub fn from_token(token: Token) -> Self {
         use BinOpKind::*;
         use TokenKind::*;
 
-        let kind = match kind {
+        let kind = match token.kind {
             Plus => Add,
             Minus => Sub,
             Star => Mul,
@@ -90,7 +91,7 @@ impl BinOp {
             _ => panic!("bug: 二項演算子でないトークン"),
         };
 
-        BinOp { kind, span }
+        BinOp { kind, span: token.span }
     }
 }
 

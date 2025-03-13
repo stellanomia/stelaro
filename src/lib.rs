@@ -23,22 +23,20 @@ pub fn temp(src: String) {
     let source_map = Rc::new(SourceMap::new());
     let sess = Session::new(dcx, source_map);
     let mut lexer = Lexer::new(&sess, &src);
-    let token_stream = match lexer.lex() {
-        Ok(ts) => {
-            // dbg!(&ts);
-            ts
-        },
-        Err(_) => {
-            todo!()
-        }
-    };
+    if let Ok(ts) = lexer.lex() {
+        let mut parser = Parser::new(&sess, ts);
+        let expr = parser.parse_expr();
 
-    let _parser = Parser::new(&sess, token_stream);
+        let expr = match expr {
+            Ok(expr) => {dbg!(&expr); expr},
+            Err(_) => todo!(),
+        };
+
+        println!("{}", &src[16..18]);
+    }
+
 }
 
 
 pub fn run() {
-    let _args = &std::env::args().collect::<Vec<String>>()[1..];
-
-    
 }
