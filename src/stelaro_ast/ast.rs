@@ -44,14 +44,14 @@ pub struct Struct {
     pub span: Span,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Expr {
     pub id: NodeId,
     pub kind: ExprKind,
     pub span: Span,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum ExprKind {
     Binary(BinOp, Box<Expr>, Box<Expr>),
     Unary(UnOp, Box<Expr>),
@@ -63,10 +63,10 @@ pub enum ExprKind {
     Ident(Ident),
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct BinOp {
-    kind: BinOpKind,
-    span: Span,
+    pub kind: BinOpKind,
+    pub span: Span,
 }
 
 impl BinOp {
@@ -95,7 +95,7 @@ impl BinOp {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum BinOpKind {
     /// `+` 演算子 (addition)
     Add,
@@ -125,7 +125,7 @@ pub enum BinOpKind {
     Gt
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum UnOp {
     ///  `!` 演算子: 論理反転
     Not,
@@ -133,10 +133,11 @@ pub enum UnOp {
     Neg,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct NodeId(u32);
 
 impl NodeId {
+    #[inline]
     pub fn dummy() -> Self {
         Self(0)
     }

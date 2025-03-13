@@ -23,25 +23,14 @@ pub fn new_parser_from_file<'sess>(sess: &'sess Session, path: &Path) -> Result<
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use std::rc::Rc;
+pub fn new_parser_from_src(sess: &Session, src: String ) -> Result<Parser<'_>, ErrorEmitted> {
+    let mut lexer = Lexer::new(sess, src.as_str());
 
-    use crate::{stelaro_common::source_map::SourceMap, stelaro_diagnostic::DiagCtxt};
-
-    use super::*;
-
-    #[test]
-    fn test_parse_expr() {
-        let src = Rc::new(
-            "x = (1 + 2) * 3 == 4 and 5 == 6 or 7 != 8 or 9 == 10 and true".to_string()
-        );
-        let dcx = DiagCtxt::new(Rc::clone(&src));
-        let source_map = Rc::new(SourceMap::new());
-        let sess = &Session::new(dcx, source_map);
-        let mut lexer = Lexer::new(sess, src.as_str());
-        let ts = lexer.lex().unwrap();
-        let mut parser = Parser::new(sess, ts);
-        parser.parse_expr().unwrap();
+    match lexer.lex() {
+        Ok(ts) => Ok(
+            Parser::new(sess, ts)
+        ),
+        Err(errs) => Err(errs)?,
     }
 }
+
