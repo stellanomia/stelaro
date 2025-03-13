@@ -27,12 +27,10 @@ pub fn temp(src: String) {
         let mut parser = Parser::new(&sess, ts);
         let expr = parser.parse_expr();
 
-        let expr = match expr {
+        match expr {
             Ok(expr) => {dbg!(&expr); expr},
             Err(_) => todo!(),
         };
-
-        println!("{}", &src[16..18]);
     }
 
 }
