@@ -1,4 +1,4 @@
-use crate::{stelaro_ast::{ast::{BinOp, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}}, stelaro_common::span::Span};
+use crate::{stelaro_ast::{ast::{BinOp, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}}, stelaro_common::{span::Span, symbol::Ident}};
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 
@@ -19,6 +19,7 @@ use super::{diagnostics::DiagsParser, parser::Parser, PResult};
     Greater,
     GreaterEqual,
     Assign,
+    // TODO: AssignOpの実装
     // ?= (e.g. +=, -=)
     // AssignOp
 }
@@ -76,7 +77,7 @@ impl AssocOp {
 
 /// 演算子の結合則
 #[derive(Copy, Clone, Debug)]
- enum Fixity {
+enum Fixity {
     Left,
     Right,
     /// 比較演算子など、連続した場合に意味が不明確なもの
@@ -84,15 +85,13 @@ impl AssocOp {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
- enum Precedence {
-    Assign,     // = += -= *= /=
+enum Precedence {
+    Assign,     // =
     Or,         // or
     And,        // and
     Cmp,        // < > <= >= == !=
     Sum,        // + -
     Product,    // * / %
-    Prefix,     // 単項演算子 - !
-    Unambiguous,// 関数呼び出しなど
 }
 
 impl Parser<'_> {
@@ -133,14 +132,40 @@ impl Parser<'_> {
             let op_token = self.prev_token;
             let rhs = self.parse_expr_inner(next_min_prec)?;
             let span = lhs.span.merge(&rhs.span);
-            lhs = self.mk_expr(
-                span,
-                ExprKind::Binary(
-                    BinOp::from_token(op_token.kind, op_token.span),
-                    Box::new(lhs),
-                    Box::new(rhs)
-                ),
-            );
+            lhs = match op {
+                AssocOp::Add |
+                AssocOp::Subtract |
+                AssocOp::Multiply |
+                AssocOp::Divide |
+                AssocOp::Modulus |
+                AssocOp::Or |
+                AssocOp::And |
+                AssocOp::Equal |
+                AssocOp::Less |
+                AssocOp::LessEqual |
+                AssocOp::Greater |
+                AssocOp::GreaterEqual |
+                AssocOp::NotEqual => {
+                    self.mk_expr(
+                        span,
+                        ExprKind::Binary(
+                            BinOp::from_token(op_token),
+                            Box::new(lhs),
+                            Box::new(rhs)
+                        ),
+                    )
+                },
+                AssocOp::Assign => {
+                    return Ok(
+                        self.mk_expr(
+                        span,
+                        ExprKind::Assign(
+                            Box::new(lhs),
+                            Box::new(rhs),
+                        )
+                    ));
+                }
+            };
         }
 
         Ok(lhs)
@@ -152,9 +177,24 @@ impl Parser<'_> {
             TokenKind::Literal(lit) => {
                 self.bump();
 
-                // Ok(self.mk_expr(self.prev_token.span, ExprKind::Number(n
-                todo!()
+                Ok(
+                    self.mk_expr(
+                        self.prev_token.span,
+                        ExprKind::Lit(lit)
+                    )
+                )
             },
+            TokenKind::Ident(symbol) => {
+                self.bump();
+                let ident_span = self.prev_token.span;
+                let ident = self.mk_expr(
+                    ident_span,
+                    ExprKind::Ident(
+                    Ident::new(symbol, ident_span)
+                ));
+
+                Ok(ident)
+            }
             TokenKind::Minus => {
                 self.bump();
 
@@ -170,6 +210,21 @@ impl Parser<'_> {
                 )
 
             },
+            TokenKind::Bang => {
+                self.bump();
+
+                let start = self.prev_token.span;
+
+                let node = self.parse_expr()?;
+
+                Ok(
+                    self.mk_expr(
+                        start.merge(&node.span),
+                        ExprKind::Unary(UnOp::Not, Box::new(node))
+                    )
+                )
+
+            },
             TokenKind::LParen => {
                 self.bump();
                 let start = self.prev_token.span;
@@ -178,10 +233,14 @@ impl Parser<'_> {
 
                 let span = start.merge(&node.span).merge(&self.token.span);
 
-                self.eat(TokenKind::RParen, span)?;
+                self.eat(TokenKind::RParen, self.token.span)?;
 
-                // Ok(self.mk_expr(span, ExprKind::Grouping(Box::new(node))))
-                todo!()
+                Ok(
+                    self.mk_expr(
+                        self.prev_token.span.merge(&start.merge(&span)),
+                        ExprKind::Paren(Box::new(node))
+                    )
+                )
             },
             _ => {
                 Err(
@@ -195,6 +254,7 @@ impl Parser<'_> {
         }
     }
 
+    #[inline]
     fn mk_expr(&self, span: Span, kind: ExprKind) -> Expr {
         Expr { kind, span, id: NodeId::dummy() }
     }

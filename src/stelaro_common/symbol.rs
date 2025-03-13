@@ -8,6 +8,12 @@ pub struct Ident {
     pub span: Span,
 }
 
+impl Ident {
+    pub fn new(name: Symbol, span: Span) -> Self {
+        Self { name, span }
+    }
+}
+
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 pub struct Symbol(u32);
