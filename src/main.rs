@@ -10,6 +10,6 @@ fn main() {
 // "#.trim().to_string());
 
 temp(r#"
-x = (1 + 2) * 3 == 4 and 5 == 6 or 7 != 8 or 9 == 10 and true
+x = 1 1
 "#.trim().to_string());
 }

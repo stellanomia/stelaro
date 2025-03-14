@@ -44,6 +44,33 @@ pub struct Struct {
     pub span: Span,
 }
 
+#[derive(Debug)]
+pub struct Stmt {
+    pub id: NodeId,
+    pub kind: StmtKind,
+    pub span: Span,
+}
+
+#[derive(Debug)]
+pub enum StmtKind {
+    Let(),
+    Expr(Box<Expr>),
+}
+
+#[derive(Debug)]
+pub struct Local {
+    pub id: NodeId,
+    pub ident: Ident,
+    pub kind: LocalKind,
+    pub span: Span,
+}
+
+#[derive(Debug)]
+pub enum LocalKind {
+    Decl,
+    Init(Box<Expr>),
+}
+
 #[derive(Debug, PartialEq)]
 pub struct Expr {
     pub id: NodeId,

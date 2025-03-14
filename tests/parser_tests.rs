@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use stelaro::{
-    stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId}, token::{Lit, LiteralKind, Token, TokenKind}}, stelaro_common::{source_map::SourceMap, span::Span, symbol::{Ident, Symbol}}, stelaro_diagnostic::DiagCtxt, stelaro_lexer::Lexer, stelaro_parse::{new_parser_from_src, parser::Parser}, stelaro_session::Session
+    stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId}, token::{Lit, LiteralKind}}, stelaro_common::{source_map::SourceMap, symbol::{Ident, Symbol}}, stelaro_diagnostic::DiagCtxt, stelaro_parse::{new_parser_from_src, parser::Parser}, stelaro_session::Session
 };
 
 fn create_sess(src: Rc<String>) -> Session {

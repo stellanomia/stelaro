@@ -96,12 +96,12 @@ enum Precedence {
 
 impl Parser<'_> {
     pub fn parse_expr(&mut self) -> PResult<Expr> {
-        let node = self.parse_expr_inner(PrecedenceLimit::None)?;
+        let node = self.parse_expr_(PrecedenceLimit::None)?;
 
         Ok(node)
     }
 
-    fn parse_expr_inner(&mut self, min_prec: PrecedenceLimit) -> PResult<Expr> {
+    fn parse_expr_(&mut self, min_prec: PrecedenceLimit) -> PResult<Expr> {
         let mut lhs = self.parse_primary()?;
 
         while TokenKind::Eof != self.token.kind {
@@ -130,7 +130,7 @@ impl Parser<'_> {
             };
 
             let op_token = self.prev_token;
-            let rhs = self.parse_expr_inner(next_min_prec)?;
+            let rhs = self.parse_expr_(next_min_prec)?;
             let span = lhs.span.merge(&rhs.span);
             lhs = match op {
                 AssocOp::Add |
