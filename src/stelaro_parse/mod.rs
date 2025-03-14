@@ -7,6 +7,7 @@ use crate::{stelaro_diagnostic::diag::ErrorEmitted, stelaro_lexer::Lexer, stelar
 pub mod parser;
 mod diagnostics;
 mod expr;
+mod stmt;
 
 type PResult<T> = Result<T, ErrorEmitted>;
 
