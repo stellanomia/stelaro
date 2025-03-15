@@ -22,6 +22,13 @@ impl Span {
             end: self.end.max(other.end),
         }
     }
+
+    pub fn between(&self, other: &Span) -> Self {
+        Self {
+            start: self.end,
+            end: other.start,
+        }
+    }
 }
 
 
