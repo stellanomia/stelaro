@@ -44,4 +44,17 @@ impl<'dcx> DiagsParser {
         diag
     }
 
+    pub fn missing_operator (
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(202);
+        diag.set_message("不足した演算子".to_string());
+        diag.set_label(span, "式と式の間に演算子がありません".to_string());
+        diag.set_help("演算子(e.g., `+`, `-`)か、`;`を追加してください".to_string());
+
+        diag
+    }
+
 }

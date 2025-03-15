@@ -122,6 +122,15 @@ impl Parser<'_> {
     pub fn parse_expr(&mut self) -> PResult<Expr> {
         let node = self.parse_expr_(PrecedenceLimit::None)?;
 
+        if self.can_start_expr() {
+            Err(
+                DiagsParser::missing_operator(
+                    self.dcx(),
+                    node.span.between(&self.token.span)
+                ).emit()
+            )?
+        }
+
         Ok(node)
     }
 
@@ -211,6 +220,17 @@ impl Parser<'_> {
                 Ok(())
             }
         }
+    }
+
+    /// 現在のトークンが新しい式の開始として適切かどうかを判定
+    fn can_start_expr(&self) -> bool {
+        matches!(self.token.kind,
+            TokenKind::Literal(_)
+            | TokenKind::Ident(_)
+            | TokenKind::Minus       // 単項演算子 -
+            | TokenKind::Bang        // 単項演算子 !
+            | TokenKind::LParen
+        )
     }
 
     fn parse_primary(&mut self) -> PResult<Expr> {

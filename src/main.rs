@@ -10,6 +10,6 @@ fn main() {
 // "#.trim().to_string());
 
 temp(r#"
-x = 1 < 1 < 2;
+a = (b = (c = d * (e = f + (g = h + (i = j * k))))) + l;
 "#.trim().to_string());
 }
