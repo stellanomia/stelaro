@@ -10,6 +10,6 @@ fn main() {
 // "#.trim().to_string());
 
 temp(r#"
-x = 1 1
+x = 1 < 1 < 2;
 "#.trim().to_string());
 }
