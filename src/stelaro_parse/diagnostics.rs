@@ -30,4 +30,18 @@ impl<'dcx> DiagsParser {
         diag
     }
 
+    pub fn chained_comparison (
+        dcx: DiagCtxtHandle<'dcx>,
+        op1: Span,
+        op2: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(op1.merge(&op2));
+        diag.set_code(201);
+        diag.set_message("連鎖した比較演算子".to_string());
+        diag.set_label(op1, "この比較は無効です".to_string());
+        diag.set_label(op2, "比較演算子が連鎖しています".to_string());
+
+        diag
+    }
+
 }

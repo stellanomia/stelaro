@@ -1,10 +1,10 @@
-use crate::{stelaro_ast::{ast::{BinOp, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}}, stelaro_common::{span::Span, symbol::Ident}};
+use crate::{stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}}, stelaro_common::{span::Span, symbol::Ident}};
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 
 /// 中置演算子（AssocOp）の定義
 #[derive(Copy, Clone, Debug, PartialEq)]
- enum AssocOp {
+enum AssocOp {
     Add,
     Subtract,
     Multiply,
@@ -31,7 +31,7 @@ enum PrecedenceLimit {
 }
 
 impl AssocOp {
-     fn from_token(token: &Token) -> Option<Self> {
+    fn from_token(token: &Token) -> Option<Self> {
         match token.kind {
             TokenKind::Plus => Some(AssocOp::Add),
             TokenKind::Minus => Some(AssocOp::Subtract),
@@ -51,7 +51,26 @@ impl AssocOp {
         }
     }
 
-     fn fixity(&self) -> Fixity {
+    pub fn from_binop(op: BinOpKind) -> Self {
+        use AssocOp::*;
+        match op {
+            BinOpKind::Lt => Less,
+            BinOpKind::Gt => Greater,
+            BinOpKind::Le => LessEqual,
+            BinOpKind::Ge => GreaterEqual,
+            BinOpKind::Eq => Equal,
+            BinOpKind::Ne => NotEqual,
+            BinOpKind::Mul => Multiply,
+            BinOpKind::Div => Divide,
+            BinOpKind::Mod => Modulus,
+            BinOpKind::Add => Add,
+            BinOpKind::Sub => Subtract,
+            BinOpKind::And => And,
+            BinOpKind::Or => Or,
+        }
+    }
+
+    fn fixity(&self) -> Fixity {
         use AssocOp::*;
 
         match self {
@@ -61,7 +80,7 @@ impl AssocOp {
         }
     }
 
-     fn precedence(&self) -> Precedence {
+    fn precedence(&self) -> Precedence {
         use AssocOp::*;
 
         match self {
@@ -72,6 +91,11 @@ impl AssocOp {
             Equal | Less | LessEqual | NotEqual | Greater | GreaterEqual => Precedence::Cmp,
             Assign => Precedence::Assign,
         }
+    }
+
+    fn is_comparison(&self) -> bool {
+        use AssocOp::*;
+        matches!(*self, Less | Greater | LessEqual | GreaterEqual | Equal | NotEqual)
     }
 }
 
@@ -104,12 +128,7 @@ impl Parser<'_> {
     fn parse_expr_(&mut self, min_prec: PrecedenceLimit) -> PResult<Expr> {
         let mut lhs = self.parse_primary()?;
 
-        while TokenKind::Eof != self.token.kind {
-            let op = match AssocOp::from_token(&self.token) {
-                Some(op) => op,
-                None => break,
-            };
-
+        while let Some(op) = AssocOp::from_token(&self.token) {
             let prec = op.precedence();
 
             let should_break = match min_prec {
@@ -123,6 +142,9 @@ impl Parser<'_> {
             }
 
             self.bump();
+            if op.is_comparison() {
+                self.check_non_associative_chain(&lhs)?
+            }
 
             let next_min_prec = match op.fixity() {
                 Fixity::Left | Fixity::NonAssoc => PrecedenceLimit::Exclusive(prec),
@@ -170,6 +192,25 @@ impl Parser<'_> {
 
         Ok(lhs)
 
+    }
+
+    fn check_non_associative_chain(&self, lhs: &Expr) -> PResult<()> {
+        match &lhs.kind {
+            ExprKind::Binary(bin_op, _, _) => {
+                if AssocOp::from_binop(bin_op.kind).is_comparison() {
+                    Err(
+                        DiagsParser::chained_comparison(
+                            self.dcx(), bin_op.span, self.prev_token.span
+                        ).emit()
+                    )
+                } else {
+                    Ok(())
+                }
+            },
+            _ => {
+                Ok(())
+            }
+        }
     }
 
     fn parse_primary(&mut self) -> PResult<Expr> {
