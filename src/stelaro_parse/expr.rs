@@ -187,14 +187,13 @@ impl Parser<'_> {
                     )
                 },
                 AssocOp::Assign => {
-                    return Ok(
-                        self.mk_expr(
+                    self.mk_expr(
                         span,
                         ExprKind::Assign(
                             Box::new(lhs),
                             Box::new(rhs),
                         )
-                    ));
+                    )
                 }
             };
         }
@@ -248,13 +247,14 @@ impl Parser<'_> {
             TokenKind::Ident(symbol) => {
                 self.bump();
                 let ident_span = self.prev_token.span;
-                let ident = self.mk_expr(
+
+                Ok(
+                    self.mk_expr(
                     ident_span,
                     ExprKind::Ident(
-                    Ident::new(symbol, ident_span)
-                ));
-
-                Ok(ident)
+                        Ident::new(symbol, ident_span)
+                    ))
+                )
             }
             TokenKind::Minus => {
                 self.bump();
@@ -303,6 +303,29 @@ impl Parser<'_> {
                     )
                 )
             },
+            TokenKind::Plus |
+            TokenKind::Star |
+            TokenKind::Slash => {
+                self.bump();
+
+                if self.token.kind == TokenKind::Plus
+                    && self.prev_token.kind == TokenKind::Plus {
+                    Err(
+                        DiagsParser::prefix_increment(
+                            self.dcx(),
+                            self.prev_token.span.merge(&self.token.span)
+                        ).emit()
+                    )
+                }else {
+                    Err(
+                        DiagsParser::expect_expression(
+                            self.dcx(),
+                            self.prev_token,
+                            self.prev_token.span
+                        ).emit()
+                    )
+                }
+            }
             _ => {
                 Err(
                     DiagsParser::unexpected_token(
