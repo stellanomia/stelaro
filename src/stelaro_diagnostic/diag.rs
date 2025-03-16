@@ -1,5 +1,5 @@
-use std::{marker::PhantomData, ops::Deref, process, rc::Rc};
-
+use std::{collections::HashSet, marker::PhantomData, ops::Deref, process, rc::Rc};
+#[allow(unused)]
 use ariadne::{Label, Report, Source};
 
 use crate::stelaro_common::span::Span;
@@ -35,16 +35,17 @@ impl EmissionGuarantee for FatalError {
     }
 }
 
-
+#[allow(unused)]
 #[derive(Debug)]
 pub struct DiagCtxtInner {
     err_counts: Vec<ErrorEmitted>,
+    emitted_diagnostic_codes: HashSet<i32>,
     src: Rc<String>,
 }
 
 impl DiagCtxtInner {
     pub fn new(src: Rc<String>) -> Self {
-        Self { err_counts: Vec::new(), src }
+        Self { err_counts: Vec::new(), emitted_diagnostic_codes: HashSet::new(), src }
     }
 
     pub fn emit_diagnostic(&mut self, diag: DiagInner) -> Option<ErrorEmitted> {
@@ -57,6 +58,7 @@ impl DiagCtxtInner {
 
         if diag.code.is_some() {
             report = report.with_code(diag.code.unwrap());
+            self.emitted_diagnostic_codes.insert(diag.code.unwrap());
         }
 
         if !diag.msg.is_empty() {
@@ -77,9 +79,18 @@ impl DiagCtxtInner {
             }
         }
 
-        if report.finish().print(Source::from(self.src.as_ref())).is_err() {
-            None
-        }else {
+        #[cfg(not(test))] {
+            if report.finish().print(Source::from(self.src.as_ref())).is_err() {
+                None
+            }else {
+                self.err_counts.push(ErrorEmitted(()));
+                Some(ErrorEmitted(()))
+            }
+        }
+
+        #[cfg(test)]
+        {
+            let _ = report.finish();
             self.err_counts.push(ErrorEmitted(()));
             Some(ErrorEmitted(()))
         }
@@ -134,6 +145,10 @@ impl<'a> DiagCtxtHandle<'a> {
 
     fn emit_diagnostic(&self, diag: DiagInner) -> Option<ErrorEmitted> {
         self.inner.borrow_mut().emit_diagnostic(diag)
+    }
+
+    pub fn has_err_code(self, code: i32) -> bool {
+        self.inner.borrow().emitted_diagnostic_codes.contains(&code)
     }
 }
 
