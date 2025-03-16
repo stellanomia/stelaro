@@ -57,4 +57,31 @@ impl<'dcx> DiagsParser {
         diag
     }
 
+    pub fn expect_expression (
+        dcx: DiagCtxtHandle<'dcx>,
+        unexpected: Token,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(203);
+        diag.set_message("無効な式".to_string());
+        diag.set_label(span, format!("`{}`は式ではありません", unexpected));
+        diag.set_help("これを削除するか、間に値を追加してください".to_string());
+
+        diag
+    }
+
+    pub fn prefix_increment (
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(204);
+        diag.set_message("前置インクリメント".to_string());
+        diag.set_label(span, "steraloは前置インクリメント演算子をもちません".to_string());
+        diag.set_help("`lhs += 1;`を使用してください".to_string());
+
+        diag
+    }
+
 }
