@@ -28,14 +28,29 @@ pub enum ItemKind {
 pub struct Function {
     pub name: Ident,
     pub span: Span,
-    // pub params: Vec<Parameter>,
-    pub body: Block,
+    pub sig: FnSig,
+    pub body: Box<Block>,
 }
 
+#[derive(Debug)]
+pub struct FnSig {
+    pub params: Vec<Param>,
+    pub span: Span,
+}
+
+#[derive(Debug)]
+pub struct Param {
+    pub id: NodeId,
+    pub ty: Box<Ty>,
+    pub ident: Ident,
+    pub span: Span,
+}
 
 #[derive(Debug)]
 pub struct Block {
-    
+    pub id: NodeId,
+    pub stmts: Vec<Stmt>,
+    pub span: Span,
 }
 
 #[derive(Debug)]
@@ -53,8 +68,12 @@ pub struct Stmt {
 
 #[derive(Debug)]
 pub enum StmtKind {
-    Let(),
+    Let(Box<Local>),
     Expr(Box<Expr>),
+    /// if expr { block } else { block }
+    If(Box<Expr>, Box<Block>, Option<Block>),
+    /// while expr { block }
+    While(Box<Expr>, Box<Block>),
 }
 
 #[derive(Debug)]
