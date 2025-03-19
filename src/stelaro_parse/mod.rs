@@ -1,13 +1,15 @@
-use std::path::Path;
-
-use parser::Parser;
-
-use crate::{stelaro_diagnostic::diag::ErrorEmitted, stelaro_lexer::Lexer, stelaro_session::Session};
-
 pub mod parser;
 mod diagnostics;
 mod expr;
 mod stmt;
+
+use crate::stelaro_diagnostic::diag::ErrorEmitted;
+use crate::stelaro_lexer::Lexer;
+use crate::stelaro_session::Session;
+
+use std::path::Path;
+use parser::Parser;
+
 
 type PResult<T> = Result<T, ErrorEmitted>;
 
