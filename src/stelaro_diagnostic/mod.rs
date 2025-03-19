@@ -1,8 +1,8 @@
-use std::{cell::RefCell, rc::Rc};
+pub mod diag;
 
+use std::{cell::RefCell, rc::Rc};
 use diag::{DiagCtxtHandle, DiagCtxtInner};
 
-pub mod diag;
 
 #[derive(Debug)]
 pub struct DiagCtxt {

@@ -1,10 +1,11 @@
+use crate::stelaro_common::span::Span;
+use super::DiagCtxt;
+
 use std::{collections::HashSet, marker::PhantomData, ops::Deref, process, rc::Rc};
+
 #[allow(unused)]
 use ariadne::{Label, Report, Source};
 
-use crate::stelaro_common::span::Span;
-
-use super::DiagCtxt;
 
 
 /// 診断メッセージの出力保証を表すトレイト

@@ -1,6 +1,6 @@
 use crate::stelaro_common::{span::Span, symbol::Ident};
 
-use super::token::{Lit, Token, TokenKind};
+use super::{token::{Lit, Token, TokenKind}, ty::Ty};
 
 #[derive(Debug)]
 pub struct Stelo {
@@ -19,7 +19,7 @@ pub struct Item {
 #[derive(Debug)]
 pub enum ItemKind {
     Function(Function),
-    Struct(Struct),
+    // Struct(Struct),
     // Enum(Enum),
     // Const(Const),
 }
@@ -46,27 +46,21 @@ pub struct Param {
     pub span: Span,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Block {
     pub id: NodeId,
     pub stmts: Vec<Stmt>,
     pub span: Span,
 }
 
-#[derive(Debug)]
-pub struct Struct {
-    pub name: Ident,
-    pub span: Span,
-}
-
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Stmt {
     pub id: NodeId,
     pub kind: StmtKind,
     pub span: Span,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum StmtKind {
     Let(Box<Local>),
     Expr(Box<Expr>),
@@ -76,7 +70,7 @@ pub enum StmtKind {
     While(Box<Expr>, Box<Block>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Local {
     pub id: NodeId,
     pub ident: Ident,
@@ -84,21 +78,24 @@ pub struct Local {
     pub span: Span,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum LocalKind {
     Decl,
     Init(Box<Expr>),
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Expr {
     pub id: NodeId,
     pub kind: ExprKind,
     pub span: Span,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ExprKind {
+    /// 関数呼び出し
+    Call(Box<Expr>, Vec<Expr>),
+    Block(Box<Block>),
     Binary(BinOp, Box<Expr>, Box<Expr>),
     Unary(UnOp, Box<Expr>),
     Lit(Lit),
@@ -109,7 +106,7 @@ pub enum ExprKind {
     Ident(Ident),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct BinOp {
     pub kind: BinOpKind,
     pub span: Span,
@@ -141,7 +138,7 @@ impl BinOp {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum BinOpKind {
     /// `+` 演算子 (addition)
     Add,
@@ -171,7 +168,7 @@ pub enum BinOpKind {
     Gt
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum UnOp {
     ///  `!` 演算子: 論理反転
     Not,
@@ -179,7 +176,7 @@ pub enum UnOp {
     Neg,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeId(u32);
 
 impl NodeId {

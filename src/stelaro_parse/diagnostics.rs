@@ -1,4 +1,6 @@
-use crate::{stelaro_ast::token::{Token, TokenKind}, stelaro_common::span::Span, stelaro_diagnostic::diag::{Diag, DiagCtxtHandle, ErrorEmitted}};
+use crate::stelaro_ast::token::{Token, TokenKind};
+use crate::stelaro_common::span::Span;
+use crate::stelaro_diagnostic::diag::{Diag, DiagCtxtHandle, ErrorEmitted};
 
 pub struct DiagsParser;
 

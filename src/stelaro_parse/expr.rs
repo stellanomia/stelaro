@@ -1,4 +1,5 @@
-use crate::{stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}}, stelaro_common::{span::Span, symbol::Ident}};
+use crate::stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}};
+use crate::stelaro_common::span::Span;
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 
@@ -202,6 +203,7 @@ impl Parser<'_> {
 
     }
 
+    /// 無効な連続した比較演算子を確認 `x < y < z`
     fn check_non_associative_chain(&self, lhs: &Expr) -> PResult<()> {
         match &lhs.kind {
             ExprKind::Binary(bin_op, _, _) => {
@@ -234,28 +236,28 @@ impl Parser<'_> {
 
     fn parse_primary(&mut self) -> PResult<Expr> {
         match self.token.kind {
-            TokenKind::Literal(lit) => {
-                self.bump();
+            // TokenKind::Literal(lit) => {
+            //     self.bump();
 
-                Ok(
-                    self.mk_expr(
-                        self.prev_token.span,
-                        ExprKind::Lit(lit)
-                    )
-                )
-            },
-            TokenKind::Ident(symbol) => {
-                self.bump();
-                let ident_span = self.prev_token.span;
+            //     Ok(
+            //         self.mk_expr(
+            //             self.prev_token.span,
+            //             ExprKind::Lit(lit)
+            //         )
+            //     )
+            // },
+            // TokenKind::Ident(symbol) => {
+            //     self.bump();
+            //     let ident_span = self.prev_token.span;
 
-                Ok(
-                    self.mk_expr(
-                    ident_span,
-                    ExprKind::Ident(
-                        Ident::new(symbol, ident_span)
-                    ))
-                )
-            }
+            //     Ok(
+            //         self.mk_expr(
+            //         ident_span,
+            //         ExprKind::Ident(
+            //             Ident::new(symbol, ident_span)
+            //         ))
+            //     )
+            // }
             TokenKind::Minus => {
                 self.bump();
 
@@ -327,15 +329,19 @@ impl Parser<'_> {
                 }
             }
             _ => {
-                Err(
-                    DiagsParser::unexpected_token(
-                        self.dcx(),
-                        self.token,
-                        self.token.span
-                    ).emit()
-                )
+                self.parse_expr_dot_or_call()
             }
         }
+    }
+
+    fn parse_expr_dot_or_call(&mut self) -> PResult<Expr> {
+        let mut node = self.parse_expr_bottom()?;
+        todo!()
+    }
+
+
+    fn parse_expr_bottom(&mut self) -> PResult<Expr> {
+        todo!()
     }
 
     #[inline]
