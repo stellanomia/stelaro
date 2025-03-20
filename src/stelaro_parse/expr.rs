@@ -350,20 +350,15 @@ impl Parser<'_> {
                 )
             },
             TokenKind::LBrace => {
-                self.bump();
-                let start = self.prev_token.span;
+                let start = self.token.span;
 
-                let node = self.parse_expr()?;
+                let node = self.parse_block()?;
 
-                let span = start.merge(&node.span).merge(&self.token.span);
-
-                self.eat(TokenKind::RParen, self.token.span)?;
-
-                let block = self.parse_block()?;
+                let span = start.merge(self.prev_token.span);
 
                 Ok(
                     self.mk_expr(
-                        self.prev_token.span.merge(&start.merge(&span)),
+                        span,
                         ExprKind::Block(
                             Box::new(block)
                         )
