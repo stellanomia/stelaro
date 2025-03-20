@@ -280,7 +280,7 @@ impl Parser<'_> {
                             self.prev_token.span.merge(&self.token.span)
                         ).emit()
                     )
-                }else {
+                } else {
                     Err(
                         DiagsParser::expect_expression(
                             self.dcx(),
@@ -338,7 +338,7 @@ impl Parser<'_> {
 
                 let node = self.parse_expr()?;
 
-                let span = start.merge(&node.span).merge(&self.token.span);
+                let span = start.merge(&self.token.span);
 
                 self.eat(TokenKind::RParen, self.token.span)?;
 
