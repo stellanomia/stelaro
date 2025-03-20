@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::Stmt, token::TokenKind};
+use crate::stelaro_ast::{ast::{Block, Stmt}, token::TokenKind};
 
 use super::{parser::Parser, PResult};
 
@@ -14,5 +14,9 @@ impl Parser<'_> {
                 todo!()
             }
         }
+    }
+
+    pub fn parse_block(&mut self) -> PResult<Block> {
+        todo!()
     }
 }
