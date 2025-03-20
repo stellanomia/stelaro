@@ -1,4 +1,7 @@
-use crate::{stelaro_ast::token::{Token, TokenKind, TokenStream}, stelaro_common::span::Span, stelaro_diagnostic::diag::{DiagCtxtHandle, ErrorEmitted}, stelaro_session::Session};
+use crate::stelaro_ast::token::{Token, TokenKind, TokenStream};
+use crate::stelaro_common::span::Span;
+use crate::stelaro_diagnostic::diag::{DiagCtxtHandle, ErrorEmitted};
+use crate::stelaro_session::Session;
 
 use super::diagnostics::DiagsParser;
 

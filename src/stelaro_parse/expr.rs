@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}};
+use crate::{stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}}, stelaro_common::symbol::Ident};
 use crate::stelaro_common::span::Span;
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
@@ -136,7 +136,7 @@ impl Parser<'_> {
     }
 
     fn parse_expr_(&mut self, min_prec: PrecedenceLimit) -> PResult<Expr> {
-        let mut lhs = self.parse_primary()?;
+        let mut lhs = self.parse_expr_primary()?;
 
         while let Some(op) = AssocOp::from_token(&self.token) {
             let prec = op.precedence();
@@ -234,30 +234,9 @@ impl Parser<'_> {
         )
     }
 
-    fn parse_primary(&mut self) -> PResult<Expr> {
+    /// 単項演算子の解析
+    fn parse_expr_primary(&mut self) -> PResult<Expr> {
         match self.token.kind {
-            // TokenKind::Literal(lit) => {
-            //     self.bump();
-
-            //     Ok(
-            //         self.mk_expr(
-            //             self.prev_token.span,
-            //             ExprKind::Lit(lit)
-            //         )
-            //     )
-            // },
-            // TokenKind::Ident(symbol) => {
-            //     self.bump();
-            //     let ident_span = self.prev_token.span;
-
-            //     Ok(
-            //         self.mk_expr(
-            //         ident_span,
-            //         ExprKind::Ident(
-            //             Ident::new(symbol, ident_span)
-            //         ))
-            //     )
-            // }
             TokenKind::Minus => {
                 self.bump();
 
@@ -288,23 +267,6 @@ impl Parser<'_> {
                 )
 
             },
-            TokenKind::LParen => {
-                self.bump();
-                let start = self.prev_token.span;
-
-                let node = self.parse_expr()?;
-
-                let span = start.merge(&node.span).merge(&self.token.span);
-
-                self.eat(TokenKind::RParen, self.token.span)?;
-
-                Ok(
-                    self.mk_expr(
-                        self.prev_token.span.merge(&start.merge(&span)),
-                        ExprKind::Paren(Box::new(node))
-                    )
-                )
-            },
             TokenKind::Plus |
             TokenKind::Star |
             TokenKind::Slash => {
@@ -329,18 +291,98 @@ impl Parser<'_> {
                 }
             }
             _ => {
-                self.parse_expr_dot_or_call()
+                self.parse_expr_postfix()
             }
         }
     }
 
-    fn parse_expr_dot_or_call(&mut self) -> PResult<Expr> {
-        let mut node = self.parse_expr_bottom()?;
-        todo!()
+    // TODO: インデックスアクセス、`.`によるメソッド呼び出しのサポート
+    fn parse_expr_postfix(&mut self) -> PResult<Expr> {
+        let node = self.parse_expr_bottom()?;
+
+        match self.token.kind {
+            TokenKind::LParen => self.parse_expr_fn_call(node.span, node),
+            _ => Ok(node)
+        }
     }
 
-
+    // TODO: タプル、if(while, for, loop)式、配列 のサポート
+    /// 優先順位が最も低く、括弧で囲まれた式などを解析する
     fn parse_expr_bottom(&mut self) -> PResult<Expr> {
+        match self.token.kind {
+            TokenKind::Literal(lit) => {
+                self.bump();
+
+                Ok(
+                    self.mk_expr(
+                        self.prev_token.span,
+                        ExprKind::Lit(lit)
+                    )
+                )
+            },
+            TokenKind::Ident(symbol) => {
+                self.bump();
+                let ident_span = self.prev_token.span;
+
+                Ok(
+                    self.mk_expr(
+                    ident_span,
+                    ExprKind::Ident(
+                        Ident::new(symbol, ident_span)
+                    ))
+                )
+            }
+            TokenKind::LParen => {
+                self.bump();
+                let start = self.prev_token.span;
+
+                let node = self.parse_expr()?;
+
+                let span = start.merge(&node.span).merge(&self.token.span);
+
+                self.eat(TokenKind::RParen, self.token.span)?;
+
+                Ok(
+                    self.mk_expr(
+                        self.prev_token.span.merge(&start.merge(&span)),
+                        ExprKind::Paren(Box::new(node))
+                    )
+                )
+            },
+            TokenKind::LBrace => {
+                self.bump();
+                let start = self.prev_token.span;
+
+                let node = self.parse_expr()?;
+
+                let span = start.merge(&node.span).merge(&self.token.span);
+
+                self.eat(TokenKind::RParen, self.token.span)?;
+
+                let block = self.parse_block()?;
+
+                Ok(
+                    self.mk_expr(
+                        self.prev_token.span.merge(&start.merge(&span)),
+                        ExprKind::Block(
+                            Box::new(block)
+                        )
+                    )
+                )
+            },
+            _ => {
+                Err(
+                    DiagsParser::unexpected_token(
+                        self.dcx(),
+                        self.token,
+                        self.token.span
+                    ).emit()
+                )
+            }
+        }
+    }
+
+    fn parse_expr_fn_call(&mut self, start: Span, f: Expr) -> PResult<Expr> {
         todo!()
     }
 

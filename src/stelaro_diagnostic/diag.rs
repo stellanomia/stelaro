@@ -201,10 +201,8 @@ impl<'a, G:EmissionGuarantee> Diag<'a, G> {
         self.diag.as_deref_mut().unwrap().help.push(msg);
     }
 
-    pub fn emit(mut self) -> ErrorEmitted {
-        let diag = self.take_diag();
-        let emitted = self.dcx.emit_diagnostic(diag);
-        emitted.unwrap()
+    pub fn emit(self) -> G::EmitResult {
+        G::emit_producing_guarantee(self)
     }
 }
 
