@@ -10,6 +10,6 @@ fn main() {
 // "#.trim().to_string());
 
 temp(r#"
-1 + ++1;
+f(g(1, 2, 3, t(4+5) * t(6-7)))
 "#.trim().to_string());
 }

@@ -7,7 +7,7 @@ pub struct DiagsParser;
 impl<'dcx> DiagsParser {
     pub fn unexpected_token (
         dcx: DiagCtxtHandle<'dcx>,
-        unexpected: Token,
+        unexpected: TokenKind,
         span: Span,
     ) -> Diag<'dcx, ErrorEmitted> {
         let mut diag = dcx.struct_err(span);
