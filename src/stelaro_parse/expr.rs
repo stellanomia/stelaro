@@ -153,7 +153,7 @@ impl Parser<'_> {
 
             self.bump();
             if op.is_comparison() {
-                self.check_non_associative_chain(&lhs)?
+                self.check_non_associative_chain(&lhs, op)?
             }
 
             let next_min_prec = match op.fixity() {
@@ -204,10 +204,10 @@ impl Parser<'_> {
     }
 
     /// 無効な連続した比較演算子を確認 `x < y < z`
-    fn check_non_associative_chain(&self, lhs: &Expr) -> PResult<()> {
+    fn check_non_associative_chain(&self, lhs: &Expr, next: AssocOp) -> PResult<()> {
         match &lhs.kind {
             ExprKind::Binary(bin_op, _, _) => {
-                if AssocOp::from_binop(bin_op.kind).is_comparison() {
+                if AssocOp::from_binop(bin_op.kind).is_comparison() && next.is_comparison() {
                     Err(
                         DiagsParser::chained_comparison(
                             self.dcx(), bin_op.span, self.prev_token.span
@@ -242,7 +242,7 @@ impl Parser<'_> {
 
                 let start = self.prev_token.span;
 
-                let node = self.parse_expr()?;
+                let node = self.parse_expr_(PrecedenceLimit::None)?;
 
                 Ok(
                     self.mk_expr(
@@ -257,7 +257,7 @@ impl Parser<'_> {
 
                 let start = self.prev_token.span;
 
-                let node = self.parse_expr()?;
+                let node = self.parse_expr_(PrecedenceLimit::None)?;
 
                 Ok(
                     self.mk_expr(
@@ -336,7 +336,7 @@ impl Parser<'_> {
                 self.bump();
                 let start = self.prev_token.span;
 
-                let node = self.parse_expr()?;
+                let node = self.parse_expr_(PrecedenceLimit::None)?;
 
                 let span = start.merge(&self.token.span);
 
@@ -352,9 +352,9 @@ impl Parser<'_> {
             TokenKind::LBrace => {
                 let start = self.token.span;
 
-                let node = self.parse_block()?;
+                let block = self.parse_block()?;
 
-                let span = start.merge(self.prev_token.span);
+                let span = start.merge(&self.prev_token.span);
 
                 Ok(
                     self.mk_expr(
@@ -369,7 +369,7 @@ impl Parser<'_> {
                 Err(
                     DiagsParser::unexpected_token(
                         self.dcx(),
-                        self.token,
+                        self.token.kind,
                         self.token.span
                     ).emit()
                 )
@@ -378,7 +378,80 @@ impl Parser<'_> {
     }
 
     fn parse_expr_fn_call(&mut self, start: Span, f: Expr) -> PResult<Expr> {
-        todo!()
+        let seq = self.parse_delim_comma_seq(TokenKind::LParen, TokenKind::RParen)?;
+
+        Ok(
+            self.mk_expr(
+                start.merge(&self.prev_token.span),
+                ExprKind::Call(
+                    Box::new(f),
+                    seq
+                ),
+            )
+        )
+    }
+
+    /// コンマで区切られた列をパース
+    fn parse_delim_comma_seq(&mut self, open: TokenKind, close: TokenKind) -> PResult<Vec<Expr>> {
+        if self.token.kind != open {
+            Err(
+                DiagsParser::unexpected_token_with_expected(
+                    self.dcx(),
+                    self.token.kind,
+                    open,
+                    self.token.span,
+                ).emit()
+            )?
+        }
+
+        self.bump();
+
+        if self.token.kind == close {
+            self.bump();
+
+            Ok(Vec::with_capacity(0))
+        } else {
+            // f(,) を許可しない
+            let mut args = vec![self.parse_expr_(PrecedenceLimit::None)?];
+
+            loop {
+                match self.token.kind {
+                    TokenKind::Comma => {
+                        self.bump();
+
+                        // f (0,1,) 及び
+                        // f (
+                        //   0,
+                        //   1,
+                        // ) を許可
+                        if self.token.kind == close {
+                            self.bump();
+
+                            break;
+                        }
+                    },
+                    _ if self.token.kind == close => {
+                        self.bump();
+
+                        break;
+                    },
+                    _ => {
+                        Err(
+                            DiagsParser::unexpected_token(
+                                self.dcx(),
+                                self.token.kind,
+                                self.token.span,
+                            ).emit()
+                        )?
+                    }
+                }
+
+                let arg = self.parse_expr_(PrecedenceLimit::None)?;
+                args.push(arg);
+            }
+
+            Ok(args)
+        }
     }
 
     #[inline]
