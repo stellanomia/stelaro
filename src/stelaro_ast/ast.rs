@@ -65,10 +65,10 @@ pub enum StmtKind {
     Let(Box<Local>),
 
     /// expr 値を返す式
-    ReturnableExpr(Box<Expr>),
+    Expr(Box<Expr>),
 
     /// expr; 式文
-    Expr(Box<Expr>),
+    Semi(Box<Expr>),
 
     /// while expr { block }
     While(Box<Expr>, Box<Block>),

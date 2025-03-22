@@ -25,10 +25,10 @@ pub fn temp(src: String) {
     let mut lexer = Lexer::new(&sess, &src);
     if let Ok(ts) = lexer.lex() {
         let mut parser = Parser::new(&sess, ts);
-        let expr = parser.parse_expr();
+        let ast = parser.parse_stmt();
 
-        match expr {
-            Ok(expr) => {dbg!(&expr); expr},
+        match ast {
+            Ok(ast) => {dbg!(&ast); ast},
             Err(_) => todo!(),
         };
     }

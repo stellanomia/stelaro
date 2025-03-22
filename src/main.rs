@@ -10,6 +10,12 @@ fn main() {
 // "#.trim().to_string());
 
 temp(r#"
-f(g(1, 2, 3, t(4+5) * t(6-7)))
+let x = 0
 "#.trim().to_string());
+
+// temp(r#"
+// if true {
+//     let x = 0;
+// }
+// "#.trim().to_string());
 }

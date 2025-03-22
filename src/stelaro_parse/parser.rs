@@ -23,7 +23,7 @@ impl<'sess> Parser<'sess> {
     ) -> Self {
         let mut parser = Parser {
             sess,
-            token_stream: token_stream.filter(|t| t.kind == TokenKind::LineComment).collect(),
+            token_stream: token_stream.filter(|t| t.kind != TokenKind::LineComment).collect(),
             token: Token::dummy(),
             prev_token: Token::dummy(),
         };
@@ -41,7 +41,12 @@ impl<'sess> Parser<'sess> {
     pub fn bump(&mut self) {
         self.prev_token = self.token;
 
-        self.token = self.token_stream.next().expect("bug: TokenStreamの範囲外アクセス");
+        dbg!(self.token);
+
+        match self.token_stream.next() {
+            Some(t) => self.token = t,
+            None => panic!("bug: TokenStreamの範囲外アクセス")
+        }
     }
 
     pub fn eat(&mut self, expected: TokenKind, span: Span) -> Result<(), ErrorEmitted>{

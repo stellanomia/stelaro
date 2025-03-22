@@ -14,6 +14,16 @@ impl Parser<'_> {
             TokenKind::While => {
                 self.parse_while()
             },
+            TokenKind::If => {
+                let expr_if = self.parse_if()?;
+
+                Ok(
+                    self.mk_stmt(
+                        expr_if.span,
+                        StmtKind::Expr(Box::new(expr_if))
+                    )
+                )
+            },
             _ => {
                 let expr = self.parse_expr()?;
 
@@ -24,7 +34,7 @@ impl Parser<'_> {
                         Ok(
                             self.mk_stmt(
                                 expr.span.merge(&self.prev_token.span),
-                                StmtKind::Expr(Box::new(expr))
+                                StmtKind::Semi(Box::new(expr))
                             )
                         )
                     },
@@ -33,7 +43,7 @@ impl Parser<'_> {
                         Ok(
                             self.mk_stmt(
                                 expr.span,
-                                StmtKind::ReturnableExpr(Box::new(expr))
+                                StmtKind::Expr(Box::new(expr))
                             )
                         )
                     },
