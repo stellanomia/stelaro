@@ -233,6 +233,7 @@ impl Parser<'_> {
             | TokenKind::Minus       // 単項演算子 -
             | TokenKind::Bang        // 単項演算子 !
             | TokenKind::LParen
+            | TokenKind::If
         )
     }
 
