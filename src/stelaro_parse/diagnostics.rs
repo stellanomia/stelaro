@@ -12,7 +12,7 @@ impl<'dcx> DiagsParser {
     ) -> Diag<'dcx, ErrorEmitted> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnexpectedToken.into());
-        diag.set_message("予期しないトークン".to_string());
+        diag.set_message(format!("予期しないトークン: `{}`", unexpected));
         diag.set_label(span, format!("不正なトークン`{}`が入力されました", unexpected));
 
         diag
@@ -26,7 +26,7 @@ impl<'dcx> DiagsParser {
     ) -> Diag<'dcx, ErrorEmitted> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnexpectedToken.into());
-        diag.set_message("予期しないトークン".to_string());
+        diag.set_message(format!("予期しないトークン: `{}`", unexpected));
         diag.set_label(span, format!("`{}`を期待していましたが、`{}` は無効な入力です", expected, unexpected));
 
         diag
@@ -46,18 +46,18 @@ impl<'dcx> DiagsParser {
         diag
     }
 
-    pub fn missing_operator (
-        dcx: DiagCtxtHandle<'dcx>,
-        span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
-        let mut diag = dcx.struct_err(span);
-        diag.set_code(ErrorCode::MissingOperator.into());
-        diag.set_message("不足した演算子".to_string());
-        diag.set_label(span, "式と式の間に演算子がありません".to_string());
-        diag.set_help("演算子(e.g., `+`, `-`)か、`;`を追加してください".to_string());
+    // pub fn missing_operator (
+    //     dcx: DiagCtxtHandle<'dcx>,
+    //     span: Span,
+    // ) -> Diag<'dcx, ErrorEmitted> {
+    //     let mut diag = dcx.struct_err(span);
+    //     diag.set_code(ErrorCode::MissingOperator.into());
+    //     diag.set_message("不足した演算子".to_string());
+    //     diag.set_label(span, "式と式の間に演算子がありません".to_string());
+    //     diag.set_help("演算子(e.g., `+`, `-`)か、`;`を追加してください".to_string());
 
-        diag
-    }
+    //     diag
+    // }
 
     pub fn expect_expression (
         dcx: DiagCtxtHandle<'dcx>,
@@ -125,6 +125,7 @@ impl<'dcx> DiagsParser {
         diag
     }
 
+    // 式文解析時にセミコロンがない場合使用される
     pub fn missing_semicolon(
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
@@ -144,7 +145,7 @@ impl<'dcx> DiagsParser {
 enum ErrorCode {
     UnexpectedToken = 200,
     ChainedComparison = 201,
-    MissingOperator = 202,
+    // MissingOperator = 202,
     ExpectExpression = 203,
     PrefixIncrement = 204,
     UnexpectedClosingDelimiter = 205,
@@ -206,16 +207,6 @@ mod tests {
     }
 
     #[test]
-    fn test_missing_operator() {
-        let (sess, is_err) = get_sess_after_expr_parse(
-            "x = 1 + 2 3"
-        );
-
-        assert!(is_err);
-        assert!(sess.dcx().has_err_code(ErrorCode::MissingOperator.into()));
-    }
-
-    #[test]
     fn test_expect_expression() {
         let (sess, is_err) = get_sess_after_expr_parse(
             "1 + 2 - * 3"
@@ -268,7 +259,7 @@ mod tests {
     #[test]
     fn test_missing_semicolon() {
         let (sess, is_err) = get_sess_after_stmt_parse(
-            "let x = 5"  // セミコロンなし
+            "f(123, 456)"  // セミコロンなし
         );
 
         assert!(is_err);

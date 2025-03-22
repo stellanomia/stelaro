@@ -175,7 +175,7 @@ let str = "Hello, World!";
             kind: TokenKind::Eof,
             span: Span {
                 start: 40,
-                end: 41,
+                end: 40,
             },
         },
     ];

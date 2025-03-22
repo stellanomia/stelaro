@@ -123,14 +123,7 @@ impl Parser<'_> {
     pub fn parse_expr(&mut self) -> PResult<Expr> {
         let node = self.parse_expr_(PrecedenceLimit::None)?;
 
-        if self.can_start_expr() {
-            Err(
-                DiagsParser::missing_operator(
-                    self.dcx(),
-                    node.span.between(&self.token.span)
-                ).emit()
-            )?
-        } else if matches!(self.token.kind, TokenKind::RParen | TokenKind::RBrace) {
+        if self.token.kind == TokenKind::RParen {
             self.bump();
 
             Err(
@@ -306,7 +299,16 @@ impl Parser<'_> {
                         self.token.span,
                     ).emit()
                 )?
-            }
+            },
+            _ if !self.can_start_expr() => {
+                Err(
+                    DiagsParser::expect_expression(
+                        self.dcx(),
+                        self.token,
+                        self.token.span
+                    ).emit()
+                )
+            },
             _ => {
                 self.parse_expr_postfix()
             }
@@ -384,7 +386,7 @@ impl Parser<'_> {
             },
             TokenKind::If => {
                 self.parse_if()
-            }
+            },
             _ => {
                 Err(
                     DiagsParser::unexpected_token(
@@ -495,8 +497,9 @@ impl Parser<'_> {
             if self.token.kind == TokenKind::If {
                 Some(Box::new(self.parse_if()?))
             } else {
-                let block = self.parse_block()?;
                 // 通常のelseブロック
+                let block = self.parse_block()?;
+
                 Some(
                     Box::new(
                         self.mk_expr(

@@ -194,8 +194,6 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 self.lex_word(pos)?
             },
             EOF_CHAR => {
-                self.bump();
-
                 TokenKind::Eof
             }
             c => {
