@@ -130,6 +130,15 @@ impl Parser<'_> {
                     node.span.between(&self.token.span)
                 ).emit()
             )?
+        } else if matches!(self.token.kind, TokenKind::RParen | TokenKind::RBrace) {
+            self.bump();
+
+            Err(
+                DiagsParser::unexpected_closing_delimiter(
+                    self.dcx(),
+                    self.prev_token.span,
+                ).emit()
+            )?
         }
 
         Ok(node)
@@ -289,6 +298,14 @@ impl Parser<'_> {
                         ).emit()
                     )
                 }
+            },
+            TokenKind::RParen | TokenKind::RBrace => {
+                Err(
+                    DiagsParser::unexpected_closing_delimiter(
+                        self.dcx(),
+                        self.token.span,
+                    ).emit()
+                )?
             }
             _ => {
                 self.parse_expr_postfix()
@@ -436,13 +453,19 @@ impl Parser<'_> {
                         break;
                     },
                     _ => {
-                        Err(
-                            DiagsParser::unexpected_token(
-                                self.dcx(),
-                                self.token.kind,
-                                self.token.span,
-                            ).emit()
-                        )?
+                        let mut diag = DiagsParser::unexpected_token(
+                            self.dcx(),
+                            self.token.kind,
+                            self.token.span,
+                        );
+
+                        diag.set_label(
+                            self.token.span,
+                            format!("`,`または`)`を期待しましたが、`{}`が見つかりました",
+                                self.token.kind
+                            )
+                        );
+                        Err(diag.emit())?
                     }
                 }
 

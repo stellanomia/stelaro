@@ -2,6 +2,7 @@ pub mod parser;
 mod diagnostics;
 mod expr;
 mod stmt;
+mod ty;
 
 use crate::stelaro_diagnostic::diag::ErrorEmitted;
 use crate::stelaro_lexer::Lexer;
