@@ -1,4 +1,4 @@
-use crate::{stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId, UnOp}, token::{Token, TokenKind}}, stelaro_common::symbol::Ident};
+use crate::{stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, UnOp}, token::{Token, TokenKind}}, stelaro_common::symbol::Ident};
 use crate::stelaro_common::span::Span;
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
@@ -323,7 +323,7 @@ impl Parser<'_> {
         }
     }
 
-    // TODO: タプル、if(while, for, loop)式、配列 のサポート
+    // TODO: タプル、while(for, loop)式、配列 のサポート
     /// 優先順位が最も低く、括弧で囲まれた式などを解析する
     fn parse_expr_bottom(&mut self) -> PResult<Expr> {
         match self.token.kind {
@@ -382,6 +382,9 @@ impl Parser<'_> {
                     )
                 )
             },
+            TokenKind::If => {
+                self.parse_if()
+            }
             _ => {
                 Err(
                     DiagsParser::unexpected_token(
@@ -477,8 +480,45 @@ impl Parser<'_> {
         }
     }
 
-    #[inline]
-    fn mk_expr(&self, span: Span, kind: ExprKind) -> Expr {
-        Expr { kind, span, id: NodeId::dummy() }
+    pub fn parse_if(&mut self) -> PResult<Expr> {
+        self.eat(TokenKind::If, self.token.span)?;
+        let start = self.prev_token.span;
+
+        let cond = self.parse_expr()?;
+
+        let block = self.parse_block()?;
+
+        let else_branch = if self.token.kind == TokenKind::Else {
+            self.bump();
+
+            // else ifの場合
+            if self.token.kind == TokenKind::If {
+                Some(Box::new(self.parse_if()?))
+            } else {
+                let block = self.parse_block()?;
+                // 通常のelseブロック
+                Some(
+                    Box::new(
+                        self.mk_expr(
+                            block.span,
+                            ExprKind::Block(Box::new(block))
+                        )
+                    )
+                )
+            }
+        } else {
+            None
+        };
+
+        Ok(
+            self.mk_expr(
+                start.merge(&self.prev_token.span),
+                ExprKind::If (
+                    Box::new(cond),
+                    Box::new(block),
+                    else_branch,
+                )
+            )
+        )
     }
 }

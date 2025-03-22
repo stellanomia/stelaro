@@ -1,3 +1,4 @@
+use crate::stelaro_ast::ast::{Block, Expr, ExprKind, NodeId, Stmt, StmtKind};
 use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
 use crate::stelaro_common::span::Span;
 use crate::stelaro_common::symbol::Ident;
@@ -22,7 +23,7 @@ impl<'sess> Parser<'sess> {
     ) -> Self {
         let mut parser = Parser {
             sess,
-            token_stream,
+            token_stream: token_stream.filter(|t| t.kind == TokenKind::LineComment).collect(),
             token: Token::dummy(),
             prev_token: Token::dummy(),
         };
@@ -73,6 +74,8 @@ impl<'sess> Parser<'sess> {
             kind: LiteralKind::Integer | LiteralKind::Float, ..
         }) = self.token.kind {
                 let next = self.look_ahead(1);
+
+                // 次のトークンが識別子ならSpanに含める
                 let span = if let Some(TokenKind::Ident(_)) = next.map(|t| t.kind) {
                     self.token.span.merge(&next.unwrap().span)
                 } else {
@@ -94,5 +97,44 @@ impl<'sess> Parser<'sess> {
                 ).emit()
             )?
         }
+    }
+
+    pub fn parse_block(&mut self) -> PResult<Block> {
+        self.eat(TokenKind::LBrace, self.token.span)?;
+        let start = self.prev_token.span;
+        let mut stmts = vec![];
+
+        loop {
+            match self.token.kind {
+                TokenKind::RBrace => {
+                    self.bump();
+                    break;
+                },
+                TokenKind::Eof => {
+                    break;
+                }
+                _ => {
+                    stmts.push(self.parse_stmt()?);
+                }
+            }
+        }
+
+        Ok(
+            Block {
+                id: NodeId::dummy(),
+                stmts,
+                span: start.merge(&self.prev_token.span)
+            }
+        )
+    }
+
+    #[inline]
+    pub fn mk_expr(&self, span: Span, kind: ExprKind) -> Expr {
+        Expr { kind, span, id: NodeId::dummy() }
+    }
+
+    #[inline]
+    pub fn mk_stmt(&self, span: Span, kind: StmtKind) -> Stmt {
+        Stmt { id: NodeId::dummy(), kind, span }
     }
 }

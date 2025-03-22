@@ -63,9 +63,13 @@ pub struct Stmt {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum StmtKind {
     Let(Box<Local>),
+
+    /// expr 値を返す式
+    ReturnableExpr(Box<Expr>),
+
+    /// expr; 式文
     Expr(Box<Expr>),
-    /// if expr { block } else { block }
-    If(Box<Expr>, Box<Block>, Option<Block>),
+
     /// while expr { block }
     While(Box<Expr>, Box<Block>),
 }
@@ -75,6 +79,7 @@ pub struct Local {
     pub id: NodeId,
     pub ident: Ident,
     pub kind: LocalKind,
+    pub ty: Option<Ty>,
     pub span: Span,
 }
 
@@ -95,6 +100,8 @@ pub struct Expr {
 pub enum ExprKind {
     /// 関数呼び出し
     Call(Box<Expr>, Vec<Expr>),
+    /// if expr { block } else { expr }
+    If(Box<Expr>, Box<Block>, Option<Box<Expr>>),
     Block(Box<Block>),
     Binary(BinOp, Box<Expr>, Box<Expr>),
     Unary(UnOp, Box<Expr>),

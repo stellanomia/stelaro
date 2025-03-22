@@ -94,6 +94,10 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 self.bump();
                 TokenKind::Percent
             }
+            ':' => {
+                self.bump();
+                TokenKind::Semicolon
+            },
             ';' => {
                 self.bump();
                 TokenKind::Semicolon
