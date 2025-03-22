@@ -125,6 +125,19 @@ impl<'dcx> DiagsParser {
         diag
     }
 
+    pub fn missing_semicolon(
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(ErrorCode::MissingSemicolon.into());
+        diag.set_message("セミコロンがありません".to_string());
+        diag.set_label(span, "この文の末尾にセミコロンが必要です".to_string());
+        diag.set_help("文の末尾に `;` を追加してください".to_string());
+
+        diag
+    }
+
 }
 
 #[repr(i32)]
@@ -137,6 +150,7 @@ enum ErrorCode {
     UnexpectedClosingDelimiter = 205,
     UnexpectedTokenForIdentifier = 206,
     UnexpectedNumericLiteralForIdentifier = 207,
+    MissingSemicolon = 208,
 }
 
 impl From<ErrorCode> for i32 {
@@ -249,5 +263,15 @@ mod tests {
 
         assert!(is_err);
         assert!(sess.dcx().has_err_code(ErrorCode::UnexpectedNumericLiteralForIdentifier.into()));
+    }
+
+    #[test]
+    fn test_missing_semicolon() {
+        let (sess, is_err) = get_sess_after_stmt_parse(
+            "let x = 5"  // セミコロンなし
+        );
+
+        assert!(is_err);
+        assert!(sess.dcx().has_err_code(ErrorCode::MissingSemicolon.into()));
     }
 }

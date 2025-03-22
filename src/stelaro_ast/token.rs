@@ -10,48 +10,50 @@ pub struct Token {
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenKind {
-    /// '('
+    /// `(`
     LParen,
-    /// ')'
+    /// `)`
     RParen,
-    /// '{'
+    /// `{`
     LBrace,
-    /// '}'
+    /// `}`
     RBrace,
-    /// ','
+    /// `,`
     Comma,
-    /// '.'
+    /// `.`
     Dot,
-    /// '+'
+    /// `+`
     Plus,
-    /// '-'
+    /// `-`
     Minus,
-    /// '*'
+    /// `*`
     Star,
-    /// '%'
+    /// `%`
     Percent,
-    /// ';'
+    /// `:`
+    Colon,
+    /// `;`
     Semicolon,
 
-    /// '/'
+    /// `/`
     Slash,
-    /// '//'
+    /// `//`
     LineComment,
-    /// '!'
+    /// `!`
     Bang,
-    /// '!='
+    /// `!=`
     BangEqual,
-    /// '='
+    /// `=`
     Equal,
-    /// '=='
+    /// `==`
     EqualEqual,
-    /// '>'
+    /// `>`
     Greater,
-    /// '>='
+    /// `>=`
     GreaterEqual,
-    /// '<'
+    /// `<`
     Less,
-    // '<='
+    // `<=`
     LessEqual,
 
     Ident(Symbol),
@@ -223,6 +225,7 @@ impl fmt::Display for TokenKind {
             TokenKind::Minus => wrt!(f, "-"),
             TokenKind::Star => wrt!(f, "*"),
             TokenKind::Percent => wrt!(f, "%"),
+            TokenKind::Colon => wrt!(f, ":"),
             TokenKind::Semicolon => wrt!(f, ";"),
             TokenKind::Slash => wrt!(f, "/"),
             TokenKind::LineComment => wrt!(f, "コメント"),
