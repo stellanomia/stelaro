@@ -1,7 +1,5 @@
-use crate::stelaro_ast::ast::{Block, Expr, ExprKind, NodeId, Stmt, StmtKind};
-use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
-use crate::stelaro_common::span::Span;
-use crate::stelaro_common::symbol::Ident;
+use crate::stelaro_ast::{ast::{Block, Expr, ExprKind, NodeId, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}};
+use crate::stelaro_common::{span::Span, symbol::Ident};
 use crate::stelaro_diagnostic::diag::{DiagCtxtHandle, ErrorEmitted};
 use crate::stelaro_session::Session;
 

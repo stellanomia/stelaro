@@ -1,5 +1,5 @@
-use crate::{stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, UnOp}, token::{Token, TokenKind}}, stelaro_common::symbol::Ident};
-use crate::stelaro_common::span::Span;
+use crate::stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, UnOp}, token::{Token, TokenKind}};
+use crate::stelaro_common::{span::Span, symbol::Ident};
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 

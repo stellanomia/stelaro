@@ -183,7 +183,7 @@ pub enum UnOp {
     Neg,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct NodeId(u32);
 
 impl NodeId {
