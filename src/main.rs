@@ -10,17 +10,11 @@ fn main() {
 // "#.trim().to_string());
 
 temp(r#"
-let x = if true {
+let x: std::i32 = if true {
     let y = 2;
-    y
+    { y + 123 }
 } else {
     3
 };
-"#.trim().to_string());
-
-temp(r#"
-let x = while true {
-    let x = 0;
-}
 "#.trim().to_string());
 }

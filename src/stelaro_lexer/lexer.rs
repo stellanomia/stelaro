@@ -94,13 +94,18 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 self.bump();
                 TokenKind::Percent
             }
-            ':' => {
-                self.bump();
-                TokenKind::Semicolon
-            },
             ';' => {
                 self.bump();
                 TokenKind::Semicolon
+            },
+            ':' => {
+                self.bump();
+                if self.first() == ':' {
+                    self.bump();
+                    TokenKind::PathSep
+                }else {
+                    TokenKind::Colon
+                }
             },
             '/' => {
                 self.bump();
@@ -188,7 +193,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                     }
                 )
             }
-            c if c.is_alphabetic() => {
+            c if c.is_alphabetic() || c == '_' => {
                 self.bump();
                 // キーワード、Identifier、boolean値を解析する
                 self.lex_word(pos)?

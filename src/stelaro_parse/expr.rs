@@ -1,5 +1,5 @@
 use crate::stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, UnOp}, token::{Token, TokenKind}};
-use crate::stelaro_common::{span::Span, symbol::Ident};
+use crate::stelaro_common::span::Span;
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 
@@ -230,10 +230,11 @@ impl Parser<'_> {
         matches!(self.token.kind,
             TokenKind::Literal(_)
             | TokenKind::Ident(_)
-            | TokenKind::Minus       // 単項演算子 -
-            | TokenKind::Bang        // 単項演算子 !
+            | TokenKind::Minus  // 単項演算子 -
+            | TokenKind::Bang   // 単項演算子 !
             | TokenKind::LParen
-            | TokenKind::If
+            | TokenKind::If     // If式
+            | TokenKind::LBrace // ブロック式 {}
         )
     }
 
@@ -340,15 +341,16 @@ impl Parser<'_> {
                     )
                 )
             },
-            TokenKind::Ident(symbol) => {
-                self.bump();
-                let ident_span = self.prev_token.span;
+            TokenKind::Ident(_) => {
+                let start = self.token.span;
+
+                let path = self.parse_path()?;
 
                 Ok(
                     self.mk_expr(
-                    ident_span,
-                    ExprKind::Ident(
-                        Ident::new(symbol, ident_span)
+                    start.merge(&self.prev_token.span),
+                    ExprKind::Path(
+                        path
                     ))
                 )
             }

@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use stelaro::{
-    stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId}, token::{Lit, LiteralKind}}, stelaro_common::{source_map::SourceMap, symbol::{Ident, Symbol}}, stelaro_diagnostic::DiagCtxt, stelaro_parse::{new_parser_from_src, parser::Parser}, stelaro_session::Session
+    stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId, Path, PathSegment}, token::{Lit, LiteralKind}}, stelaro_common::{source_map::SourceMap, symbol::{Ident, Symbol}}, stelaro_diagnostic::DiagCtxt, stelaro_parse::{new_parser_from_src, parser::Parser}, stelaro_session::Session
 };
 
 fn create_sess(src: Rc<String>) -> Session {
@@ -30,8 +30,19 @@ fn test_parse_expr() {
             kind: ExprKind::Assign(
                 Box::new(Expr {
                     id: NodeId::dummy(),
-                    kind: ExprKind::Ident(
-                        Ident::new(Symbol::new(0), (0..1).into())
+                    kind: ExprKind::Path(
+                        Path {
+                            span: (0..1).into(),
+                            segments: vec![
+                                PathSegment {
+                                    ident: Ident {
+                                        name: Symbol::new(0),
+                                        span: (0..1).into()
+                                    },
+                                    id: NodeId::dummy(),
+                                }
+                            ]
+                        }
                     ),
                     span: (0..1).into(),
                 }),
