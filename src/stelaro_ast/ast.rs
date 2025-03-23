@@ -110,7 +110,19 @@ pub enum ExprKind {
     Paren(Box<Expr>),
     Assign(Box<Expr>, Box<Expr>),
     AssignOp(BinOp, Box<Expr>, Box<Expr>),
-    Ident(Ident),
+    Path(Path),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Path {
+    pub span: Span,
+    pub segments: Vec<PathSegment>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct PathSegment {
+    pub ident: Ident,
+    pub id: NodeId,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]

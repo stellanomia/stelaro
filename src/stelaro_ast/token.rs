@@ -32,6 +32,8 @@ pub enum TokenKind {
     Percent,
     /// `:`
     Colon,
+    /// `::`
+    PathSep,
     /// `;`
     Semicolon,
 
@@ -74,9 +76,7 @@ pub enum TokenKind {
     Print, // print
     While, // while
 
-
     Eof,
-
 }
 
 impl Token {
@@ -226,6 +226,7 @@ impl fmt::Display for TokenKind {
             TokenKind::Star => wrt!(f, "*"),
             TokenKind::Percent => wrt!(f, "%"),
             TokenKind::Colon => wrt!(f, ":"),
+            TokenKind::PathSep => wrt!(f, "::"),
             TokenKind::Semicolon => wrt!(f, ";"),
             TokenKind::Slash => wrt!(f, "/"),
             TokenKind::LineComment => wrt!(f, "コメント"),
