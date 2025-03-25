@@ -445,7 +445,6 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
 
     fn as_keyword(&self, string: &str) -> Option<TokenKind> {
         match string {
-            "null" => Some(TokenKind::Null),
             "fn" => Some(TokenKind::Fn),
             "return" => Some(TokenKind::Return),
             "let" => Some(TokenKind::Let),

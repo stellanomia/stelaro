@@ -18,7 +18,7 @@ fn test_complex_expression() {
 fn main() {
     let x = 42.0;
     if x > 10 {
-        print "Hello";
+        "Hello";
     }
     // line comment
     while true {}
@@ -57,7 +57,6 @@ fn main() {
             }
         ),
         TokenKind::LBrace,
-        TokenKind::Print,
         TokenKind::Literal (
             Lit {
                 kind: LiteralKind::Str,
@@ -94,7 +93,7 @@ fn main() {
 fn test_token_pos() {
     let src = r#"
 let str = "Hello, World!";
-    print "";
+          "";
 "#.trim().to_string();
 
     let sess = &create_sess(src.to_string());
@@ -143,13 +142,6 @@ let str = "Hello, World!";
             span: Span {
                 start: 25,
                 end: 26,
-            },
-        },
-        Token {
-            kind: TokenKind::Print,
-            span: Span {
-                start: 31,
-                end: 36,
             },
         },
         Token {
