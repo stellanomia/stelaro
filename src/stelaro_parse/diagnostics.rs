@@ -32,6 +32,45 @@ impl<'dcx> DiagsParser {
         diag
     }
 
+    pub fn unexpected_token_with_expected_any (
+        dcx: DiagCtxtHandle<'dcx>,
+        unexpected: TokenKind,
+        expected: &[TokenKind],
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(ErrorCode::UnexpectedToken.into());
+        diag.set_message(format!("予期しないトークン: `{}`", unexpected));
+
+        match expected.len() {
+            0 => {
+                diag.set_label(span, format!("`{}` は無効な入力です", unexpected));
+            }
+            1 => {
+                diag.set_label(
+                    span,
+                    format!("`{}` を期待していましたが、`{}` は無効な入力です", expected[0], unexpected),
+                );
+            }
+            _ => {
+                let expected_list = expected
+                    .iter()
+                    .map(|t| format!("`{}`", t))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                diag.set_label(
+                    span,
+                    format!(
+                        "{} のいずれかを期待していましたが、`{}` は無効な入力です",
+                        expected_list, unexpected
+                    ),
+                );
+            }
+        }
+
+        diag
+    }
+
     pub fn chained_comparison (
         dcx: DiagCtxtHandle<'dcx>,
         op1: Span,
@@ -105,7 +144,7 @@ impl<'dcx> DiagsParser {
     ) -> Diag<'dcx, ErrorEmitted> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnexpectedTokenForIdentifier.into());
-        diag.set_message("不正な識別子".to_string());
+        diag.set_message("無効な識別子".to_string());
         diag.set_label(span, "識別子でない予期しないトークンがあります".to_string());
 
         diag
@@ -126,7 +165,7 @@ impl<'dcx> DiagsParser {
     }
 
     // 式文解析時にセミコロンがない場合使用される
-    pub fn missing_semicolon(
+    pub fn missing_semicolon (
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
     ) -> Diag<'dcx, ErrorEmitted> {
@@ -139,6 +178,30 @@ impl<'dcx> DiagsParser {
         diag
     }
 
+    pub fn missing_function_body (
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(ErrorCode::MissingFunctionBody.into());
+        diag.set_message("関数のボディがありません".to_string());
+        diag.set_label(span, "関数のボディ`{...}`がありません".to_string());
+
+        diag
+    }
+
+    pub fn cannot_use_underscore_as_identifier (
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(ErrorCode::CannotUseUnderscoreAsIdentifier.into());
+        diag.set_message("無効な識別子: `_`".to_string());
+        diag.set_label(span, "`_` を識別子として使用することはできません".to_string());
+        diag.set_help("`_` は値の破棄や未使用変数の表現としてのみ利用可能です".to_string());
+
+        diag
+    }
 }
 
 #[repr(i32)]
@@ -152,6 +215,8 @@ enum ErrorCode {
     UnexpectedTokenForIdentifier = 206,
     UnexpectedNumericLiteralForIdentifier = 207,
     MissingSemicolon = 208,
+    MissingFunctionBody = 209,
+    CannotUseUnderscoreAsIdentifier = 210,
 }
 
 impl From<ErrorCode> for i32 {
