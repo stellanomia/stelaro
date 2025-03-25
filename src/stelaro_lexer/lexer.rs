@@ -454,7 +454,6 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             "and" => Some(TokenKind::And),
             "or" => Some(TokenKind::Or),
             "for" => Some(TokenKind::For),
-            "print" => Some(TokenKind::Print),
             "while" => Some(TokenKind::While),
             _ => None,
         }
