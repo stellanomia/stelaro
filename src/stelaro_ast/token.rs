@@ -73,7 +73,6 @@ pub enum TokenKind {
     And, // and
     Or, // or
     For, // for
-    Print, // print
     While, // while
 
     Eof,
@@ -249,7 +248,6 @@ impl fmt::Display for TokenKind {
             TokenKind::And => wrt!(f, "and"),
             TokenKind::Or => wrt!(f, "or"),
             TokenKind::For => wrt!(f, "for"),
-            TokenKind::Print => wrt!(f, "print"),
             TokenKind::While => wrt!(f, "while"),
             TokenKind::Eof => wrt!(f, "入力の終端"),
         }
