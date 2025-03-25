@@ -19,6 +19,8 @@ impl Ident {
 pub struct Symbol(u32);
 
 impl Symbol {
+    pub const UNDERSCORE: Symbol = Symbol(0);
+
     pub fn new(idx: u32) -> Self {
         Symbol(idx)
     }
@@ -42,6 +44,10 @@ impl Symbol {
             unsafe {std::mem::transmute::<&str, &str>(interner.get(*self))}
         })
     }
+
+    pub fn is_underscore(self) -> bool {
+        self == Symbol::UNDERSCORE
+    }
 }
 
 
@@ -61,24 +67,7 @@ impl Interner {
 
     pub fn intern(&self, string: &str) -> Symbol {
         let mut inner = self.0.borrow_mut();
-
-        if let Some(idx) = inner.strings.get(string) {
-            return Symbol::new(*idx);
-        }
-
-        let idx = inner.next_idx;
-
-        // 安全: Internerが生きている間しかこの参照にアクセスできない
-        // また、&'static str は外部へ持ち込まれない
-        // ライフタイムを'static に拡張
-        let string: &'static str = unsafe {&*(string as *const str) };
-
-        inner.strings.insert(string, idx);
-        inner.next_idx += 1;
-
-        inner.symbols.push(string);
-
-        Symbol::new(idx)
+        inner.intern(string)
     }
 
     pub fn get(&self, idx: Symbol) -> &str {
@@ -87,15 +76,42 @@ impl Interner {
     }
 }
 
+impl InternerInner {
+    #[inline]
+    pub fn intern(&mut self, string: &str) -> Symbol {
+        if let Some(idx) = self.strings.get(string) {
+            return Symbol::new(*idx);
+        }
+
+        let idx = self.next_idx;
+
+        // 安全: Internerが生きている間しかこの参照にアクセスできない
+        // また、&'static str は外部へ持ち込まれない
+        // ライフタイムを'static に拡張
+        let string: &'static str = unsafe {&*(string as *const str) };
+
+        self.strings.insert(string, idx);
+        self.next_idx += 1;
+
+        self.symbols.push(string);
+
+        Symbol::new(idx)
+    }
+}
+
 impl Default for Interner {
     fn default() -> Self {
+        let mut inner = InternerInner {
+            strings: HashMap::with_capacity(1024),
+            symbols: Vec::with_capacity(1024),
+            next_idx: 0,
+        };
+
+        inner.intern("_");
+
         Interner(
             RefCell::new(
-                InternerInner {
-                    strings: HashMap::with_capacity(1024),
-                    symbols: Vec::with_capacity(1024),
-                    next_idx: 0,
-                }
+                inner
             )
         )
     }
