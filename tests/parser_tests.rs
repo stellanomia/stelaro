@@ -36,7 +36,7 @@ fn test_parse_expr() {
                             segments: vec![
                                 PathSegment {
                                     ident: Ident {
-                                        name: Symbol::new(0),
+                                        name: Symbol::new(1),
                                         span: (0..1).into()
                                     },
                                     id: NodeId::dummy(),
@@ -96,7 +96,7 @@ fn test_parse_expr() {
                                                                             kind: ExprKind::Lit(
                                                                                 Lit {
                                                                                     kind: LiteralKind::Integer,
-                                                                                    symbol: Symbol::new(1),
+                                                                                    symbol: Symbol::new(2),
                                                                                 }
                                                                             ),
                                                                             span: (5..6).into(),
@@ -106,7 +106,7 @@ fn test_parse_expr() {
                                                                             kind: ExprKind::Lit(
                                                                                 Lit {
                                                                                     kind: LiteralKind::Integer,
-                                                                                    symbol: Symbol::new(2),
+                                                                                    symbol: Symbol::new(3),
                                                                                 }
                                                                             ),
                                                                             span: (9..10).into(),
@@ -122,7 +122,7 @@ fn test_parse_expr() {
                                                             kind: ExprKind::Lit(
                                                                 Lit {
                                                                     kind: LiteralKind::Integer,
-                                                                    symbol: Symbol::new(3),
+                                                                    symbol: Symbol::new(4),
                                                                 }
                                                             ),
                                                             span: (14..15).into(),
@@ -135,7 +135,7 @@ fn test_parse_expr() {
                                                     kind: ExprKind::Lit(
                                                         Lit {
                                                             kind: LiteralKind::Integer,
-                                                            symbol: Symbol::new(4),
+                                                            symbol: Symbol::new(5),
                                                         }
                                                     ),
                                                     span: (19..20).into(),
@@ -155,7 +155,7 @@ fn test_parse_expr() {
                                                     kind: ExprKind::Lit(
                                                         Lit {
                                                             kind: LiteralKind::Integer,
-                                                            symbol: Symbol::new(5),
+                                                            symbol: Symbol::new(6),
                                                         }
                                                     ),
                                                     span: (25..26).into(),
@@ -165,7 +165,7 @@ fn test_parse_expr() {
                                                     kind: ExprKind::Lit(
                                                         Lit {
                                                             kind: LiteralKind::Integer,
-                                                            symbol: Symbol::new(6),
+                                                            symbol: Symbol::new(7),
                                                         }
                                                     ),
                                                     span: (30..31).into(),
@@ -188,7 +188,7 @@ fn test_parse_expr() {
                                             kind: ExprKind::Lit(
                                                 Lit {
                                                     kind: LiteralKind::Integer,
-                                                    symbol: Symbol::new(7),
+                                                    symbol: Symbol::new(8),
                                                 }
                                             ),
                                             span: (35..36).into(),
@@ -198,7 +198,7 @@ fn test_parse_expr() {
                                             kind: ExprKind::Lit(
                                                 Lit {
                                                     kind: LiteralKind::Integer,
-                                                    symbol: Symbol::new(8),
+                                                    symbol: Symbol::new(9),
                                                 }
                                             ),
                                             span: (40..41).into(),
@@ -228,7 +228,7 @@ fn test_parse_expr() {
                                             kind: ExprKind::Lit(
                                                 Lit {
                                                     kind: LiteralKind::Integer,
-                                                    symbol: Symbol::new(9),
+                                                    symbol: Symbol::new(10),
                                                 }
                                             ),
                                             span: (45..46).into(),
@@ -238,7 +238,7 @@ fn test_parse_expr() {
                                             kind: ExprKind::Lit(
                                                 Lit {
                                                     kind: LiteralKind::Integer,
-                                                    symbol: Symbol::new(10),
+                                                    symbol: Symbol::new(11),
                                                 }
                                             ),
                                             span: (50..52).into(),
@@ -251,7 +251,7 @@ fn test_parse_expr() {
                                     kind: ExprKind::Lit(
                                         Lit {
                                             kind: LiteralKind::Bool(true),
-                                            symbol: Symbol::new(11),
+                                            symbol: Symbol::new(12),
                                         }
                                     ),
                                     span: (57..61).into(),
