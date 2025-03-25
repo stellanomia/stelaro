@@ -64,7 +64,6 @@ pub enum TokenKind {
     Literal(Lit),
 
     // Keywords
-    Null, // null
     Fn, // fn
     Return, // return
     Let, // let
@@ -239,7 +238,6 @@ impl fmt::Display for TokenKind {
             TokenKind::LessEqual => wrt!(f, "<="),
             TokenKind::Ident(symbol) => wrt!(f, symbol.as_str()),
             TokenKind::Literal(lit) => wrt!(f, lit.symbol.as_str()),
-            TokenKind::Null => wrt!(f, "null"),
             TokenKind::Fn => wrt!(f, "fn"),
             TokenKind::Return => wrt!(f, "return"),
             TokenKind::Let => wrt!(f, "let"),
