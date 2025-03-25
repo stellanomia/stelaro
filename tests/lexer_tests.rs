@@ -33,27 +33,27 @@ fn main() {
 
     let expected_kinds = vec![
         TokenKind::Fn,
-        TokenKind::Ident(Symbol::new(0)), // main
+        TokenKind::Ident(Symbol::new(1)), // main
         TokenKind::LParen,
         TokenKind::RParen,
         TokenKind::LBrace,
         TokenKind::Let,
-        TokenKind::Ident(Symbol::new(1)), // x
+        TokenKind::Ident(Symbol::new(2)), // x
         TokenKind::Equal,
         TokenKind::Literal (
             Lit {
                 kind: LiteralKind::Float,
-                symbol: Symbol::new(2), // 42.0
+                symbol: Symbol::new(3), // 42.0
             }
         ),
         TokenKind::Semicolon,
         TokenKind::If,
-        TokenKind::Ident(Symbol::new(1)), // x
+        TokenKind::Ident(Symbol::new(2)), // x
         TokenKind::Greater,
         TokenKind::Literal (
             Lit {
                 kind: LiteralKind::Integer,
-                symbol: Symbol::new(3), // 10
+                symbol: Symbol::new(4), // 10
             }
         ),
         TokenKind::LBrace,
@@ -61,7 +61,7 @@ fn main() {
         TokenKind::Literal (
             Lit {
                 kind: LiteralKind::Str,
-                symbol: Symbol::new(4) // "Hello"
+                symbol: Symbol::new(5) // "Hello"
             }
         ),
         TokenKind::Semicolon,
@@ -71,7 +71,7 @@ fn main() {
         TokenKind::Literal (
             Lit {
                 kind: LiteralKind::Bool(true),
-                symbol: Symbol::new(5) // true
+                symbol: Symbol::new(6) // true
             }
         ),
         TokenKind::LBrace,
@@ -85,8 +85,8 @@ fn main() {
         expected_kinds
     );
 
-    assert_eq!("x", Symbol::new(1).as_str());
-    assert_eq!("\"Hello\"", Symbol::new(4).as_str());
+    assert_eq!("x", Symbol::new(2).as_str());
+    assert_eq!("\"Hello\"", Symbol::new(5).as_str());
 }
 
 
@@ -112,7 +112,7 @@ let str = "Hello, World!";
         },
         Token {
             kind: TokenKind::Ident(
-                Symbol::new(0),
+                Symbol::new(1),
             ),
             span: Span {
                 start: 4,
@@ -130,7 +130,7 @@ let str = "Hello, World!";
             kind: TokenKind::Literal (
                 Lit {
                     kind: LiteralKind::Str,
-                    symbol: Symbol::new(1),
+                    symbol: Symbol::new(2),
                 }
             ),
             span: Span {
@@ -156,7 +156,7 @@ let str = "Hello, World!";
             kind: TokenKind::Literal (
                 Lit {
                     kind: LiteralKind::Str,
-                    symbol: Symbol::new(2),
+                    symbol: Symbol::new(3),
                 }
             ),
             span: Span {

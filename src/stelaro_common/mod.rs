@@ -22,14 +22,14 @@ mod tests {
     #[test]
     fn interner_tests() {
         let interner = Interner::new();
-        assert_eq!(interner.intern("abc").as_usize(), 0);
-        assert_eq!(interner.intern("abc").as_usize(), 0);
-        assert_eq!(interner.intern("def").as_usize(), 1);
-        assert_eq!(interner.intern("ghi").as_usize(), 2);
-        assert_eq!(interner.intern("def").as_usize(), 1);
+        assert_eq!(interner.intern("abc").as_usize(), 1);
+        assert_eq!(interner.intern("abc").as_usize(), 1);
+        assert_eq!(interner.intern("def").as_usize(), 2);
+        assert_eq!(interner.intern("ghi").as_usize(), 3);
+        assert_eq!(interner.intern("def").as_usize(), 2);
 
-        assert_eq!("ghi", interner.get(Symbol::new(2)));
-        assert_eq!("def", interner.get(Symbol::new(1)));
+        assert_eq!("ghi", interner.get(Symbol::new(3)));
+        assert_eq!("def", interner.get(Symbol::new(2)));
     }
 
 

@@ -259,6 +259,14 @@ mod tests {
         (sess, is_err)
     }
 
+    fn get_sess_after_item_parse(src: &str) -> (Session, bool) {
+        let src = Rc::new(src.to_string());
+        let sess = create_sess(Rc::clone(&src));
+        let mut parser = create_parser(&sess, src);
+        let is_err = parser.parse_item().is_err();
+        (sess, is_err)
+    }
+
 
     #[test]
     fn test_chained_comparison() {
@@ -311,6 +319,16 @@ mod tests {
     }
 
     #[test]
+    fn test_unexpected_token_for_type() {
+        let (sess, is_err) = get_sess_after_item_parse(
+            "fn main(x: i32, y:i32) => {"
+        );
+
+        assert!(is_err);
+        assert!(sess.dcx().has_err_code(ErrorCode::UnexpectedTokenForType.into()));
+    }
+
+    #[test]
     fn unexpected_numeric_literal_for_identifier() {
         let (sess, is_err) = get_sess_after_stmt_parse(
             "let 123abc = 0;"
@@ -328,5 +346,25 @@ mod tests {
 
         assert!(is_err);
         assert!(sess.dcx().has_err_code(ErrorCode::MissingSemicolon.into()));
+    }
+
+    #[test]
+    fn test_missing_function_body() {
+        let (sess, is_err) = get_sess_after_item_parse(
+            "fn f(x: i32,)"
+        );
+
+        assert!(is_err);
+        assert!(sess.dcx().has_err_code(ErrorCode::MissingFunctionBody.into()));
+    }
+
+    #[test]
+    fn test_cannot_use_underscore_as_identifier() {
+        let (sess, is_err) = get_sess_after_item_parse(
+            "fn _(x: i32) {}"
+        );
+
+        assert!(is_err);
+        assert!(sess.dcx().has_err_code(ErrorCode::CannotUseUnderscoreAsIdentifier.into()));
     }
 }
