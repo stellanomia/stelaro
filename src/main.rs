@@ -10,6 +10,8 @@ fn main(z: i32) => i32 {
     } else {
         3
     };
+
+    return x+1;
 }
 "#.trim().to_string());
 }

@@ -78,6 +78,9 @@ pub enum StmtKind {
 
     /// while expr { block }
     While(Box<Expr>, Box<Block>),
+
+    /// return expr;
+    Return(Box<Expr>)
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]

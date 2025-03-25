@@ -13,6 +13,9 @@ impl Parser<'_> {
             TokenKind::While => {
                 self.parse_while()
             },
+            TokenKind::Return => {
+                self.parse_return()
+            },
             TokenKind::If => {
                 let expr_if = self.parse_if()?;
 
@@ -115,6 +118,24 @@ impl Parser<'_> {
                 StmtKind::While (
                     Box::new(cond),
                     Box::new(block)
+                )
+            )
+        )
+    }
+
+    pub fn parse_return(&mut self) -> PResult<Stmt> {
+        self.eat(TokenKind::Return, self.token.span)?;
+        let start = self.prev_token.span;
+
+        let expr = self.parse_expr()?;
+
+        self.eat(TokenKind::Semicolon, self.token.span)?;
+
+        Ok(
+            self.mk_stmt(
+                start.merge(&self.prev_token.span),
+                StmtKind::Return (
+                    Box::new(expr),
                 )
             )
         )

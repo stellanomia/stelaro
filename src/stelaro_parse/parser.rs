@@ -39,8 +39,6 @@ impl<'sess> Parser<'sess> {
     pub fn bump(&mut self) {
         self.prev_token = self.token;
 
-        dbg!(self.token);
-
         match self.token_stream.next() {
             Some(t) => self.token = t,
             None => panic!("bug: TokenStreamの範囲外アクセス")
