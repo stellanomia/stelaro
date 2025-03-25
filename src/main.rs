@@ -10,11 +10,13 @@ fn main() {
 // "#.trim().to_string());
 
 temp(r#"
-let x: std::i32 = if true {
-    let y = 2;
-    { y + 123 }
-} else {
-    3
-};
+fn main(z: i32) => i32 {
+    let x: std::i32 = if true {
+        let y = 2;
+        { y + 123 }
+    } else {
+        3
+    };
+}
 "#.trim().to_string());
 }

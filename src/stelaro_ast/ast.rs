@@ -26,7 +26,6 @@ pub enum ItemKind {
 
 #[derive(Debug)]
 pub struct Function {
-    pub name: Ident,
     pub span: Span,
     pub sig: FnSig,
     pub body: Box<Block>,
@@ -35,7 +34,14 @@ pub struct Function {
 #[derive(Debug)]
 pub struct FnSig {
     pub params: Vec<Param>,
+    pub ret_ty: FnRetTy,
     pub span: Span,
+}
+
+#[derive(Debug)]
+pub enum FnRetTy {
+    Default,
+    Ty(Box<Ty>),
 }
 
 #[derive(Debug)]

@@ -12,6 +12,10 @@ impl Ident {
     pub fn new(name: Symbol, span: Span) -> Self {
         Self { name, span }
     }
+
+    pub fn is_underscore(&self) -> bool {
+        self.name.is_underscore()
+    }
 }
 
 

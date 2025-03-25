@@ -1,7 +1,8 @@
 pub mod parser;
 mod diagnostics;
-mod expr;
+mod item;
 mod stmt;
+mod expr;
 mod ty;
 mod path;
 

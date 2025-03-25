@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{Block, Expr, ExprKind, NodeId, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}};
+use crate::stelaro_ast::{ast::{Block, Expr, ExprKind, NodeId, Stelo, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}};
 use crate::stelaro_common::{span::Span, symbol::Ident};
 use crate::stelaro_diagnostic::diag::{DiagCtxtHandle, ErrorEmitted};
 use crate::stelaro_session::Session;
@@ -65,6 +65,10 @@ impl<'sess> Parser<'sess> {
 
     pub fn look_ahead(&self, k: usize) -> Option<Token> {
         self.token_stream.peek_nth(k).cloned()
+    }
+
+    pub fn parse_stelo(&mut self) -> PResult<Stelo> {
+        todo!()
     }
 
     pub fn parse_ident(&mut self) -> PResult<Ident> {
