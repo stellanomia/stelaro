@@ -1,6 +1,6 @@
 use crate::stelaro_ast::{token::TokenKind, ty::{Ty, TyKind}};
 
-use super::{parser::Parser, PResult};
+use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 
 
 impl Parser<'_> {
@@ -17,7 +17,19 @@ impl Parser<'_> {
                     TyKind::Path(path)
                 }
             },
-            _ => todo!()
+            _ => {
+                let mut diag = DiagsParser::unexpected_token_for_type(
+                    self.dcx(),
+                    self.token.span
+                );
+
+                diag.set_label(
+                    self.prev_token.span.between(&self.token.span),
+                    "ここに型を記述してください".to_string()
+                );
+
+                Err(diag.emit())?
+            }
         };
 
         Ok(

@@ -85,19 +85,6 @@ impl<'dcx> DiagsParser {
         diag
     }
 
-    // pub fn missing_operator (
-    //     dcx: DiagCtxtHandle<'dcx>,
-    //     span: Span,
-    // ) -> Diag<'dcx, ErrorEmitted> {
-    //     let mut diag = dcx.struct_err(span);
-    //     diag.set_code(ErrorCode::MissingOperator.into());
-    //     diag.set_message("不足した演算子".to_string());
-    //     diag.set_label(span, "式と式の間に演算子がありません".to_string());
-    //     diag.set_help("演算子(e.g., `+`, `-`)か、`;`を追加してください".to_string());
-
-    //     diag
-    // }
-
     pub fn expect_expression (
         dcx: DiagCtxtHandle<'dcx>,
         unexpected: Token,
@@ -146,6 +133,18 @@ impl<'dcx> DiagsParser {
         diag.set_code(ErrorCode::UnexpectedTokenForIdentifier.into());
         diag.set_message("無効な識別子".to_string());
         diag.set_label(span, "識別子でない予期しないトークンがあります".to_string());
+
+        diag
+    }
+
+    pub fn unexpected_token_for_type (
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(ErrorCode::UnexpectedTokenForType.into());
+        diag.set_message("無効な型".to_string());
+        diag.set_label(span, "これは型ではありません".to_string());
 
         diag
     }
@@ -208,11 +207,11 @@ impl<'dcx> DiagsParser {
 enum ErrorCode {
     UnexpectedToken = 200,
     ChainedComparison = 201,
-    // MissingOperator = 202,
-    ExpectExpression = 203,
-    PrefixIncrement = 204,
-    UnexpectedClosingDelimiter = 205,
-    UnexpectedTokenForIdentifier = 206,
+    ExpectExpression = 202,
+    PrefixIncrement = 203,
+    UnexpectedClosingDelimiter = 204,
+    UnexpectedTokenForIdentifier = 205,
+    UnexpectedTokenForType = 206,
     UnexpectedNumericLiteralForIdentifier = 207,
     MissingSemicolon = 208,
     MissingFunctionBody = 209,
