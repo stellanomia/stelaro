@@ -66,7 +66,19 @@ impl<'sess> Parser<'sess> {
     }
 
     pub fn parse_stelo(&mut self) -> PResult<Stelo> {
-        todo!()
+        let mut items = vec![];
+        loop {
+            match self.token.kind {
+                TokenKind::Eof => break,
+                _ => {
+                    items.push(self.parse_item()?);
+                }
+            }
+        }
+
+        Ok(
+            Stelo { items }
+        )
     }
 
     pub fn parse_ident(&mut self) -> PResult<Ident> {
