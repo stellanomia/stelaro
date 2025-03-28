@@ -26,7 +26,7 @@ pub fn temp(src: String) {
     if let Ok(ts) = lexer.lex() {
         let mut parser = Parser::new(&sess, ts);
 
-        if let Ok(ast) = parser.parse_item() {
+        if let Ok(ast) = parser.parse_stelo() {
             dbg!(&ast);
         }
     }
