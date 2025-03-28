@@ -267,6 +267,14 @@ mod tests {
         (sess, is_err)
     }
 
+    fn get_sess_after_stelo_parse(src: &str) -> (Session, bool) {
+        let src = Rc::new(src.to_string());
+        let sess = create_sess(Rc::clone(&src));
+        let mut parser = create_parser(&sess, src);
+        let is_err = parser.parse_stelo().is_err();
+        (sess, is_err)
+    }
+
 
     #[test]
     fn test_chained_comparison() {
@@ -360,8 +368,22 @@ mod tests {
 
     #[test]
     fn test_cannot_use_underscore_as_identifier() {
-        let (sess, is_err) = get_sess_after_item_parse(
-            "fn _(x: i32) {}"
+        let (sess, is_err) = get_sess_after_stelo_parse(
+            r#"
+    fn f(x: i32, y: i32) => i32 {
+        let z = if x < y {
+            y
+        } else {
+            x + y
+        };
+
+        return z;
+    }
+
+    fn _(x: i32) {
+        return x;
+    }
+"#.trim()
         );
 
         assert!(is_err);
