@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{Local, LocalKind, NodeId, Stmt, StmtKind}, token::TokenKind};
+use crate::stelaro_ast::{ast::{Local, LocalKind, NodeId, Pat, Stmt, StmtKind}, token::TokenKind};
 
 use super::diagnostics::DiagsParser;
 use super::{parser::Parser, PResult};
@@ -8,16 +8,16 @@ impl Parser<'_> {
     pub fn parse_stmt(&mut self) -> PResult<Stmt> {
         match self.token.kind {
             TokenKind::Let => {
-                self.parse_let()
+                self.parse_stmt_let()
             },
             TokenKind::While => {
-                self.parse_while()
+                self.parse_stmt_while()
             },
             TokenKind::Return => {
-                self.parse_return()
+                self.parse_stmt_return()
             },
             TokenKind::If => {
-                let expr_if = self.parse_if()?;
+                let expr_if = self.parse_expr_if()?;
 
                 Ok(
                     self.mk_stmt(
@@ -62,11 +62,11 @@ impl Parser<'_> {
         }
     }
 
-    pub fn parse_let(&mut self) -> PResult<Stmt> {
+    pub fn parse_stmt_let(&mut self) -> PResult<Stmt> {
         self.eat(TokenKind::Let, self.token.span)?;
         let start = self.prev_token.span;
 
-        let ident = self.parse_ident()?;
+        let pat = self.parse_pat_before_ty()?;
 
         let ty = if self.token.kind == TokenKind::Colon {
             self.bump();
@@ -93,7 +93,7 @@ impl Parser<'_> {
                     Box::new(
                         Local {
                             id: NodeId::dummy(),
-                            ident,
+                            pat: Box::new(pat),
                             kind,
                             ty,
                             span: start.merge(&self.prev_token.span)
@@ -104,7 +104,7 @@ impl Parser<'_> {
         )
     }
 
-    pub fn parse_while(&mut self) -> PResult<Stmt> {
+    pub fn parse_stmt_while(&mut self) -> PResult<Stmt> {
         self.eat(TokenKind::While, self.token.span)?;
         let start = self.prev_token.span;
 
@@ -123,7 +123,7 @@ impl Parser<'_> {
         )
     }
 
-    pub fn parse_return(&mut self) -> PResult<Stmt> {
+    pub fn parse_stmt_return(&mut self) -> PResult<Stmt> {
         self.eat(TokenKind::Return, self.token.span)?;
         let start = self.prev_token.span;
 

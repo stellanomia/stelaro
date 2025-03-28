@@ -86,7 +86,7 @@ pub enum StmtKind {
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Local {
     pub id: NodeId,
-    pub ident: Ident,
+    pub pat: Box<Pat>,
     pub kind: LocalKind,
     pub ty: Option<Ty>,
     pub span: Span,
@@ -96,6 +96,20 @@ pub struct Local {
 pub enum LocalKind {
     Decl,
     Init(Box<Expr>),
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Pat {
+    pub id: NodeId,
+    pub kind: PatKind,
+    pub span: Span,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum PatKind {
+    WildCard,
+    // Rustの binding @ OPT_SUBPATTERN が Option<Box<Pat>> で実装可能
+    Ident(Ident)
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]

@@ -5,6 +5,7 @@ mod stmt;
 mod expr;
 mod ty;
 mod path;
+mod pat;
 
 use crate::stelaro_diagnostic::diag::ErrorEmitted;
 use crate::stelaro_lexer::Lexer;

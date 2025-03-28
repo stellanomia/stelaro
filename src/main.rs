@@ -11,7 +11,12 @@ fn main(z: i32) => i32 {
         3
     };
 
-    return x+1;
+    return f(x+1);
 }
+
+fn f(x: i32) => i32 {
+    return x * x;
+}
+
 "#.trim().to_string());
 }
