@@ -388,7 +388,7 @@ impl Parser<'_> {
                 )
             },
             TokenKind::If => {
-                self.parse_if()
+                self.parse_expr_if()
             },
             _ => {
                 Err(
@@ -485,7 +485,7 @@ impl Parser<'_> {
         }
     }
 
-    pub fn parse_if(&mut self) -> PResult<Expr> {
+    pub fn parse_expr_if(&mut self) -> PResult<Expr> {
         self.eat(TokenKind::If, self.token.span)?;
         let start = self.prev_token.span;
 
@@ -498,7 +498,7 @@ impl Parser<'_> {
 
             // else ifの場合
             if self.token.kind == TokenKind::If {
-                Some(Box::new(self.parse_if()?))
+                Some(Box::new(self.parse_expr_if()?))
             } else {
                 // 通常のelseブロック
                 let block = self.parse_block()?;
