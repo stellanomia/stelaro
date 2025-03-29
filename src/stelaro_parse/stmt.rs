@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{Local, LocalKind, NodeId, Pat, Stmt, StmtKind}, token::TokenKind};
+use crate::stelaro_ast::{ast::{Local, LocalKind, NodeId, Stmt, StmtKind}, token::TokenKind};
 
 use super::diagnostics::DiagsParser;
 use super::{parser::Parser, PResult};

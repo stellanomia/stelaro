@@ -222,8 +222,10 @@ pub enum UnOp {
 pub struct NodeId(u32);
 
 impl NodeId {
+    pub const STELO_NODE_ID: NodeId = NodeId(0);
+
     #[inline]
     pub fn dummy() -> Self {
-        Self(0)
+        Self(u32::MAX)
     }
 }
