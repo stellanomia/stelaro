@@ -117,6 +117,7 @@ enum Precedence {
     Cmp,        // < > <= >= == !=
     Sum,        // + -
     Product,    // * / %
+    Prefix,     // ! -
 }
 
 impl Parser<'_> {
@@ -246,7 +247,7 @@ impl Parser<'_> {
 
                 let start = self.prev_token.span;
 
-                let node = self.parse_expr_(PrecedenceLimit::None)?;
+                let node = self.parse_expr_(PrecedenceLimit::Exclusive(Precedence::Prefix))?;
 
                 Ok(
                     self.mk_expr(
@@ -261,7 +262,7 @@ impl Parser<'_> {
 
                 let start = self.prev_token.span;
 
-                let node = self.parse_expr_(PrecedenceLimit::None)?;
+                let node = self.parse_expr_(PrecedenceLimit::Exclusive(Precedence::Prefix))?;
 
                 Ok(
                     self.mk_expr(
@@ -461,18 +462,13 @@ impl Parser<'_> {
                         break;
                     },
                     _ => {
-                        let mut diag = DiagsParser::unexpected_token(
+                        let diag = DiagsParser::unexpected_token_with_expected_any(
                             self.dcx(),
                             self.token.kind,
+                            &[TokenKind::Comma, close],
                             self.token.span,
                         );
 
-                        diag.set_label(
-                            self.token.span,
-                            format!("`,`または`)`を期待しましたが、`{}`が見つかりました",
-                                self.token.kind
-                            )
-                        );
                         Err(diag.emit())?
                     }
                 }
