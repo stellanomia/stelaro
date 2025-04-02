@@ -65,7 +65,7 @@ impl SourceFile {
 }
 
 #[derive(Debug, Default)]
-pub struct FileId(u64);
+pub struct FileId(u32);
 
 impl FileId {
     pub fn from_file_name(filename: &Path) -> FileId {
