@@ -318,6 +318,7 @@ impl Parser<'_> {
     }
 
     // TODO: インデックスアクセス、`.`によるメソッド呼び出しのサポート
+    /// `x`や`x(42, 53)` などを解析する
     fn parse_expr_postfix(&mut self) -> PResult<Expr> {
         let node = self.parse_expr_bottom()?;
 
