@@ -3,13 +3,15 @@
 
 pub mod stelaro_ast;
 pub mod stelaro_common;
+pub mod stelaro_context;
 pub mod stelaro_diagnostic;
 pub mod stelaro_interface;
 pub mod stelaro_lexer;
-pub mod stelaro_mir;
 pub mod stelaro_parse;
 pub mod stelaro_resolve;
 pub mod stelaro_session;
+pub mod stelaro_sir;
+pub mod stelaro_ty;
 
 use std::rc::Rc;
 

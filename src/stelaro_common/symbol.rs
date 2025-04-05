@@ -19,7 +19,7 @@ impl Ident {
 }
 
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
 pub struct Symbol(u32);
 
 impl Symbol {
