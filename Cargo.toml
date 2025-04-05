@@ -8,3 +8,4 @@ path = "src/lib.rs"
 
 [dependencies]
 ariadne = "0.5.0"
+bumpalo = "3.17.0"

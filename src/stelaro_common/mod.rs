@@ -1,9 +1,13 @@
+pub mod arena;
 pub mod def_id;
 pub mod symbol;
 pub mod span;
 pub mod source_map;
 
 
+pub use arena::Arena;
+pub use def_id::DefId;
+pub use span::Span;
 pub use symbol::Symbol;
 
 use symbol::Interner;
