@@ -46,7 +46,7 @@ impl<'sess> Parser<'sess> {
             )?
         }
 
-        let sig = self.parse_sig()?;
+        let sig = self.parse_fn_sig()?;
 
         let prev_span = self.prev_token.span;
 
@@ -71,9 +71,9 @@ impl<'sess> Parser<'sess> {
         ))
     }
 
-    fn parse_sig(&mut self) -> PResult<FnSig> {
+    fn parse_fn_sig(&mut self) -> PResult<FnSig> {
         let start= self.prev_token.span;
-        let params = self.parse_params()?;
+        let params = self.parse_fn_params()?;
 
         let ret_ty = if self.token.kind == TokenKind::Equal {
             self.bump();
@@ -95,7 +95,7 @@ impl<'sess> Parser<'sess> {
         )
     }
 
-    fn parse_params(&mut self) -> PResult<Vec<Param>> {
+    fn parse_fn_params(&mut self) -> PResult<Vec<Param>> {
         if self.token.kind != TokenKind::LParen {
             Err(
                 DiagsParser::unexpected_token_with_expected(
@@ -115,7 +115,7 @@ impl<'sess> Parser<'sess> {
             Ok(Vec::with_capacity(0))
         } else {
             // f(,) を許可しない
-            let mut params = vec![self.parse_param()?];
+            let mut params = vec![self.parse_fn_param()?];
 
             loop {
                 match self.token.kind {
@@ -155,7 +155,7 @@ impl<'sess> Parser<'sess> {
                     }
                 }
 
-                let param = self.parse_param()?;
+                let param = self.parse_fn_param()?;
                 params.push(param);
             }
 
@@ -163,7 +163,7 @@ impl<'sess> Parser<'sess> {
         }
     }
 
-    fn parse_param(&mut self) -> PResult<Param> {
+    fn parse_fn_param(&mut self) -> PResult<Param> {
         let start = self.token.span;
 
         let ident = self.parse_ident()?;
