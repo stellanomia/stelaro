@@ -6,10 +6,41 @@ pub struct Ty<'ctx>(&'ctx TyKind<'ctx>);
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum TyKind<'tcx> {
-    // Struct(DefId),
-    // Ref(Ty<'tcx>),
-    FnDef(DefId, &'tcx [Ty<'tcx>], Ty<'tcx>),
+    Bool,
+    Char,
+    Int(IntTy),
+    Uint(UintTy),
+    Float(FloatTy),
+    FnDef(DefId),
     Param(ParamTy),
+    // Ref(Ty<'tcx>),
+    // Struct(DefId),
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+pub enum IntTy {
+    Isize,
+    I8,
+    I16,
+    I32,
+    I64,
+    I128,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+pub enum UintTy {
+    Usize,
+    U8,
+    U16,
+    U32,
+    U64,
+    U128,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+pub enum FloatTy {
+    F32,
+    F64,
 }
 
 #[derive(Debug)]

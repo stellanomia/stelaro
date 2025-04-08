@@ -20,5 +20,6 @@ pub struct GlobalCtxt<'tcx> {
     // DefId から実際の定義へのマップ
     pub definitions: RefCell<HashMap<DefId, &'tcx Definition<'tcx>>>,
 
+    // 同一のTyKind<'ctx>に対して同一の参照を保持させるためのインターナー
     pub types_interner: RefCell<HashMap<TyKind<'tcx>, Ty<'tcx>>>,
 }
