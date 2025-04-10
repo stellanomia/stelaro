@@ -17,6 +17,14 @@ impl Parser<'_> {
                     TyKind::Path(path)
                 }
             },
+            // TODO: タプル型の実装
+            TokenKind::LParen => {
+                self.bump();
+
+                self.eat(TokenKind::RParen, self.token.span)?;
+
+                TyKind::Unit
+            },
             _ => {
                 let mut diag = DiagsParser::unexpected_token_for_type(
                     self.dcx(),

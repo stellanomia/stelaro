@@ -12,6 +12,9 @@ pub struct Ty {
 pub enum TyKind {
     Path(Path),
     Infer,
+
+    // NOTE: タプル実装後、削除する
+    Unit,
     // Tuple,
     // Ref,
     // Array,
