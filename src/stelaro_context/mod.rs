@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap};
 
 use crate::stelaro_ast::ast::NodeId;
@@ -22,4 +23,20 @@ pub struct GlobalCtxt<'tcx> {
 
     // 同一のTyKind<'ctx>に対して同一の参照を保持させるためのインターナー
     pub types_interner: RefCell<HashMap<TyKind<'tcx>, Ty<'tcx>>>,
+}
+
+impl<'tcx> Deref for TyCtxt<'tcx> {
+    type Target = &'tcx GlobalCtxt<'tcx>;
+    #[inline(always)]
+    fn deref(&self) -> &Self::Target {
+        &self.gcx
+    }
+}
+
+
+impl<'tcx> TyCtxt<'tcx> {
+    #[inline(always)]
+    fn sess(&self) -> &Session {
+        self.sess
+    }
 }
