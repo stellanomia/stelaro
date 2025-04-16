@@ -1,4 +1,5 @@
 pub mod arena;
+pub mod def;
 pub mod def_id;
 pub mod symbol;
 pub mod span;

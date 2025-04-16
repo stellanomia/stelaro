@@ -1,4 +1,8 @@
-use crate::stelaro_common::{DefId, Symbol};
+pub mod ty;
+
+use ty::{FloatTy, IntTy, UintTy};
+
+use crate::stelaro_common::DefId;
 
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -33,42 +37,4 @@ pub enum TyKind<'tcx> {
     // () 型。ボトム型として機能する
     // タプルが実装できた際に、これを削除し空のTupleがUnitを表すように変更する
     Unit,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum IntTy {
-    Isize,
-    I8,
-    I16,
-    I32,
-    I64,
-    I128,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum UintTy {
-    Usize,
-    U8,
-    U16,
-    U32,
-    U64,
-    U128,
-}
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum FloatTy {
-    F32,
-    F64,
-}
-
-#[derive(Debug)]
-pub enum Definition<'tcx> {
-    Function { name: Symbol, params: &'tcx [Ty<'tcx>], return_ty: Ty<'tcx> },
-    // Struct { name: Symbol, fields: &'tcx [FieldDef<'tcx>] },
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ParamTy {
-    pub index: u32,
-    pub name: Symbol,
 }

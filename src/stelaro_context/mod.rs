@@ -3,7 +3,8 @@ use std::{cell::RefCell, collections::HashMap};
 
 use crate::stelaro_ast::ast::NodeId;
 use crate::stelaro_common::{Arena, def_id::DefId};
-use crate::stelaro_ty::{Definition, Ty, TyKind};
+use crate::stelaro_sir::Definition;
+use crate::stelaro_ty::{Ty, TyKind};
 
 use super::Session;
 
