@@ -228,4 +228,12 @@ impl NodeId {
     pub fn dummy() -> Self {
         Self(u32::MAX)
     }
+
+    pub fn from_u32(value: u32) -> Self {
+        NodeId(value)
+    }
+
+    pub fn as_u32(&self) -> u32 {
+        self.0
+    }
 }
