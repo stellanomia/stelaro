@@ -1,4 +1,4 @@
-use crate::{stelaro_ast::ast::NodeId, stelaro_common::{def::DefKind, DefId}, stelaro_context::TyCtxt, stelaro_ty::ty::PrimTy};
+use crate::{stelaro_ast::ast::{NodeId, Stelo}, stelaro_common::{def::DefKind, DefId}, stelaro_context::TyCtxt, stelaro_ty::ty::PrimTy};
 
 
 struct Resolver<'tcx> {
@@ -22,4 +22,17 @@ pub enum Res<Id = NodeId> {
 
     /// 名前解決に失敗したとき
     Err,
+}
+
+impl<'tcx> Resolver<'tcx> {
+    fn next_node_id(&mut self) -> NodeId {
+        let start = self.next_node_id;
+        let next = NodeId::from_u32(start.as_u32() + 1);
+        self.next_node_id = next;
+        start
+    }
+
+    pub fn resolve_stelo(&mut self, stelo: &Stelo) {
+        
+    }
 }
