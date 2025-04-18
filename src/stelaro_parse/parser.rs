@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{Block, Expr, ExprKind, NodeId, Stelo, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}};
+use crate::stelaro_ast::{ast::{Block, Expr, ExprKind, ModSpan, NodeId, Stelo, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}};
 use crate::stelaro_common::{span::Span, symbol::Ident};
 use crate::stelaro_diagnostic::diag::{DiagCtxtHandle, ErrorEmitted};
 use crate::stelaro_session::Session;
@@ -66,18 +66,36 @@ impl<'sess> Parser<'sess> {
     }
 
     pub fn parse_stelo(&mut self) -> PResult<Stelo> {
+        let start= self.token.span;
+
         let mut items = vec![];
         loop {
-            match self.token.kind {
-                TokenKind::Eof => break,
-                _ => {
-                    items.push(self.parse_item()?);
+            if self.token.kind == TokenKind::Eof {
+                break;
+            }
+
+            match self.parse_item()? {
+                Some(item) => items.push(Box::new(item)),
+                None => {
+                    Err(
+                        DiagsParser::unexpected_token_for_item(
+                            self.dcx(),
+                            self.token.kind,
+                            self.token.span
+                        ).emit()
+                    )?
                 }
             }
         }
 
         Ok(
-            Stelo { items }
+            Stelo {
+                items,
+                span: ModSpan {
+                    inner_span: start.merge(&self.prev_token.span)
+                },
+                id: NodeId::dummy(),
+            }
         )
     }
 
@@ -118,7 +136,7 @@ impl<'sess> Parser<'sess> {
 
     pub fn parse_block(&mut self) -> PResult<Block> {
         self.eat(TokenKind::LBrace, self.token.span)?;
-        let start = self.prev_token.span;
+        let brace_span = self.prev_token.span;
         let mut stmts = vec![];
 
         loop {
@@ -128,10 +146,45 @@ impl<'sess> Parser<'sess> {
                     break;
                 },
                 TokenKind::Eof => {
-                    break;
+                    Err(
+                        DiagsParser::unclosed_delimiter(
+                            self.dcx(),
+                            self.token,
+                            brace_span
+                        ).emit()
+                    )?
+                }
+                _ if self.can_start_item() => {
+                    Err(
+                        DiagsParser::unclosed_delimiter(
+                            self.dcx(),
+                            self.token,
+                            brace_span
+                        ).emit()
+                    )?
                 }
                 _ => {
-                    stmts.push(self.parse_stmt()?);
+                    match self.parse_stmt()? {
+                        Some(stmt) => stmts.push(stmt),
+                        None => {
+                            if self.can_start_item() {
+                                Err(
+                                    DiagsParser::unclosed_delimiter(
+                                        self.dcx(),
+                                        self.token,
+                                        brace_span,
+                                    ).emit()
+                                )?
+                            } else {
+                                Err(
+                                    DiagsParser::missing_semicolon(
+                                        self.dcx(),
+                                        self.token.span
+                                    ).emit()
+                                )?
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -140,7 +193,7 @@ impl<'sess> Parser<'sess> {
             Block {
                 id: NodeId::dummy(),
                 stmts,
-                span: start.merge(&self.prev_token.span)
+                span: brace_span.merge(&self.prev_token.span)
             }
         )
     }

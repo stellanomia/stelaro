@@ -1,30 +1,29 @@
 use crate::stelaro_ast::{ast::{Local, LocalKind, NodeId, Stmt, StmtKind}, token::TokenKind};
 
-use super::diagnostics::DiagsParser;
 use super::{parser::Parser, PResult};
 
 
 impl Parser<'_> {
-    pub fn parse_stmt(&mut self) -> PResult<Stmt> {
+    pub fn parse_stmt(&mut self) -> PResult<Option<Stmt>> {
         match self.token.kind {
             TokenKind::Let => {
-                self.parse_stmt_let()
+                self.parse_stmt_let().map(Some)
             },
             TokenKind::While => {
-                self.parse_stmt_while()
+                self.parse_stmt_while().map(Some)
             },
             TokenKind::Return => {
-                self.parse_stmt_return()
+                self.parse_stmt_return().map(Some)
             },
             TokenKind::If => {
                 let expr_if = self.parse_expr_if()?;
 
-                Ok(
+                Ok(Some(
                     self.mk_stmt(
                         expr_if.span,
                         StmtKind::Expr(Box::new(expr_if))
                     )
-                )
+                ))
             },
             _ => {
                 let expr = self.parse_expr()?;
@@ -33,29 +32,24 @@ impl Parser<'_> {
                     TokenKind::Semicolon => {
                         self.bump();
 
-                        Ok(
+                        Ok(Some(
                             self.mk_stmt(
                                 expr.span.merge(&self.prev_token.span),
                                 StmtKind::Semi(Box::new(expr))
                             )
-                        )
+                        ))
                     },
                     // 次が } でブロックの終端にある式である
                     TokenKind::RBrace => {
-                        Ok(
+                        Ok(Some(
                             self.mk_stmt(
                                 expr.span,
                                 StmtKind::Expr(Box::new(expr))
                             )
-                        )
+                        ))
                     },
                     _ => {
-                        Err(
-                            DiagsParser::missing_semicolon(
-                                self.dcx(),
-                                self.token.span
-                            ).emit()
-                        )
+                        Ok(None)
                     }
                 }
             }

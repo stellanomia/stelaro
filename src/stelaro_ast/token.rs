@@ -64,14 +64,22 @@ pub enum TokenKind {
     Literal(Lit),
 
     // Keywords
+    /// 関数の宣言
     Fn, // fn
+    /// モジュールの宣言
+    Mod, // mod
+    /// return文
     Return, // return
+    /// let文
     Let, // let
+    /// if式
     If, // if
     Else, // else
     And, // and
     Or, // or
+    /// for文
     For, // for
+    /// while文
     While, // while
 
     Eof,
@@ -239,6 +247,7 @@ impl fmt::Display for TokenKind {
             TokenKind::Ident(symbol) => wrt!(f, symbol.as_str()),
             TokenKind::Literal(lit) => wrt!(f, lit.symbol.as_str()),
             TokenKind::Fn => wrt!(f, "fn"),
+            TokenKind::Mod => wrt!(f, "mod"),
             TokenKind::Return => wrt!(f, "return"),
             TokenKind::Let => wrt!(f, "let"),
             TokenKind::If => wrt!(f, "if"),

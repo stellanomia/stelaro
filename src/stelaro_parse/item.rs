@@ -1,34 +1,53 @@
-use crate::{stelaro_ast::{ast::{FnRetTy, FnSig, Function, Item, ItemKind, NodeId, Param}, token::TokenKind}, stelaro_common::symbol::Ident};
+use crate::{stelaro_ast::{ast::{FnRetTy, FnSig, Function, Item, ItemKind, Mod, ModSpan, NodeId, Param}, token::TokenKind}, stelaro_common::symbol::Ident};
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 
 
 impl<'sess> Parser<'sess> {
-    pub fn parse_item(&mut self) -> PResult<Item> {
+    pub fn parse_item(&mut self) -> PResult<Option<Item>> {
         match self.token.kind {
             TokenKind::Fn => {
-                let start = self.prev_token.span;
+                let start = self.token.span;
                 let (ident, f) = self.parse_fn()?;
-                Ok(
+                Ok(Some(
                     Item {
                         kind: ItemKind::Function(f),
+                        id: NodeId::dummy(),
                         span: start.merge(&self.prev_token.span),
                         ident,
                     }
-                )
+                ))
+            },
+            TokenKind::Mod => {
+                let start = self.token.span;
+                let (ident, items, mod_span) = self.parse_mod()?;
+
+                Ok(Some(
+                    Item {
+                        kind: ItemKind::Mod(
+                            Mod::Inline(
+                                items,
+                                mod_span
+                            )
+                        ),
+                        id: NodeId::dummy(),
+                        span: start.merge(&self.prev_token.span),
+                        ident,
+                    }
+                ))
             },
             _ => {
-                Err(
-                    DiagsParser::unexpected_token_with_expected_any(
-                        self.dcx(),
-                        self.token.kind,
-                        // Itemが最初にとりうるトークンが増えたとき、ここに追加する
-                        &[TokenKind::Fn],
-                        self.token.span
-                    ).emit()
-                )?
+                Ok(None)
             }
         }
+    }
+
+    // Itemが最初にとりうるトークンが増えたとき、ここに追加する
+    pub fn can_start_item(&self) -> bool {
+        matches!(self.token.kind,
+            TokenKind::Fn |
+            TokenKind::Mod
+        )
     }
 
     pub fn parse_fn(&mut self) -> PResult<(Ident, Function)> {
@@ -188,6 +207,65 @@ impl<'sess> Parser<'sess> {
                 ident,
                 span: start.merge(&self.prev_token.span),
             }
+        )
+    }
+
+    pub fn parse_mod(&mut self) -> PResult<(Ident, Vec<Box<Item>>, ModSpan)> {
+        self.eat(TokenKind::Mod, self.token.span)?;
+
+        let ident = self.parse_ident()?;
+
+        self.eat(TokenKind::LBrace, self.token.span)?;
+        let brace_span = self.prev_token.span;
+        let mut inner_span = brace_span;
+
+        let mut items = vec![];
+
+        loop {
+            match self.token.kind {
+                TokenKind::RBrace => {
+                    inner_span = inner_span.merge(&self.token.span);
+                    self.bump();
+                    break;
+                },
+                TokenKind::Semicolon => {
+                    self.bump();
+                    continue;
+                },
+                TokenKind::Eof => {
+                    Err(
+                        DiagsParser::unclosed_delimiter(
+                            self.dcx(),
+                            self.token,
+                            brace_span
+                        ).emit()
+                    )?
+                }
+                _ => {
+                    match self.parse_item()? {
+                        Some(item) => items.push(Box::new(item)),
+                        None => {
+                            Err(
+                                DiagsParser::unexpected_token_for_item(
+                                    self.dcx(),
+                                    self.token.kind,
+                                    self.token.span
+                                ).emit()
+                            )?
+                        },
+                    }
+                }
+            }
+        }
+
+        Ok(
+            (
+                ident,
+                items,
+                ModSpan{
+                    inner_span,
+                }
+            )
         )
     }
 }
