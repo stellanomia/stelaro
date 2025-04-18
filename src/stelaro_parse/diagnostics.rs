@@ -201,6 +201,55 @@ impl<'dcx> DiagsParser {
 
         diag
     }
+
+    pub fn unexpected_token_for_item (
+        dcx: DiagCtxtHandle<'dcx>,
+        unexpected: TokenKind,
+        span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(ErrorCode::UnexpectedTokenForItem.into());
+        diag.set_message(format!("予期しないトークン: `{}`", unexpected));
+
+        // Itemが最初にとりうるトークンが増えたとき、ここに追加する
+        let expected_list = [TokenKind::Fn, TokenKind::Mod]
+            .iter()
+            .map(|t| format!("`{}`", t))
+            .collect::<Vec<_>>()
+            .join(", ");
+
+        diag.set_label(
+            span,
+            format!(
+                "{} のいずれかを期待していましたが、`{}` は無効な入力です",
+                expected_list, unexpected
+            ),
+        );
+
+        diag
+    }
+
+    pub fn unclosed_delimiter (
+        dcx: DiagCtxtHandle<'dcx>,
+        unexpected: Token,
+        opening_delim_span: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(unexpected.span);
+        diag.set_code(ErrorCode::UnclosedDelimiter.into());
+        diag.set_message("閉じられていない括弧".to_string());
+
+        diag.set_label(
+            unexpected.span,
+            format!("閉じ括弧を期待していましたが、`{}` は無効な入力です", unexpected),
+        );
+
+        diag.set_label(
+            opening_delim_span,
+            "これに対応する括弧が見つかりません".to_string()
+        );
+
+        diag
+    }
 }
 
 #[repr(i32)]
@@ -216,6 +265,8 @@ enum ErrorCode {
     MissingSemicolon = 208,
     MissingFunctionBody = 209,
     CannotUseUnderscoreAsIdentifier = 210,
+    UnexpectedTokenForItem = 211,
+    UnclosedDelimiter = 212,
 }
 
 impl From<ErrorCode> for i32 {
@@ -348,8 +399,13 @@ mod tests {
 
     #[test]
     fn test_missing_semicolon() {
-        let (sess, is_err) = get_sess_after_stmt_parse(
-            "f(123, 456)"  // セミコロンなし
+        let (sess, is_err) = get_sess_after_item_parse(
+            r#"
+    fn f() {
+        f(123, 456)
+        return ;
+    }
+"#.trim()  // セミコロンなし
         );
 
         assert!(is_err);
@@ -388,5 +444,47 @@ mod tests {
 
         assert!(is_err);
         assert!(sess.dcx().has_err_code(ErrorCode::CannotUseUnderscoreAsIdentifier.into()));
+    }
+
+
+    #[test]
+    fn test_unexpected_token_for_item() {
+        let (sess, is_err) = get_sess_after_stelo_parse(
+            r#"
+    fn f(x: i32, y: i32) => bool {
+        print("Hello");
+        true
+    }
+
+    if f() {
+        let x = 1 + 1;
+    }
+"#.trim()
+        );
+
+        assert!(is_err);
+        assert!(sess.dcx().has_err_code(ErrorCode::UnexpectedTokenForItem.into()));
+    }
+
+
+
+    #[test]
+    fn test_unclosed_delimiter() {
+        let (sess, is_err) = get_sess_after_stelo_parse(
+            r#"
+    mod my_mod {
+        fn f() => i32 {
+            0
+
+
+        fn a() {
+            print("");
+        }
+    }
+"#.trim()
+        );
+
+        assert!(is_err);
+        assert!(sess.dcx().has_err_code(ErrorCode::UnclosedDelimiter.into()));
     }
 }

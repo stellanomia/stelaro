@@ -446,6 +446,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
     fn as_keyword(&self, string: &str) -> Option<TokenKind> {
         match string {
             "fn" => Some(TokenKind::Fn),
+            "mod" => Some(TokenKind::Mod),
             "return" => Some(TokenKind::Return),
             "let" => Some(TokenKind::Let),
             "if" => Some(TokenKind::If),

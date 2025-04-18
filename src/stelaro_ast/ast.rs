@@ -4,52 +4,69 @@ use super::{token::{Lit, Token, TokenKind}, ty::Ty};
 
 #[derive(Debug)]
 pub struct Stelo {
-    pub items: Vec<Item>,
-    // 将来的にここにmodulesフィールドを追加
-    // pub source_info: SourceInfo,
+    pub items: Vec<Box<Item>>,
+    pub span: ModSpan,
+    pub id: NodeId,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Item {
     pub kind: ItemKind,
+    pub id: NodeId,
+    // pub vis: Visibility,
     pub span: Span,
     pub ident: Ident,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ItemKind {
     Function(Function),
+    Mod(Mod),
     // Struct(Struct),
     // Enum(Enum),
     // Const(Const),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Function {
     pub span: Span,
     pub sig: FnSig,
     pub body: Box<Block>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct FnSig {
     pub params: Vec<Param>,
     pub ret_ty: FnRetTy,
     pub span: Span,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum FnRetTy {
     Default,
     Ty(Box<Ty>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Param {
     pub id: NodeId,
     pub ty: Box<Ty>,
     pub ident: Ident,
     pub span: Span,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub enum Mod {
+    /// `mod my_module { ... }` を表す
+    Inline(Vec<Box<Item>>, ModSpan)
+    // /// `mod my_module;` を表す
+    // Outline,
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ModSpan {
+    /// モジュールの括弧 `{ ... }` を除いた位置を指す
+    pub inner_span: Span,
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -80,7 +97,7 @@ pub enum StmtKind {
     While(Box<Expr>, Box<Block>),
 
     /// return expr;
-    Return(Box<Expr>)
+    Return(Box<Expr>),
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -163,7 +180,7 @@ impl BinOp {
             Plus => Add,
             Minus => Sub,
             Star => Mul,
-            Percent => Mod,
+            Percent => BinOpKind::Mod,
             Slash => Div,
             BangEqual => Ne,
             EqualEqual => Eq,
