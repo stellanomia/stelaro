@@ -1,3 +1,5 @@
+pub mod def;
+
 use crate::stelaro_common::Symbol;
 use crate::stelaro_ty::Ty;
 

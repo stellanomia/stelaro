@@ -10,7 +10,7 @@ fn main() {
 mod my_mod {
     fn f() => i32 {
         0
-
+    }
 
     fn a() {
         print("");
