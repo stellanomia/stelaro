@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap};
 
 use super::{span::Span, INTERNER};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
 pub struct Ident {
     pub name: Symbol,
     pub span: Span,

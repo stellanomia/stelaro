@@ -1,15 +1,14 @@
 pub mod arena;
-pub mod def;
 pub mod def_id;
 pub mod symbol;
 pub mod span;
 pub mod source_map;
 
 
-pub use arena::Arena;
-pub use def_id::DefId;
+pub use arena::{Arena, TypedArena};
+pub use def_id::{DefId, LocalDefId};
 pub use span::Span;
-pub use symbol::Symbol;
+pub use symbol::{Symbol, Ident};
 
 use symbol::Interner;
 
