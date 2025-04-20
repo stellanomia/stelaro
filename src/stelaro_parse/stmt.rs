@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{Local, LocalKind, NodeId, Stmt, StmtKind}, token::TokenKind};
+use crate::stelaro_ast::{ast::{Local, LocalKind, Stmt, StmtKind}, token::TokenKind};
 
 use super::{parser::Parser, PResult};
 
@@ -80,13 +80,15 @@ impl Parser<'_> {
             LocalKind::Init(Box::new(expr))
         };
 
+        let id = self.next_node_id();
+
         Ok(
             self.mk_stmt(
                 start.merge(&self.prev_token.span),
                 StmtKind::Let(
                     Box::new(
                         Local {
-                            id: NodeId::dummy(),
+                            id,
                             pat: Box::new(pat),
                             kind,
                             ty,

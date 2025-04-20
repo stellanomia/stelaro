@@ -12,6 +12,7 @@ pub struct Parser<'sess> {
     pub token_stream: TokenStream,
     pub token: Token,
     pub prev_token: Token,
+    pub next_node_id: NodeId,
 }
 
 impl<'sess> Parser<'sess> {
@@ -24,6 +25,7 @@ impl<'sess> Parser<'sess> {
             token_stream: token_stream.filter(|t| t.kind != TokenKind::LineComment).collect(),
             token: Token::dummy(),
             prev_token: Token::dummy(),
+            next_node_id: NodeId::from_u32(1),
         };
 
         parser.bump();
@@ -34,6 +36,13 @@ impl<'sess> Parser<'sess> {
     #[inline]
     pub fn dcx(&self) -> DiagCtxtHandle<'_> {
         self.sess.dcx()
+    }
+
+    pub fn next_node_id(&mut self) -> NodeId {
+        let start = self.next_node_id;
+        let next = NodeId::from_u32(start.as_u32() + 1);
+        self.next_node_id = next;
+        start
     }
 
     pub fn bump(&mut self) {
@@ -94,7 +103,7 @@ impl<'sess> Parser<'sess> {
                 span: ModSpan {
                     inner_span: start.merge(&self.prev_token.span)
                 },
-                id: NodeId::dummy(),
+                id: NodeId::STELO_NODE_ID,
             }
         )
     }
@@ -191,7 +200,7 @@ impl<'sess> Parser<'sess> {
 
         Ok(
             Block {
-                id: NodeId::dummy(),
+                id: self.next_node_id(),
                 stmts,
                 span: brace_span.merge(&self.prev_token.span)
             }
@@ -199,12 +208,12 @@ impl<'sess> Parser<'sess> {
     }
 
     #[inline]
-    pub fn mk_expr(&self, span: Span, kind: ExprKind) -> Expr {
-        Expr { kind, span, id: NodeId::dummy() }
+    pub fn mk_expr(&mut self, span: Span, kind: ExprKind) -> Expr {
+        Expr { kind, span, id: self.next_node_id() }
     }
 
     #[inline]
-    pub fn mk_stmt(&self, span: Span, kind: StmtKind) -> Stmt {
-        Stmt { id: NodeId::dummy(), kind, span }
+    pub fn mk_stmt(&mut self, span: Span, kind: StmtKind) -> Stmt {
+        Stmt { id: self.next_node_id(), kind, span }
     }
 }

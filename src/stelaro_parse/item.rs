@@ -1,4 +1,4 @@
-use crate::{stelaro_ast::{ast::{FnRetTy, FnSig, Function, Item, ItemKind, Mod, ModSpan, NodeId, Param}, token::TokenKind}, stelaro_common::symbol::Ident};
+use crate::{stelaro_ast::{ast::{FnRetTy, FnSig, Function, Item, ItemKind, Mod, ModSpan, Param}, token::TokenKind}, stelaro_common::symbol::Ident};
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 
@@ -12,7 +12,7 @@ impl<'sess> Parser<'sess> {
                 Ok(Some(
                     Item {
                         kind: ItemKind::Function(f),
-                        id: NodeId::dummy(),
+                        id: self.next_node_id(),
                         span: start.merge(&self.prev_token.span),
                         ident,
                     }
@@ -30,7 +30,7 @@ impl<'sess> Parser<'sess> {
                                 mod_span
                             )
                         ),
-                        id: NodeId::dummy(),
+                        id: self.next_node_id(),
                         span: start.merge(&self.prev_token.span),
                         ident,
                     }
@@ -202,7 +202,7 @@ impl<'sess> Parser<'sess> {
 
         Ok(
             Param {
-                id: NodeId::dummy(),
+                id: self.next_node_id(),
                 ty: Box::new(ty),
                 ident,
                 span: start.merge(&self.prev_token.span),

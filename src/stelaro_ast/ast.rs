@@ -241,11 +241,6 @@ pub struct NodeId(u32);
 impl NodeId {
     pub const STELO_NODE_ID: NodeId = NodeId(0);
 
-    #[inline]
-    pub fn dummy() -> Self {
-        Self(u32::MAX)
-    }
-
     pub fn from_u32(value: u32) -> Self {
         NodeId(value)
     }
