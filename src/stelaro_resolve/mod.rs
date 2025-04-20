@@ -125,18 +125,9 @@ struct Resolver<'ra, 'tcx> {
 
     /// 既に重複して定義されている名前に対して、診断がさらに重複しないようにする
     name_already_seen: HashMap<Symbol, Span>,
-
-    next_node_id: NodeId,
 }
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
-    fn next_node_id(&mut self) -> NodeId {
-        let start = self.next_node_id;
-        let next = NodeId::from_u32(start.as_u32() + 1);
-        self.next_node_id = next;
-        start
-    }
-
     fn new_module(
         &mut self,
         parent: Option<Module<'ra>>,

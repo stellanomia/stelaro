@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{NodeId, Path, PathSegment}, token::TokenKind};
+use crate::stelaro_ast::{ast::{Path, PathSegment}, token::TokenKind};
 
 use super::{parser::Parser, PResult};
 
@@ -11,7 +11,7 @@ impl<'sess> Parser<'sess> {
         segments.push(
             PathSegment {
                 ident: self.parse_ident()?,
-                id: NodeId::dummy(),
+                id: self.next_node_id(),
             }
         );
 
@@ -21,7 +21,7 @@ impl<'sess> Parser<'sess> {
             segments.push(
                 PathSegment {
                     ident: self.parse_ident()?,
-                    id: NodeId::dummy(),
+                    id: self.next_node_id(),
                 }
             );
         }

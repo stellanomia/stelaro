@@ -1,4 +1,4 @@
-use crate::stelaro_ast::ast::{NodeId, Pat, PatKind};
+use crate::stelaro_ast::ast::{Pat, PatKind};
 
 use super::{parser::Parser, PResult};
 
@@ -16,7 +16,7 @@ impl<'sess> Parser<'sess> {
 
         Ok(
             Pat {
-                id: NodeId::dummy(),
+                id: self.next_node_id(),
                 kind,
                 span: ident.span
             }
