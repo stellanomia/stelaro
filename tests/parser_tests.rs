@@ -1,269 +1,56 @@
+use std::fs;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 
-use stelaro::{
-    stelaro_ast::{ast::{BinOp, BinOpKind, Expr, ExprKind, NodeId, Path, PathSegment}, token::{Lit, LiteralKind}}, stelaro_common::{source_map::SourceMap, symbol::{Ident, Symbol}}, stelaro_diagnostic::DiagCtxt, stelaro_parse::{new_parser_from_src, parser::Parser}, stelaro_session::Session
-};
+use stelaro::stelaro_session::Session;
+use stelaro::stelaro_parse::{new_parser_from_src, parser::Parser};
+use stelaro::stelaro_diagnostic::DiagCtxt;
+use stelaro::stelaro_common::source_map::SourceMap;
 
-fn create_sess(src: Rc<String>) -> Session {
+fn create_test_session(src: Rc<String>) -> Session {
     let dcx = DiagCtxt::new(Rc::clone(&src));
     let source_map = Rc::new(SourceMap::new());
     Session::new(dcx, source_map)
 }
 
-fn create_parser(sess: &Session, src: Rc<String>) -> Parser<'_> {
-    new_parser_from_src(sess, src.to_string()).unwrap()
+fn create_test_parser<'a>(sess: &'a Session, src_str: &'a str) -> Parser<'a> {
+    new_parser_from_src(sess, src_str.to_owned()).unwrap()
+}
+
+fn run_parser_test(path: &Path) {
+    let source_code = fs::read_to_string(path)
+        .unwrap_or_else(|e| panic!("テストファイルを読み込むことができませんでした {:?}: {}", path, e));
+    let src = Rc::new(source_code);
+
+    let sess = create_test_session(Rc::clone(&src));
+    let mut parser = create_test_parser(&sess, &src);
+
+    let parse_result = parser.parse_stelo().unwrap();
+
+    let project_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+
+    let relative_path = path.strip_prefix(&project_root)
+        .unwrap_or_else(|_| {
+            eprintln!("Warning: パス '{:?}' からプロジェクトルートのプレフィックスを削除できませんでした。元のパスを使用します。", path);
+            path
+        });
+
+    let snapshot_name = relative_path.strip_prefix("tests/parser_inputs/")
+        .unwrap_or_else(|_| {
+            eprintln!("Warning: パス '{:?}' は 'tests/parser_inputs/' で始まりません。完全な相対パスを使用します。", relative_path);
+            relative_path
+        })
+        .to_str().expect("パスに非UTF8文字が含まれています")
+        .trim_end_matches(".stelo") // 拡張子を除去
+        .to_string();
+
+    insta::assert_debug_snapshot!(snapshot_name, parse_result);
 }
 
 #[test]
-fn test_parse_expr() {
-    let src = Rc::new(
-        "x = (1 + 2) * 3 == 4 and 5 == 6 or 7 != 8 or 9 == 10 and true".to_string()
-    );
-    let sess = &create_sess(Rc::clone(&src));
-    let mut parser = create_parser(sess, src);
-    let expr = parser.parse_expr().unwrap();
-
-    assert_eq!(
-        expr,
-        Expr {
-            id: NodeId::dummy(),
-            kind: ExprKind::Assign(
-                Box::new(Expr {
-                    id: NodeId::dummy(),
-                    kind: ExprKind::Path(
-                        Path {
-                            span: (0..1).into(),
-                            segments: vec![
-                                PathSegment {
-                                    ident: Ident {
-                                        name: Symbol::new(1),
-                                        span: (0..1).into()
-                                    },
-                                    id: NodeId::dummy(),
-                                }
-                            ]
-                        }
-                    ),
-                    span: (0..1).into(),
-                }),
-                Box::new(Expr {
-                    id: NodeId::dummy(),
-                    kind: ExprKind::Binary(
-                        BinOp {
-                            kind: BinOpKind::Or,
-                            span: (42..44).into()
-                        },
-                        Box::new(Expr {
-                            id: NodeId::dummy(),
-                            kind: ExprKind::Binary(
-                                BinOp {
-                                    kind: BinOpKind::Or,
-                                    span: (32..34).into()
-                                },
-                                Box::new(Expr {
-                                    id: NodeId::dummy(),
-                                    kind: ExprKind::Binary(
-                                        BinOp {
-                                            kind: BinOpKind::And,
-                                            span: (21..24).into()
-                                        },
-                                        Box::new(Expr {
-                                            id: NodeId::dummy(),
-                                            kind: ExprKind::Binary(
-                                                BinOp {
-                                                    kind: BinOpKind::Eq,
-                                                    span: (16..18).into()
-                                                },
-                                                Box::new(Expr {
-                                                    id: NodeId::dummy(),
-                                                    kind: ExprKind::Binary(
-                                                        BinOp {
-                                                            kind: BinOpKind::Mul,
-                                                            span: (12..13).into()
-                                                        },
-                                                        Box::new(Expr {
-                                                            id: NodeId::dummy(),
-                                                            kind: ExprKind::Paren(
-                                                                Box::new(Expr {
-                                                                    id: NodeId::dummy(),
-                                                                    kind: ExprKind::Binary(
-                                                                        BinOp {
-                                                                            kind: BinOpKind::Add,
-                                                                            span: (7..8).into()
-                                                                        },
-                                                                        Box::new(Expr {
-                                                                            id: NodeId::dummy(),
-                                                                            kind: ExprKind::Lit(
-                                                                                Lit {
-                                                                                    kind: LiteralKind::Integer,
-                                                                                    symbol: Symbol::new(2),
-                                                                                }
-                                                                            ),
-                                                                            span: (5..6).into(),
-                                                                        }),
-                                                                        Box::new(Expr {
-                                                                            id: NodeId::dummy(),
-                                                                            kind: ExprKind::Lit(
-                                                                                Lit {
-                                                                                    kind: LiteralKind::Integer,
-                                                                                    symbol: Symbol::new(3),
-                                                                                }
-                                                                            ),
-                                                                            span: (9..10).into(),
-                                                                        })
-                                                                    ),
-                                                                    span: (5..10).into(),
-                                                                })
-                                                            ),
-                                                            span: (4..11).into(),
-                                                        }),
-                                                        Box::new(Expr {
-                                                            id: NodeId::dummy(),
-                                                            kind: ExprKind::Lit(
-                                                                Lit {
-                                                                    kind: LiteralKind::Integer,
-                                                                    symbol: Symbol::new(4),
-                                                                }
-                                                            ),
-                                                            span: (14..15).into(),
-                                                        })
-                                                    ),
-                                                    span: (4..15).into(),
-                                                }),
-                                                Box::new(Expr {
-                                                    id: NodeId::dummy(),
-                                                    kind: ExprKind::Lit(
-                                                        Lit {
-                                                            kind: LiteralKind::Integer,
-                                                            symbol: Symbol::new(5),
-                                                        }
-                                                    ),
-                                                    span: (19..20).into(),
-                                                })
-                                            ),
-                                            span: (4..20).into(),
-                                        }),
-                                        Box::new(Expr {
-                                            id: NodeId::dummy(),
-                                            kind: ExprKind::Binary(
-                                                BinOp {
-                                                    kind: BinOpKind::Eq,
-                                                    span: (27..29).into()
-                                                },
-                                                Box::new(Expr {
-                                                    id: NodeId::dummy(),
-                                                    kind: ExprKind::Lit(
-                                                        Lit {
-                                                            kind: LiteralKind::Integer,
-                                                            symbol: Symbol::new(6),
-                                                        }
-                                                    ),
-                                                    span: (25..26).into(),
-                                                }),
-                                                Box::new(Expr {
-                                                    id: NodeId::dummy(),
-                                                    kind: ExprKind::Lit(
-                                                        Lit {
-                                                            kind: LiteralKind::Integer,
-                                                            symbol: Symbol::new(7),
-                                                        }
-                                                    ),
-                                                    span: (30..31).into(),
-                                                })
-                                            ),
-                                            span: (25..31).into(),
-                                        })
-                                    ),
-                                    span: (4..31).into(),
-                                }),
-                                Box::new(Expr {
-                                    id: NodeId::dummy(),
-                                    kind: ExprKind::Binary(
-                                        BinOp {
-                                            kind: BinOpKind::Ne,
-                                            span: (37..39).into()
-                                        },
-                                        Box::new(Expr {
-                                            id: NodeId::dummy(),
-                                            kind: ExprKind::Lit(
-                                                Lit {
-                                                    kind: LiteralKind::Integer,
-                                                    symbol: Symbol::new(8),
-                                                }
-                                            ),
-                                            span: (35..36).into(),
-                                        }),
-                                        Box::new(Expr {
-                                            id: NodeId::dummy(),
-                                            kind: ExprKind::Lit(
-                                                Lit {
-                                                    kind: LiteralKind::Integer,
-                                                    symbol: Symbol::new(9),
-                                                }
-                                            ),
-                                            span: (40..41).into(),
-                                        })
-                                    ),
-                                    span: (35..41).into(),
-                                })
-                            ),
-                            span: (4..41).into(),
-                        }),
-                        Box::new(Expr {
-                            id: NodeId::dummy(),
-                            kind: ExprKind::Binary(
-                                BinOp {
-                                    kind: BinOpKind::And,
-                                    span: (53..56).into()
-                                },
-                                Box::new(Expr {
-                                    id: NodeId::dummy(),
-                                    kind: ExprKind::Binary(
-                                        BinOp {
-                                            kind: BinOpKind::Eq,
-                                            span: (47..49).into()
-                                        },
-                                        Box::new(Expr {
-                                            id: NodeId::dummy(),
-                                            kind: ExprKind::Lit(
-                                                Lit {
-                                                    kind: LiteralKind::Integer,
-                                                    symbol: Symbol::new(10),
-                                                }
-                                            ),
-                                            span: (45..46).into(),
-                                        }),
-                                        Box::new(Expr {
-                                            id: NodeId::dummy(),
-                                            kind: ExprKind::Lit(
-                                                Lit {
-                                                    kind: LiteralKind::Integer,
-                                                    symbol: Symbol::new(11),
-                                                }
-                                            ),
-                                            span: (50..52).into(),
-                                        })
-                                    ),
-                                    span: (45..52).into(),
-                                }),
-                                Box::new(Expr {
-                                    id: NodeId::dummy(),
-                                    kind: ExprKind::Lit(
-                                        Lit {
-                                            kind: LiteralKind::Bool(true),
-                                            symbol: Symbol::new(12),
-                                        }
-                                    ),
-                                    span: (57..61).into(),
-                                })
-                            ),
-                            span: (45..61).into(),
-                        })
-                    ),
-                    span: (4..61).into(),
-                })
-            ),
-            span: (0..61).into(),
-        }
-    );
+fn test_parser_inputs() {
+    // `tests/parser_inputs/` ディレクトリ以下の全ての `.stelo` ファイルを検索
+    insta::glob!("parser_inputs/*.stelo", |path| {
+        run_parser_test(path);
+    });
 }

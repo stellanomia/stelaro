@@ -1,8 +1,10 @@
 use std::rc::Rc;
 
-use stelaro::{
-    stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind}, stelaro_common::{source_map::SourceMap, span::Span, symbol::Symbol}, stelaro_diagnostic::DiagCtxt, stelaro_lexer::Lexer, stelaro_session::Session
-};
+use stelaro::stelaro_session::Session;
+use stelaro::stelaro_lexer::Lexer;
+use stelaro::stelaro_diagnostic::DiagCtxt;
+use stelaro::stelaro_common::{source_map::SourceMap, span::Span, symbol::Symbol};
+use stelaro::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind};
 
 fn create_sess(src: String) -> Session {
     let src = Rc::new(src);
@@ -13,7 +15,7 @@ fn create_sess(src: String) -> Session {
 
 
 #[test]
-fn test_complex_expression() {
+fn test_complex_syntax() {
     let src = r#"
 fn main() {
     let x = 42.0;
@@ -176,4 +178,3 @@ let str = "Hello, World!";
         tokens.collect::<Vec<Token>>(), expected
     );
 }
-

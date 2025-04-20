@@ -1,0 +1,784 @@
+---
+source: tests/parser_tests.rs
+expression: parse_result
+input_file: tests/parser_inputs/expr1.stelo
+---
+Stelo {
+    items: [
+        Item {
+            kind: Function(
+                Function {
+                    span: Span {
+                        start: 0,
+                        end: 132,
+                    },
+                    sig: FnSig {
+                        params: [],
+                        ret_ty: Default,
+                        span: Span {
+                            start: 3,
+                            end: 9,
+                        },
+                    },
+                    body: Block {
+                        id: NodeId(
+                            46,
+                        ),
+                        stmts: [
+                            Stmt {
+                                id: NodeId(
+                                    45,
+                                ),
+                                kind: Let(
+                                    Local {
+                                        id: NodeId(
+                                            44,
+                                        ),
+                                        pat: Pat {
+                                            id: NodeId(
+                                                1,
+                                            ),
+                                            kind: Ident(
+                                                Ident {
+                                                    name: Symbol(
+                                                        2,
+                                                    ),
+                                                    span: Span {
+                                                        start: 20,
+                                                        end: 21,
+                                                    },
+                                                },
+                                            ),
+                                            span: Span {
+                                                start: 20,
+                                                end: 21,
+                                            },
+                                        },
+                                        kind: Init(
+                                            Expr {
+                                                id: NodeId(
+                                                    43,
+                                                ),
+                                                kind: Assign(
+                                                    Expr {
+                                                        id: NodeId(
+                                                            3,
+                                                        ),
+                                                        kind: Path(
+                                                            Path {
+                                                                span: Span {
+                                                                    start: 24,
+                                                                    end: 25,
+                                                                },
+                                                                segments: [
+                                                                    PathSegment {
+                                                                        ident: Ident {
+                                                                            name: Symbol(
+                                                                                2,
+                                                                            ),
+                                                                            span: Span {
+                                                                                start: 24,
+                                                                                end: 25,
+                                                                            },
+                                                                        },
+                                                                        id: NodeId(
+                                                                            2,
+                                                                        ),
+                                                                    },
+                                                                ],
+                                                            },
+                                                        ),
+                                                        span: Span {
+                                                            start: 24,
+                                                            end: 25,
+                                                        },
+                                                    },
+                                                    Expr {
+                                                        id: NodeId(
+                                                            42,
+                                                        ),
+                                                        kind: Binary(
+                                                            BinOp {
+                                                                kind: Or,
+                                                                span: Span {
+                                                                    start: 86,
+                                                                    end: 88,
+                                                                },
+                                                            },
+                                                            Expr {
+                                                                id: NodeId(
+                                                                    25,
+                                                                ),
+                                                                kind: Binary(
+                                                                    BinOp {
+                                                                        kind: Or,
+                                                                        span: Span {
+                                                                            start: 66,
+                                                                            end: 68,
+                                                                        },
+                                                                    },
+                                                                    Expr {
+                                                                        id: NodeId(
+                                                                            19,
+                                                                        ),
+                                                                        kind: Binary(
+                                                                            BinOp {
+                                                                                kind: Or,
+                                                                                span: Span {
+                                                                                    start: 56,
+                                                                                    end: 58,
+                                                                                },
+                                                                            },
+                                                                            Expr {
+                                                                                id: NodeId(
+                                                                                    15,
+                                                                                ),
+                                                                                kind: Binary(
+                                                                                    BinOp {
+                                                                                        kind: And,
+                                                                                        span: Span {
+                                                                                            start: 45,
+                                                                                            end: 48,
+                                                                                        },
+                                                                                    },
+                                                                                    Expr {
+                                                                                        id: NodeId(
+                                                                                            11,
+                                                                                        ),
+                                                                                        kind: Binary(
+                                                                                            BinOp {
+                                                                                                kind: Eq,
+                                                                                                span: Span {
+                                                                                                    start: 40,
+                                                                                                    end: 42,
+                                                                                                },
+                                                                                            },
+                                                                                            Expr {
+                                                                                                id: NodeId(
+                                                                                                    9,
+                                                                                                ),
+                                                                                                kind: Binary(
+                                                                                                    BinOp {
+                                                                                                        kind: Mul,
+                                                                                                        span: Span {
+                                                                                                            start: 36,
+                                                                                                            end: 37,
+                                                                                                        },
+                                                                                                    },
+                                                                                                    Expr {
+                                                                                                        id: NodeId(
+                                                                                                            7,
+                                                                                                        ),
+                                                                                                        kind: Paren(
+                                                                                                            Expr {
+                                                                                                                id: NodeId(
+                                                                                                                    6,
+                                                                                                                ),
+                                                                                                                kind: Binary(
+                                                                                                                    BinOp {
+                                                                                                                        kind: Add,
+                                                                                                                        span: Span {
+                                                                                                                            start: 31,
+                                                                                                                            end: 32,
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                    Expr {
+                                                                                                                        id: NodeId(
+                                                                                                                            4,
+                                                                                                                        ),
+                                                                                                                        kind: Lit(
+                                                                                                                            Lit {
+                                                                                                                                kind: Integer,
+                                                                                                                                symbol: Symbol(
+                                                                                                                                    3,
+                                                                                                                                ),
+                                                                                                                            },
+                                                                                                                        ),
+                                                                                                                        span: Span {
+                                                                                                                            start: 29,
+                                                                                                                            end: 30,
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                    Expr {
+                                                                                                                        id: NodeId(
+                                                                                                                            5,
+                                                                                                                        ),
+                                                                                                                        kind: Lit(
+                                                                                                                            Lit {
+                                                                                                                                kind: Integer,
+                                                                                                                                symbol: Symbol(
+                                                                                                                                    4,
+                                                                                                                                ),
+                                                                                                                            },
+                                                                                                                        ),
+                                                                                                                        span: Span {
+                                                                                                                            start: 33,
+                                                                                                                            end: 34,
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                ),
+                                                                                                                span: Span {
+                                                                                                                    start: 29,
+                                                                                                                    end: 34,
+                                                                                                                },
+                                                                                                            },
+                                                                                                        ),
+                                                                                                        span: Span {
+                                                                                                            start: 28,
+                                                                                                            end: 35,
+                                                                                                        },
+                                                                                                    },
+                                                                                                    Expr {
+                                                                                                        id: NodeId(
+                                                                                                            8,
+                                                                                                        ),
+                                                                                                        kind: Lit(
+                                                                                                            Lit {
+                                                                                                                kind: Integer,
+                                                                                                                symbol: Symbol(
+                                                                                                                    5,
+                                                                                                                ),
+                                                                                                            },
+                                                                                                        ),
+                                                                                                        span: Span {
+                                                                                                            start: 38,
+                                                                                                            end: 39,
+                                                                                                        },
+                                                                                                    },
+                                                                                                ),
+                                                                                                span: Span {
+                                                                                                    start: 28,
+                                                                                                    end: 39,
+                                                                                                },
+                                                                                            },
+                                                                                            Expr {
+                                                                                                id: NodeId(
+                                                                                                    10,
+                                                                                                ),
+                                                                                                kind: Lit(
+                                                                                                    Lit {
+                                                                                                        kind: Integer,
+                                                                                                        symbol: Symbol(
+                                                                                                            6,
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
+                                                                                                span: Span {
+                                                                                                    start: 43,
+                                                                                                    end: 44,
+                                                                                                },
+                                                                                            },
+                                                                                        ),
+                                                                                        span: Span {
+                                                                                            start: 28,
+                                                                                            end: 44,
+                                                                                        },
+                                                                                    },
+                                                                                    Expr {
+                                                                                        id: NodeId(
+                                                                                            14,
+                                                                                        ),
+                                                                                        kind: Binary(
+                                                                                            BinOp {
+                                                                                                kind: Eq,
+                                                                                                span: Span {
+                                                                                                    start: 51,
+                                                                                                    end: 53,
+                                                                                                },
+                                                                                            },
+                                                                                            Expr {
+                                                                                                id: NodeId(
+                                                                                                    12,
+                                                                                                ),
+                                                                                                kind: Lit(
+                                                                                                    Lit {
+                                                                                                        kind: Integer,
+                                                                                                        symbol: Symbol(
+                                                                                                            7,
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
+                                                                                                span: Span {
+                                                                                                    start: 49,
+                                                                                                    end: 50,
+                                                                                                },
+                                                                                            },
+                                                                                            Expr {
+                                                                                                id: NodeId(
+                                                                                                    13,
+                                                                                                ),
+                                                                                                kind: Lit(
+                                                                                                    Lit {
+                                                                                                        kind: Integer,
+                                                                                                        symbol: Symbol(
+                                                                                                            8,
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
+                                                                                                span: Span {
+                                                                                                    start: 54,
+                                                                                                    end: 55,
+                                                                                                },
+                                                                                            },
+                                                                                        ),
+                                                                                        span: Span {
+                                                                                            start: 49,
+                                                                                            end: 55,
+                                                                                        },
+                                                                                    },
+                                                                                ),
+                                                                                span: Span {
+                                                                                    start: 28,
+                                                                                    end: 55,
+                                                                                },
+                                                                            },
+                                                                            Expr {
+                                                                                id: NodeId(
+                                                                                    18,
+                                                                                ),
+                                                                                kind: Binary(
+                                                                                    BinOp {
+                                                                                        kind: Ne,
+                                                                                        span: Span {
+                                                                                            start: 61,
+                                                                                            end: 63,
+                                                                                        },
+                                                                                    },
+                                                                                    Expr {
+                                                                                        id: NodeId(
+                                                                                            16,
+                                                                                        ),
+                                                                                        kind: Lit(
+                                                                                            Lit {
+                                                                                                kind: Integer,
+                                                                                                symbol: Symbol(
+                                                                                                    9,
+                                                                                                ),
+                                                                                            },
+                                                                                        ),
+                                                                                        span: Span {
+                                                                                            start: 59,
+                                                                                            end: 60,
+                                                                                        },
+                                                                                    },
+                                                                                    Expr {
+                                                                                        id: NodeId(
+                                                                                            17,
+                                                                                        ),
+                                                                                        kind: Lit(
+                                                                                            Lit {
+                                                                                                kind: Integer,
+                                                                                                symbol: Symbol(
+                                                                                                    10,
+                                                                                                ),
+                                                                                            },
+                                                                                        ),
+                                                                                        span: Span {
+                                                                                            start: 64,
+                                                                                            end: 65,
+                                                                                        },
+                                                                                    },
+                                                                                ),
+                                                                                span: Span {
+                                                                                    start: 59,
+                                                                                    end: 65,
+                                                                                },
+                                                                            },
+                                                                        ),
+                                                                        span: Span {
+                                                                            start: 28,
+                                                                            end: 65,
+                                                                        },
+                                                                    },
+                                                                    Expr {
+                                                                        id: NodeId(
+                                                                            24,
+                                                                        ),
+                                                                        kind: Binary(
+                                                                            BinOp {
+                                                                                kind: And,
+                                                                                span: Span {
+                                                                                    start: 77,
+                                                                                    end: 80,
+                                                                                },
+                                                                            },
+                                                                            Expr {
+                                                                                id: NodeId(
+                                                                                    22,
+                                                                                ),
+                                                                                kind: Binary(
+                                                                                    BinOp {
+                                                                                        kind: Eq,
+                                                                                        span: Span {
+                                                                                            start: 71,
+                                                                                            end: 73,
+                                                                                        },
+                                                                                    },
+                                                                                    Expr {
+                                                                                        id: NodeId(
+                                                                                            20,
+                                                                                        ),
+                                                                                        kind: Lit(
+                                                                                            Lit {
+                                                                                                kind: Integer,
+                                                                                                symbol: Symbol(
+                                                                                                    11,
+                                                                                                ),
+                                                                                            },
+                                                                                        ),
+                                                                                        span: Span {
+                                                                                            start: 69,
+                                                                                            end: 70,
+                                                                                        },
+                                                                                    },
+                                                                                    Expr {
+                                                                                        id: NodeId(
+                                                                                            21,
+                                                                                        ),
+                                                                                        kind: Lit(
+                                                                                            Lit {
+                                                                                                kind: Integer,
+                                                                                                symbol: Symbol(
+                                                                                                    12,
+                                                                                                ),
+                                                                                            },
+                                                                                        ),
+                                                                                        span: Span {
+                                                                                            start: 74,
+                                                                                            end: 76,
+                                                                                        },
+                                                                                    },
+                                                                                ),
+                                                                                span: Span {
+                                                                                    start: 69,
+                                                                                    end: 76,
+                                                                                },
+                                                                            },
+                                                                            Expr {
+                                                                                id: NodeId(
+                                                                                    23,
+                                                                                ),
+                                                                                kind: Lit(
+                                                                                    Lit {
+                                                                                        kind: Bool(
+                                                                                            true,
+                                                                                        ),
+                                                                                        symbol: Symbol(
+                                                                                            13,
+                                                                                        ),
+                                                                                    },
+                                                                                ),
+                                                                                span: Span {
+                                                                                    start: 81,
+                                                                                    end: 85,
+                                                                                },
+                                                                            },
+                                                                        ),
+                                                                        span: Span {
+                                                                            start: 69,
+                                                                            end: 85,
+                                                                        },
+                                                                    },
+                                                                ),
+                                                                span: Span {
+                                                                    start: 28,
+                                                                    end: 85,
+                                                                },
+                                                            },
+                                                            Expr {
+                                                                id: NodeId(
+                                                                    41,
+                                                                ),
+                                                                kind: If(
+                                                                    Expr {
+                                                                        id: NodeId(
+                                                                            28,
+                                                                        ),
+                                                                        kind: Binary(
+                                                                            BinOp {
+                                                                                kind: Lt,
+                                                                                span: Span {
+                                                                                    start: 95,
+                                                                                    end: 96,
+                                                                                },
+                                                                            },
+                                                                            Expr {
+                                                                                id: NodeId(
+                                                                                    26,
+                                                                                ),
+                                                                                kind: Lit(
+                                                                                    Lit {
+                                                                                        kind: Integer,
+                                                                                        symbol: Symbol(
+                                                                                            14,
+                                                                                        ),
+                                                                                    },
+                                                                                ),
+                                                                                span: Span {
+                                                                                    start: 92,
+                                                                                    end: 94,
+                                                                                },
+                                                                            },
+                                                                            Expr {
+                                                                                id: NodeId(
+                                                                                    27,
+                                                                                ),
+                                                                                kind: Lit(
+                                                                                    Lit {
+                                                                                        kind: Integer,
+                                                                                        symbol: Symbol(
+                                                                                            15,
+                                                                                        ),
+                                                                                    },
+                                                                                ),
+                                                                                span: Span {
+                                                                                    start: 97,
+                                                                                    end: 99,
+                                                                                },
+                                                                            },
+                                                                        ),
+                                                                        span: Span {
+                                                                            start: 92,
+                                                                            end: 99,
+                                                                        },
+                                                                    },
+                                                                    Block {
+                                                                        id: NodeId(
+                                                                            36,
+                                                                        ),
+                                                                        stmts: [
+                                                                            Stmt {
+                                                                                id: NodeId(
+                                                                                    35,
+                                                                                ),
+                                                                                kind: Expr(
+                                                                                    Expr {
+                                                                                        id: NodeId(
+                                                                                            34,
+                                                                                        ),
+                                                                                        kind: Binary(
+                                                                                            BinOp {
+                                                                                                kind: Sub,
+                                                                                                span: Span {
+                                                                                                    start: 105,
+                                                                                                    end: 106,
+                                                                                                },
+                                                                                            },
+                                                                                            Expr {
+                                                                                                id: NodeId(
+                                                                                                    29,
+                                                                                                ),
+                                                                                                kind: Lit(
+                                                                                                    Lit {
+                                                                                                        kind: Integer,
+                                                                                                        symbol: Symbol(
+                                                                                                            16,
+                                                                                                        ),
+                                                                                                    },
+                                                                                                ),
+                                                                                                span: Span {
+                                                                                                    start: 102,
+                                                                                                    end: 104,
+                                                                                                },
+                                                                                            },
+                                                                                            Expr {
+                                                                                                id: NodeId(
+                                                                                                    33,
+                                                                                                ),
+                                                                                                kind: Binary(
+                                                                                                    BinOp {
+                                                                                                        kind: Mul,
+                                                                                                        span: Span {
+                                                                                                            start: 111,
+                                                                                                            end: 112,
+                                                                                                        },
+                                                                                                    },
+                                                                                                    Expr {
+                                                                                                        id: NodeId(
+                                                                                                            31,
+                                                                                                        ),
+                                                                                                        kind: Unary(
+                                                                                                            Neg,
+                                                                                                            Expr {
+                                                                                                                id: NodeId(
+                                                                                                                    30,
+                                                                                                                ),
+                                                                                                                kind: Lit(
+                                                                                                                    Lit {
+                                                                                                                        kind: Integer,
+                                                                                                                        symbol: Symbol(
+                                                                                                                            17,
+                                                                                                                        ),
+                                                                                                                    },
+                                                                                                                ),
+                                                                                                                span: Span {
+                                                                                                                    start: 108,
+                                                                                                                    end: 110,
+                                                                                                                },
+                                                                                                            },
+                                                                                                        ),
+                                                                                                        span: Span {
+                                                                                                            start: 107,
+                                                                                                            end: 110,
+                                                                                                        },
+                                                                                                    },
+                                                                                                    Expr {
+                                                                                                        id: NodeId(
+                                                                                                            32,
+                                                                                                        ),
+                                                                                                        kind: Lit(
+                                                                                                            Lit {
+                                                                                                                kind: Integer,
+                                                                                                                symbol: Symbol(
+                                                                                                                    18,
+                                                                                                                ),
+                                                                                                            },
+                                                                                                        ),
+                                                                                                        span: Span {
+                                                                                                            start: 113,
+                                                                                                            end: 115,
+                                                                                                        },
+                                                                                                    },
+                                                                                                ),
+                                                                                                span: Span {
+                                                                                                    start: 107,
+                                                                                                    end: 115,
+                                                                                                },
+                                                                                            },
+                                                                                        ),
+                                                                                        span: Span {
+                                                                                            start: 102,
+                                                                                            end: 115,
+                                                                                        },
+                                                                                    },
+                                                                                ),
+                                                                                span: Span {
+                                                                                    start: 102,
+                                                                                    end: 115,
+                                                                                },
+                                                                            },
+                                                                        ],
+                                                                        span: Span {
+                                                                            start: 100,
+                                                                            end: 117,
+                                                                        },
+                                                                    },
+                                                                    Some(
+                                                                        Expr {
+                                                                            id: NodeId(
+                                                                                40,
+                                                                            ),
+                                                                            kind: Block(
+                                                                                Block {
+                                                                                    id: NodeId(
+                                                                                        39,
+                                                                                    ),
+                                                                                    stmts: [
+                                                                                        Stmt {
+                                                                                            id: NodeId(
+                                                                                                38,
+                                                                                            ),
+                                                                                            kind: Expr(
+                                                                                                Expr {
+                                                                                                    id: NodeId(
+                                                                                                        37,
+                                                                                                    ),
+                                                                                                    kind: Lit(
+                                                                                                        Lit {
+                                                                                                            kind: Integer,
+                                                                                                            symbol: Symbol(
+                                                                                                                19,
+                                                                                                            ),
+                                                                                                        },
+                                                                                                    ),
+                                                                                                    span: Span {
+                                                                                                        start: 125,
+                                                                                                        end: 127,
+                                                                                                    },
+                                                                                                },
+                                                                                            ),
+                                                                                            span: Span {
+                                                                                                start: 125,
+                                                                                                end: 127,
+                                                                                            },
+                                                                                        },
+                                                                                    ],
+                                                                                    span: Span {
+                                                                                        start: 123,
+                                                                                        end: 129,
+                                                                                    },
+                                                                                },
+                                                                            ),
+                                                                            span: Span {
+                                                                                start: 123,
+                                                                                end: 129,
+                                                                            },
+                                                                        },
+                                                                    ),
+                                                                ),
+                                                                span: Span {
+                                                                    start: 89,
+                                                                    end: 129,
+                                                                },
+                                                            },
+                                                        ),
+                                                        span: Span {
+                                                            start: 28,
+                                                            end: 129,
+                                                        },
+                                                    },
+                                                ),
+                                                span: Span {
+                                                    start: 24,
+                                                    end: 129,
+                                                },
+                                            },
+                                        ),
+                                        ty: None,
+                                        span: Span {
+                                            start: 16,
+                                            end: 130,
+                                        },
+                                    },
+                                ),
+                                span: Span {
+                                    start: 16,
+                                    end: 130,
+                                },
+                            },
+                        ],
+                        span: Span {
+                            start: 10,
+                            end: 132,
+                        },
+                    },
+                },
+            ),
+            id: NodeId(
+                47,
+            ),
+            span: Span {
+                start: 0,
+                end: 132,
+            },
+            ident: Ident {
+                name: Symbol(
+                    1,
+                ),
+                span: Span {
+                    start: 3,
+                    end: 7,
+                },
+            },
+        },
+    ],
+    span: ModSpan {
+        inner_span: Span {
+            start: 0,
+            end: 132,
+        },
+    },
+    id: NodeId(
+        0,
+    ),
+}
