@@ -2,7 +2,6 @@ use std::fs;
 use std::path::Path;
 use std::rc::Rc;
 
-// stelaroクレートのインポートは変更なし
 use stelaro::stelaro_session::Session;
 use stelaro::stelaro_parse::{new_parser_from_src, parser::Parser};
 use stelaro::stelaro_diagnostic::DiagCtxt;
