@@ -8,7 +8,7 @@ use stelaro::stelaro_parse::{new_parser_from_src, parser::Parser};
 use stelaro::stelaro_diagnostic::DiagCtxt;
 use stelaro::stelaro_common::source_map::SourceMap;
 
-// create_test_session, create_test_parser は変更なし
+
 fn create_test_session(src: Rc<String>) -> Session {
     let dcx = DiagCtxt::new(Rc::clone(&src));
     let source_map = Rc::new(SourceMap::new());
@@ -21,9 +21,6 @@ fn create_test_parser<'a>(sess: &'a Session, src_str: &'a str) -> Parser<'a> {
 
 
 fn run_parser_test(path: &Path) {
-    // デバッグ用にテスト対象ファイルを表示
-    println!("Testing file: {:?}", path);
-
     let source_code = fs::read_to_string(path)
         .unwrap_or_else(|e| panic!("テストファイルを読み込むことができませんでした {:?}: {}", path, e));
     let src = Rc::new(source_code);
