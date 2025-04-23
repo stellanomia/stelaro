@@ -161,9 +161,9 @@ where
     let Function { sig, body, .. } = f;
     let FnSig { params, ret_ty, ..} = sig;
 
-    visitor.visit_block(body)?;
     walk_list!(visitor, visit_param, params);
     visitor.visit_fn_ret_ty(ret_ty)?;
+    visitor.visit_block(body)?;
 
     ControlFlow::Continue(())
 }
