@@ -1,3 +1,5 @@
+mod def_collector;
+
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
