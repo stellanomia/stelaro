@@ -1,0 +1,14 @@
+mod expr {
+    fn main() {
+        let x = if if 1 < 2 { 3 } else {4 + 5} == 6 {
+            let y: i32 = 7;
+
+            while y < 8 {
+                y = y + 1;
+            }
+            y
+        } else {
+            9
+        };
+    }
+}

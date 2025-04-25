@@ -9,11 +9,17 @@ fn main() {
 
 mod my_mod {
     fn f() => i32 {
-        0
+        let x = if 123 < 456 {
+            789
+        } else {
+            0
+        };
+
+        x
     }
 
     fn a() {
-        print("");
+        print("Hello");
     }
 }
 "#.trim().to_string());
