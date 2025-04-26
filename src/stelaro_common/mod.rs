@@ -1,12 +1,14 @@
 pub mod arena;
 pub mod def_id;
 pub mod symbol;
-pub mod span;
+pub mod map;
 pub mod source_map;
+pub mod span;
 
 
 pub use arena::{Arena, TypedArena};
 pub use def_id::{DefId, LocalDefId};
+pub use map::IndexMap;
 pub use span::Span;
 pub use symbol::{Symbol, Ident};
 
