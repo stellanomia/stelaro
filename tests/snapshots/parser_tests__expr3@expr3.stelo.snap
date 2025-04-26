@@ -13,15 +13,15 @@ Stelo {
                             kind: Function(
                                 Function {
                                     span: Span {
-                                        start: 16,
-                                        end: 250,
+                                        start: 15,
+                                        end: 238,
                                     },
                                     sig: FnSig {
                                         params: [],
                                         ret_ty: Default,
                                         span: Span {
-                                            start: 19,
-                                            end: 25,
+                                            start: 18,
+                                            end: 24,
                                         },
                                     },
                                     body: Block {
@@ -45,17 +45,17 @@ Stelo {
                                                             kind: Ident(
                                                                 Ident {
                                                                     name: Symbol(
-                                                                        21,
+                                                                        25,
                                                                     ),
                                                                     span: Span {
-                                                                        start: 41,
-                                                                        end: 42,
+                                                                        start: 39,
+                                                                        end: 40,
                                                                     },
                                                                 },
                                                             ),
                                                             span: Span {
-                                                                start: 41,
-                                                                end: 42,
+                                                                start: 39,
+                                                                end: 40,
                                                             },
                                                         },
                                                         kind: Init(
@@ -72,8 +72,8 @@ Stelo {
                                                                             BinOp {
                                                                                 kind: Eq,
                                                                                 span: Span {
-                                                                                    start: 76,
-                                                                                    end: 78,
+                                                                                    start: 74,
+                                                                                    end: 76,
                                                                                 },
                                                                             },
                                                                             Expr {
@@ -89,8 +89,8 @@ Stelo {
                                                                                             BinOp {
                                                                                                 kind: Lt,
                                                                                                 span: Span {
-                                                                                                    start: 53,
-                                                                                                    end: 54,
+                                                                                                    start: 51,
+                                                                                                    end: 52,
                                                                                                 },
                                                                                             },
                                                                                             Expr {
@@ -101,13 +101,13 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            25,
+                                                                                                            26,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
-                                                                                                    start: 51,
-                                                                                                    end: 52,
+                                                                                                    start: 49,
+                                                                                                    end: 50,
                                                                                                 },
                                                                                             },
                                                                                             Expr {
@@ -118,19 +118,19 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            26,
+                                                                                                            27,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
-                                                                                                    start: 55,
-                                                                                                    end: 56,
+                                                                                                    start: 53,
+                                                                                                    end: 54,
                                                                                                 },
                                                                                             },
                                                                                         ),
                                                                                         span: Span {
-                                                                                            start: 51,
-                                                                                            end: 56,
+                                                                                            start: 49,
+                                                                                            end: 54,
                                                                                         },
                                                                                     },
                                                                                     Block {
@@ -151,25 +151,25 @@ Stelo {
                                                                                                             Lit {
                                                                                                                 kind: Integer,
                                                                                                                 symbol: Symbol(
-                                                                                                                    27,
+                                                                                                                    28,
                                                                                                                 ),
                                                                                                             },
                                                                                                         ),
                                                                                                         span: Span {
-                                                                                                            start: 59,
-                                                                                                            end: 60,
+                                                                                                            start: 57,
+                                                                                                            end: 58,
                                                                                                         },
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
-                                                                                                    start: 59,
-                                                                                                    end: 60,
+                                                                                                    start: 57,
+                                                                                                    end: 58,
                                                                                                 },
                                                                                             },
                                                                                         ],
                                                                                         span: Span {
-                                                                                            start: 57,
-                                                                                            end: 62,
+                                                                                            start: 55,
+                                                                                            end: 60,
                                                                                         },
                                                                                     },
                                                                                     Some(
@@ -196,8 +196,8 @@ Stelo {
                                                                                                                         BinOp {
                                                                                                                             kind: Add,
                                                                                                                             span: Span {
-                                                                                                                                start: 71,
-                                                                                                                                end: 72,
+                                                                                                                                start: 69,
+                                                                                                                                end: 70,
                                                                                                                             },
                                                                                                                         },
                                                                                                                         Expr {
@@ -208,13 +208,13 @@ Stelo {
                                                                                                                                 Lit {
                                                                                                                                     kind: Integer,
                                                                                                                                     symbol: Symbol(
-                                                                                                                                        28,
+                                                                                                                                        29,
                                                                                                                                     ),
                                                                                                                                 },
                                                                                                                             ),
                                                                                                                             span: Span {
-                                                                                                                                start: 69,
-                                                                                                                                end: 70,
+                                                                                                                                start: 67,
+                                                                                                                                end: 68,
                                                                                                                             },
                                                                                                                         },
                                                                                                                         Expr {
@@ -225,44 +225,44 @@ Stelo {
                                                                                                                                 Lit {
                                                                                                                                     kind: Integer,
                                                                                                                                     symbol: Symbol(
-                                                                                                                                        29,
+                                                                                                                                        30,
                                                                                                                                     ),
                                                                                                                                 },
                                                                                                                             ),
                                                                                                                             span: Span {
-                                                                                                                                start: 73,
-                                                                                                                                end: 74,
+                                                                                                                                start: 71,
+                                                                                                                                end: 72,
                                                                                                                             },
                                                                                                                         },
                                                                                                                     ),
                                                                                                                     span: Span {
-                                                                                                                        start: 69,
-                                                                                                                        end: 74,
+                                                                                                                        start: 67,
+                                                                                                                        end: 72,
                                                                                                                     },
                                                                                                                 },
                                                                                                             ),
                                                                                                             span: Span {
-                                                                                                                start: 69,
-                                                                                                                end: 74,
+                                                                                                                start: 67,
+                                                                                                                end: 72,
                                                                                                             },
                                                                                                         },
                                                                                                     ],
                                                                                                     span: Span {
-                                                                                                        start: 68,
-                                                                                                        end: 75,
+                                                                                                        start: 66,
+                                                                                                        end: 73,
                                                                                                     },
                                                                                                 },
                                                                                             ),
                                                                                             span: Span {
-                                                                                                start: 68,
-                                                                                                end: 75,
+                                                                                                start: 66,
+                                                                                                end: 73,
                                                                                             },
                                                                                         },
                                                                                     ),
                                                                                 ),
                                                                                 span: Span {
-                                                                                    start: 48,
-                                                                                    end: 75,
+                                                                                    start: 46,
+                                                                                    end: 73,
                                                                                 },
                                                                             },
                                                                             Expr {
@@ -273,19 +273,19 @@ Stelo {
                                                                                     Lit {
                                                                                         kind: Integer,
                                                                                         symbol: Symbol(
-                                                                                            30,
+                                                                                            31,
                                                                                         ),
                                                                                     },
                                                                                 ),
                                                                                 span: Span {
-                                                                                    start: 79,
-                                                                                    end: 80,
+                                                                                    start: 77,
+                                                                                    end: 78,
                                                                                 },
                                                                             },
                                                                         ),
                                                                         span: Span {
-                                                                            start: 48,
-                                                                            end: 80,
+                                                                            start: 46,
+                                                                            end: 78,
                                                                         },
                                                                     },
                                                                     Block {
@@ -309,17 +309,17 @@ Stelo {
                                                                                             kind: Ident(
                                                                                                 Ident {
                                                                                                     name: Symbol(
-                                                                                                        22,
+                                                                                                        32,
                                                                                                     ),
                                                                                                     span: Span {
-                                                                                                        start: 100,
-                                                                                                        end: 101,
+                                                                                                        start: 97,
+                                                                                                        end: 98,
                                                                                                     },
                                                                                                 },
                                                                                             ),
                                                                                             span: Span {
-                                                                                                start: 100,
-                                                                                                end: 101,
+                                                                                                start: 97,
+                                                                                                end: 98,
                                                                                             },
                                                                                         },
                                                                                         kind: Init(
@@ -331,13 +331,13 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            32,
+                                                                                                            34,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
-                                                                                                    start: 109,
-                                                                                                    end: 110,
+                                                                                                    start: 106,
+                                                                                                    end: 107,
                                                                                                 },
                                                                                             },
                                                                                         ),
@@ -346,18 +346,18 @@ Stelo {
                                                                                                 kind: Path(
                                                                                                     Path {
                                                                                                         span: Span {
-                                                                                                            start: 103,
-                                                                                                            end: 106,
+                                                                                                            start: 100,
+                                                                                                            end: 103,
                                                                                                         },
                                                                                                         segments: [
                                                                                                             PathSegment {
                                                                                                                 ident: Ident {
                                                                                                                     name: Symbol(
-                                                                                                                        31,
+                                                                                                                        33,
                                                                                                                     ),
                                                                                                                     span: Span {
-                                                                                                                        start: 103,
-                                                                                                                        end: 106,
+                                                                                                                        start: 100,
+                                                                                                                        end: 103,
                                                                                                                     },
                                                                                                                 },
                                                                                                                 id: NodeId(
@@ -368,20 +368,20 @@ Stelo {
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
-                                                                                                    start: 103,
-                                                                                                    end: 106,
+                                                                                                    start: 100,
+                                                                                                    end: 103,
                                                                                                 },
                                                                                             },
                                                                                         ),
                                                                                         span: Span {
-                                                                                            start: 96,
-                                                                                            end: 111,
+                                                                                            start: 93,
+                                                                                            end: 108,
                                                                                         },
                                                                                     },
                                                                                 ),
                                                                                 span: Span {
-                                                                                    start: 96,
-                                                                                    end: 111,
+                                                                                    start: 93,
+                                                                                    end: 108,
                                                                                 },
                                                                             },
                                                                             Stmt {
@@ -397,8 +397,8 @@ Stelo {
                                                                                             BinOp {
                                                                                                 kind: Lt,
                                                                                                 span: Span {
-                                                                                                    start: 135,
-                                                                                                    end: 136,
+                                                                                                    start: 130,
+                                                                                                    end: 131,
                                                                                                 },
                                                                                             },
                                                                                             Expr {
@@ -408,18 +408,18 @@ Stelo {
                                                                                                 kind: Path(
                                                                                                     Path {
                                                                                                         span: Span {
-                                                                                                            start: 133,
-                                                                                                            end: 134,
+                                                                                                            start: 128,
+                                                                                                            end: 129,
                                                                                                         },
                                                                                                         segments: [
                                                                                                             PathSegment {
                                                                                                                 ident: Ident {
                                                                                                                     name: Symbol(
-                                                                                                                        22,
+                                                                                                                        32,
                                                                                                                     ),
                                                                                                                     span: Span {
-                                                                                                                        start: 133,
-                                                                                                                        end: 134,
+                                                                                                                        start: 128,
+                                                                                                                        end: 129,
                                                                                                                     },
                                                                                                                 },
                                                                                                                 id: NodeId(
@@ -430,8 +430,8 @@ Stelo {
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
-                                                                                                    start: 133,
-                                                                                                    end: 134,
+                                                                                                    start: 128,
+                                                                                                    end: 129,
                                                                                                 },
                                                                                             },
                                                                                             Expr {
@@ -442,19 +442,19 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            33,
+                                                                                                            35,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
-                                                                                                    start: 137,
-                                                                                                    end: 138,
+                                                                                                    start: 132,
+                                                                                                    end: 133,
                                                                                                 },
                                                                                             },
                                                                                         ),
                                                                                         span: Span {
-                                                                                            start: 133,
-                                                                                            end: 138,
+                                                                                            start: 128,
+                                                                                            end: 133,
                                                                                         },
                                                                                     },
                                                                                     Block {
@@ -479,18 +479,18 @@ Stelo {
                                                                                                                 kind: Path(
                                                                                                                     Path {
                                                                                                                         span: Span {
-                                                                                                                            start: 158,
-                                                                                                                            end: 159,
+                                                                                                                            start: 152,
+                                                                                                                            end: 153,
                                                                                                                         },
                                                                                                                         segments: [
                                                                                                                             PathSegment {
                                                                                                                                 ident: Ident {
                                                                                                                                     name: Symbol(
-                                                                                                                                        22,
+                                                                                                                                        32,
                                                                                                                                     ),
                                                                                                                                     span: Span {
-                                                                                                                                        start: 158,
-                                                                                                                                        end: 159,
+                                                                                                                                        start: 152,
+                                                                                                                                        end: 153,
                                                                                                                                     },
                                                                                                                                 },
                                                                                                                                 id: NodeId(
@@ -501,8 +501,8 @@ Stelo {
                                                                                                                     },
                                                                                                                 ),
                                                                                                                 span: Span {
-                                                                                                                    start: 158,
-                                                                                                                    end: 159,
+                                                                                                                    start: 152,
+                                                                                                                    end: 153,
                                                                                                                 },
                                                                                                             },
                                                                                                             Expr {
@@ -513,8 +513,8 @@ Stelo {
                                                                                                                     BinOp {
                                                                                                                         kind: Add,
                                                                                                                         span: Span {
-                                                                                                                            start: 164,
-                                                                                                                            end: 165,
+                                                                                                                            start: 158,
+                                                                                                                            end: 159,
                                                                                                                         },
                                                                                                                     },
                                                                                                                     Expr {
@@ -524,18 +524,18 @@ Stelo {
                                                                                                                         kind: Path(
                                                                                                                             Path {
                                                                                                                                 span: Span {
-                                                                                                                                    start: 162,
-                                                                                                                                    end: 163,
+                                                                                                                                    start: 156,
+                                                                                                                                    end: 157,
                                                                                                                                 },
                                                                                                                                 segments: [
                                                                                                                                     PathSegment {
                                                                                                                                         ident: Ident {
                                                                                                                                             name: Symbol(
-                                                                                                                                                22,
+                                                                                                                                                32,
                                                                                                                                             ),
                                                                                                                                             span: Span {
-                                                                                                                                                start: 162,
-                                                                                                                                                end: 163,
+                                                                                                                                                start: 156,
+                                                                                                                                                end: 157,
                                                                                                                                             },
                                                                                                                                         },
                                                                                                                                         id: NodeId(
@@ -546,8 +546,8 @@ Stelo {
                                                                                                                             },
                                                                                                                         ),
                                                                                                                         span: Span {
-                                                                                                                            start: 162,
-                                                                                                                            end: 163,
+                                                                                                                            start: 156,
+                                                                                                                            end: 157,
                                                                                                                         },
                                                                                                                     },
                                                                                                                     Expr {
@@ -558,43 +558,43 @@ Stelo {
                                                                                                                             Lit {
                                                                                                                                 kind: Integer,
                                                                                                                                 symbol: Symbol(
-                                                                                                                                    25,
+                                                                                                                                    26,
                                                                                                                                 ),
                                                                                                                             },
                                                                                                                         ),
                                                                                                                         span: Span {
-                                                                                                                            start: 166,
-                                                                                                                            end: 167,
+                                                                                                                            start: 160,
+                                                                                                                            end: 161,
                                                                                                                         },
                                                                                                                     },
                                                                                                                 ),
                                                                                                                 span: Span {
-                                                                                                                    start: 162,
-                                                                                                                    end: 167,
+                                                                                                                    start: 156,
+                                                                                                                    end: 161,
                                                                                                                 },
                                                                                                             },
                                                                                                         ),
                                                                                                         span: Span {
-                                                                                                            start: 158,
-                                                                                                            end: 167,
+                                                                                                            start: 152,
+                                                                                                            end: 161,
                                                                                                         },
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
-                                                                                                    start: 158,
-                                                                                                    end: 168,
+                                                                                                    start: 152,
+                                                                                                    end: 162,
                                                                                                 },
                                                                                             },
                                                                                         ],
                                                                                         span: Span {
-                                                                                            start: 139,
-                                                                                            end: 183,
+                                                                                            start: 134,
+                                                                                            end: 176,
                                                                                         },
                                                                                     },
                                                                                 ),
                                                                                 span: Span {
-                                                                                    start: 127,
-                                                                                    end: 183,
+                                                                                    start: 122,
+                                                                                    end: 176,
                                                                                 },
                                                                             },
                                                                             Stmt {
@@ -609,18 +609,18 @@ Stelo {
                                                                                         kind: Path(
                                                                                             Path {
                                                                                                 span: Span {
-                                                                                                    start: 197,
-                                                                                                    end: 198,
+                                                                                                    start: 189,
+                                                                                                    end: 190,
                                                                                                 },
                                                                                                 segments: [
                                                                                                     PathSegment {
                                                                                                         ident: Ident {
                                                                                                             name: Symbol(
-                                                                                                                22,
+                                                                                                                32,
                                                                                                             ),
                                                                                                             span: Span {
-                                                                                                                start: 197,
-                                                                                                                end: 198,
+                                                                                                                start: 189,
+                                                                                                                end: 190,
                                                                                                             },
                                                                                                         },
                                                                                                         id: NodeId(
@@ -631,20 +631,20 @@ Stelo {
                                                                                             },
                                                                                         ),
                                                                                         span: Span {
-                                                                                            start: 197,
-                                                                                            end: 198,
+                                                                                            start: 189,
+                                                                                            end: 190,
                                                                                         },
                                                                                     },
                                                                                 ),
                                                                                 span: Span {
-                                                                                    start: 197,
-                                                                                    end: 198,
+                                                                                    start: 189,
+                                                                                    end: 190,
                                                                                 },
                                                                             },
                                                                         ],
                                                                         span: Span {
-                                                                            start: 81,
-                                                                            end: 209,
+                                                                            start: 79,
+                                                                            end: 200,
                                                                         },
                                                                     },
                                                                     Some(
@@ -671,57 +671,57 @@ Stelo {
                                                                                                         Lit {
                                                                                                             kind: Integer,
                                                                                                             symbol: Symbol(
-                                                                                                                34,
+                                                                                                                36,
                                                                                                             ),
                                                                                                         },
                                                                                                     ),
                                                                                                     span: Span {
-                                                                                                        start: 230,
-                                                                                                        end: 231,
+                                                                                                        start: 220,
+                                                                                                        end: 221,
                                                                                                     },
                                                                                                 },
                                                                                             ),
                                                                                             span: Span {
-                                                                                                start: 230,
-                                                                                                end: 231,
+                                                                                                start: 220,
+                                                                                                end: 221,
                                                                                             },
                                                                                         },
                                                                                     ],
                                                                                     span: Span {
-                                                                                        start: 215,
-                                                                                        end: 242,
+                                                                                        start: 206,
+                                                                                        end: 231,
                                                                                     },
                                                                                 },
                                                                             ),
                                                                             span: Span {
-                                                                                start: 215,
-                                                                                end: 242,
+                                                                                start: 206,
+                                                                                end: 231,
                                                                             },
                                                                         },
                                                                     ),
                                                                 ),
                                                                 span: Span {
-                                                                    start: 45,
-                                                                    end: 242,
+                                                                    start: 43,
+                                                                    end: 231,
                                                                 },
                                                             },
                                                         ),
                                                         ty: None,
                                                         span: Span {
-                                                            start: 37,
-                                                            end: 243,
+                                                            start: 35,
+                                                            end: 232,
                                                         },
                                                     },
                                                 ),
                                                 span: Span {
-                                                    start: 37,
-                                                    end: 243,
+                                                    start: 35,
+                                                    end: 232,
                                                 },
                                             },
                                         ],
                                         span: Span {
-                                            start: 26,
-                                            end: 250,
+                                            start: 25,
+                                            end: 238,
                                         },
                                     },
                                 },
@@ -730,16 +730,16 @@ Stelo {
                                 48,
                             ),
                             span: Span {
-                                start: 16,
-                                end: 250,
+                                start: 15,
+                                end: 238,
                             },
                             ident: Ident {
                                 name: Symbol(
-                                    20,
+                                    24,
                                 ),
                                 span: Span {
-                                    start: 19,
-                                    end: 23,
+                                    start: 18,
+                                    end: 22,
                                 },
                             },
                         },
@@ -747,7 +747,7 @@ Stelo {
                     ModSpan {
                         inner_span: Span {
                             start: 9,
-                            end: 253,
+                            end: 240,
                         },
                     },
                 ),
@@ -757,11 +757,11 @@ Stelo {
             ),
             span: Span {
                 start: 0,
-                end: 253,
+                end: 240,
             },
             ident: Ident {
                 name: Symbol(
-                    24,
+                    23,
                 ),
                 span: Span {
                     start: 4,
@@ -773,7 +773,7 @@ Stelo {
     span: ModSpan {
         inner_span: Span {
             start: 0,
-            end: 253,
+            end: 240,
         },
     },
     id: NodeId(

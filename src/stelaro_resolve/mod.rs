@@ -4,22 +4,37 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 
-use crate::stelaro_common::{Span, Symbol, TypedArena, DefId, LocalDefId, Ident};
+use crate::stelaro_common::{Span, Symbol, TypedArena, DefId, LocalDefId, Ident, IndexMap};
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_sir::def::{DefKind, PerNS, Res};
+use crate::stelaro_sir::def::{DefKind, Namespace, PerNS, Res};
 use crate::stelaro_ast::ast::{NodeId, Stelo};
 
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy)]
+/// モジュール内の名前を識別するキー
+#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+pub struct BindingKey {
+    pub ident: Ident,
+    pub ns: Namespace,
+}
+
+impl BindingKey {
+    pub fn new(ident: Ident, ns: Namespace) -> Self {
+        BindingKey { ident, ns }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub struct Module<'tcx>(&'tcx ModuleData<'tcx>);
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ModuleData<'ra> {
     /// 親スコープへの参照 (ルートモジュールでは None)
     pub parent: Option<Module<'ra>>,
 
     /// このスコープがどのような種類か (名前付きモジュールか、単なるブロックか) を示す
     pub kind: ModuleKind,
+
+    pub lazy_resolutions: RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>,
 
     /// このスコープ内で直接利用可能な定義をもつ
     /// 識別子 (名前) をキーとし、異なる名前空間での解決結果を値として持つ
@@ -52,6 +67,8 @@ impl<'ra> Module<'ra> {
     }
 }
 
+type Resolutions<'ra> = RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>;
+
 impl<'ra> ModuleData<'ra> {
     pub fn new(
         parent: Option<Module<'ra>>,
@@ -61,6 +78,7 @@ impl<'ra> ModuleData<'ra> {
         ModuleData {
             parent,
             kind,
+            lazy_resolutions: Default::default(),
             definitions: Default::default(),
             span,
         }
@@ -81,23 +99,109 @@ pub struct MainDefinition {
     pub span: Span,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct NameBinding<'ra>(&'ra NameBindingData<'ra>);
+
+/// 型やモジュール定義(将来的にプライベートである可能性のある値)を記録します。
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct NameBindingData<'ra> {
+    kind: NameBindingKind<'ra>,
+    span: Span,
+    // ambiguity: Option<(NameBinding<'ra>, AmbiguityKind)>,
+    // vis: ty::Visibility<DefId>,
+}
+
+trait ToNameBinding<'ra> {
+    fn to_name_binding(self, arenas: &'ra ResolverArenas<'ra>) -> NameBinding<'ra>;
+}
+
+impl<'ra> ToNameBinding<'ra> for NameBinding<'ra> {
+    fn to_name_binding(self, _: &'ra ResolverArenas<'ra>) -> NameBinding<'ra> {
+        self
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum NameBindingKind<'ra> {
+    Res(Res<NodeId>),
+    Module(Module<'ra>),
+    // Import {
+    //     binding: Interned<'ra, NameBindingData<'ra>>,
+    //     import: Interned<'ra, ImportData<'ra>>,
+    // },
+}
+
+
+impl<'ra> NameBindingData<'ra> {
+    fn module(&self) -> Option<Module<'ra>> {
+        match self.kind {
+            NameBindingKind::Module(module) => Some(module),
+            // NameBindingKind::Import { binding, .. } => binding.module(),
+            _ => None,
+        }
+    }
+
+    fn res(&self) -> Res {
+        match self.kind {
+            NameBindingKind::Res(res) => res,
+            NameBindingKind::Module(module) => module.res().unwrap(),
+            // NameBindingKind::Import { binding, .. } => binding.res(),
+        }
+    }
+}
+
+/// モジュールの名前空間における名前解決の情報を記録します。
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct NameResolution<'ra> {
+    // /// 名前空間内で名前を定義する可能性のある単一インポート。
+    // /// インポートはアリーナに割り当てられるため、キーとしてポインタを使用しても問題ありません。
+    // pub single_imports: FxIndexSet<Import<'ra>>,
+    // pub shadowed_glob: Option<NameBinding<'ra>>,
+
+    /// この名前に対して判明している、最もシャドウ（隠蔽）されにくい束縛（binding）。
+    /// または、既知の束縛がない場合は None。
+    pub binding: Option<NameBinding<'ra>>, // これは必須
+
+}
+
+impl<'ra> NameResolution<'ra> {
+    /// 名前に対する束縛（binding）が判明していればそれを返し、不明な場合は None を返します。
+    pub fn binding(&self) -> Option<NameBinding<'ra>> {
+        // self.binding.and_then(|binding| {
+        //     if !binding.is_glob_import() || self.single_imports.is_empty() { // single_imports を参照しない
+        //         Some(binding)
+        //     } else {
+        //         None
+        //     }
+        // })
+        self.binding
+    }
+
+    // pub(crate) fn add_single_import(&mut self, import: Import<'ra>) { ... }
+    // pub(crate) fn set_binding(&mut self, binding: NameBinding<'ra>) { ... }
+}
+
 /// ライフタイム `'ra` を持つデータ構造を格納するためのアリーナ
 #[derive(Default)]
 pub struct ResolverArenas<'ra> {
     /// モジュール定義 (`mod foo {}`) やブロック (`{ ... }`) のスコープ情報を格納する
     pub modules: TypedArena<'ra, ModuleData<'ra>>,
 
+    /// パス (`a::b::c`) のセグメント (`Ident`) のリストを格納するアリーナ
+    pub paths: TypedArena<'ra, Vec<Ident>>,
+
+    pub name_resolutions: TypedArena<'ra, RefCell<NameResolution<'ra>>>,
+
     /*
     /// `use` 文の情報を格納するアリーナ (インポート実装時に必要)
     pub imports: TypedArena<'ra, ImportData<'ra>>,
-
-    /// パス (`a::b::c`) のセグメント (`Ident`) のリストを格納するアリーナ
-    /// (`&'ra [Ident]` を安全に作るために使う場合)
-    pub paths: TypedArena<'ra, Vec<Ident>>,
-
-    /// 遅延名前解決を再導入する場合に必要
-    pub name_resolutions: TypedArena<'ra, RefCell<NameResolution<'ra>>>,
     */
+}
+
+impl<'ra> ResolverArenas<'ra> {
+    pub fn alloc_name_resolution(&'ra self) -> &'ra RefCell<NameResolution<'ra>> {
+        self.name_resolutions.alloc(Default::default())
+    }
 }
 
 struct Resolver<'ra, 'tcx> {
@@ -111,14 +215,11 @@ struct Resolver<'ra, 'tcx> {
     // DefIdから対応するModuleDataへのマップ (ローカルクレート内の全モジュール)
     module_map: HashMap<DefId, Module<'ra>>,
 
-    /// AST/SIRノード (パス、識別子など) から解決結果 (Res) へのマップ
-    resolutions: RefCell<HashMap<NodeId, PerNS<Option<Res>>>>,
-
     /// NodeId (アイテム定義ノード) から、それが定義する LocalDefId へのマップ
-    node_id_to_def_id: RefCell<HashMap<NodeId, LocalDefId>>,
+    node_id_to_def_id: HashMap<NodeId, LocalDefId>,
 
     /// LocalDefId から、それを定義するアイテムの NodeId へのマップ
-    def_id_to_node_id: RefCell<HashMap<LocalDefId, NodeId>>,
+    def_id_to_node_id: HashMap<LocalDefId, NodeId>,
 
     /// 現在解決中のモジュール
     current_module: RefCell<Module<'ra>>,
@@ -153,5 +254,21 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
 
+    }
+
+    fn resolutions(&mut self, module: Module<'ra>) -> &'ra Resolutions<'ra> {
+        &module.0.lazy_resolutions
+    }
+
+    fn resolution(
+        &mut self,
+        module: Module<'ra>,
+        key: BindingKey,
+    ) -> &'ra RefCell<NameResolution<'ra>> {
+        self
+            .resolutions(module)
+            .borrow_mut()
+            .entry(key)
+            .or_insert_with(|| self.arenas.alloc_name_resolution())
     }
 }
