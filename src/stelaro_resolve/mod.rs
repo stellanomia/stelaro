@@ -154,7 +154,6 @@ impl<'ra> NameBindingData<'ra> {
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct NameResolution<'ra> {
     // /// 名前空間内で名前を定義する可能性のある単一インポート。
-    // /// インポートはアリーナに割り当てられるため、キーとしてポインタを使用しても問題ありません。
     // pub single_imports: FxIndexSet<Import<'ra>>,
     // pub shadowed_glob: Option<NameBinding<'ra>>,
 
