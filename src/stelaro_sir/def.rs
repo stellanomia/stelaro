@@ -4,9 +4,9 @@ use crate::stelaro_ast::ast::NodeId;
 use crate::stelaro_common::DefId;
 use crate::stelaro_ty::ty::PrimTy;
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum DefKind {
-    // Mod,    // モジュール
+    Mod,    // モジュール
     // Struct,
     // Enum,
     // Field,
@@ -14,6 +14,19 @@ pub enum DefKind {
     // Static, // Static item
     // Const,  // Const item
     Let,    // Let文
+}
+
+
+impl DefKind {
+    /// DefKindに対する英語の説明を得る。
+    pub fn descr(self, def_id: DefId) -> &'static str {
+        match self {
+            DefKind::Fn => "function",
+            DefKind::Mod if def_id.is_stelo_root() && !def_id.is_local() => "stelo",
+            DefKind::Mod => "module",
+            DefKind::Let => todo!(),
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
