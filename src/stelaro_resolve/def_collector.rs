@@ -1,16 +1,64 @@
 use std::ops::ControlFlow;
 use visit::Visitor;
 
+use super::BindingKey;
+use super::Module;
+use super::NameBinding;
 use super::Resolver;
+use super::ToNameBinding;
 
 use crate::stelaro_ast::ty;
 use crate::stelaro_ast::visit;
 use crate::stelaro_ast::ast::*;
+use crate::stelaro_common::Ident;
+use crate::stelaro_sir::def::Namespace;
 
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
-    pub fn define() {
-        
+    pub fn define<T>(&mut self, parent: Module<'ra>, ident: Ident, ns: Namespace, def: T)
+    where
+        T: ToNameBinding<'ra>,
+    {
+        let binding = def.to_name_binding(self.arenas);
+        let key = self.new_binding_key(ident, ns);
+        if let Err(old_binding) = self.try_define(parent, key, binding) {
+            self.report_conflict(parent, ident, ns, old_binding, binding);
+        }
+    }
+
+    // 衝突時は既存の NameBinding を返す
+    pub(crate) fn try_define(
+        &mut self,
+        module: Module<'ra>,
+        key: BindingKey,
+        binding: NameBinding<'ra>, // 定義しようとする新しいバインディング
+    ) -> Result<(), NameBinding<'ra>> {
+        let new_res = binding.res();
+
+        self.set_binding_parent_module(binding, module);
+
+        let mut resolution = todo!();
+
+        if let Some(old_binding) = resolution.binding {
+            // --- 衝突処理 ---
+
+            // エラー回復: 新しいバインディングが Res::Err で、既存がそうでない場合、
+            // 既存の有効な定義を上書きしない。
+            if new_res == Res::Err && old_binding.res() != Res::Err {
+                // 何もせず成功 (Ok) として扱う
+                return Ok(());
+            }
+
+            // 上記以外の場合、インポート解決をスキップする前提では、
+            // 既存の定義があるところに新しい定義をしようとしているので、
+            // これは重複定義エラーとなる。
+            Err(old_binding) // 衝突した既存のバインディングを返す
+
+        } else {
+            // 既存のバインディングがない場合、新しいバインディングを設定
+            resolution.binding = Some(binding);
+            Ok(())
+        }
     }
 }
 
