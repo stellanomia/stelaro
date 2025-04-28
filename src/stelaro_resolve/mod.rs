@@ -1,4 +1,5 @@
 mod def_collector;
+mod diagnostics;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -11,7 +12,7 @@ use crate::stelaro_ast::ast::{NodeId, Stelo};
 
 
 /// モジュール内の名前を識別するキー
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BindingKey {
     pub ident: Ident,
     pub ns: Namespace,
@@ -23,10 +24,12 @@ impl BindingKey {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+type Resolutions<'ra> = RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>;
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Module<'tcx>(&'tcx ModuleData<'tcx>);
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ModuleData<'ra> {
     /// 親スコープへの参照 (ルートモジュールでは None)
     pub parent: Option<Module<'ra>>,
@@ -34,7 +37,7 @@ pub struct ModuleData<'ra> {
     /// このスコープがどのような種類か (名前付きモジュールか、単なるブロックか) を示す
     pub kind: ModuleKind,
 
-    pub lazy_resolutions: RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>,
+    pub lazy_resolutions: Resolutions<'ra>,
 
     /// このスコープ内で直接利用可能な定義をもつ
     /// 識別子 (名前) をキーとし、異なる名前空間での解決結果を値として持つ
@@ -50,6 +53,21 @@ impl<'ra> Deref for Module<'ra> {
         self.0
     }
 }
+
+// この型は Interned（重複を避けた共有データ）として使うが、
+// 実際にはデータの一意性（Hash/PartialEqによる比較）を強制していない。
+//
+// 現時点では Hash を実装するが、実際にハッシュ関数を呼ばれると
+// 到達不能（unreachable）としてパニックすることで、誤使用を検知する。
+impl std::hash::Hash for ModuleData<'_> {
+    fn hash<H>(&self, _: &mut H)
+    where
+        H: std::hash::Hasher,
+    {
+        unreachable!("ModuleData<'ra>のhash()は呼び出されるべきではありません");
+    }
+}
+
 
 impl<'ra> Module<'ra> {
     fn res(self) -> Option<Res> {
@@ -67,7 +85,6 @@ impl<'ra> Module<'ra> {
     }
 }
 
-type Resolutions<'ra> = RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>;
 
 impl<'ra> ModuleData<'ra> {
     pub fn new(
@@ -85,7 +102,7 @@ impl<'ra> ModuleData<'ra> {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum ModuleKind {
     /// ブロックなどの、匿名のモジュール
     Block,
@@ -99,12 +116,12 @@ pub struct MainDefinition {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct NameBinding<'ra>(&'ra NameBindingData<'ra>);
 
 /// 型やモジュール定義(将来的にプライベートである可能性のある値)を記録します。
-#[derive(Debug, Clone, Copy, PartialEq)]
-struct NameBindingData<'ra> {
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct NameBindingData<'ra> {
     kind: NameBindingKind<'ra>,
     span: Span,
     // ambiguity: Option<(NameBinding<'ra>, AmbiguityKind)>,
@@ -121,7 +138,7 @@ impl<'ra> ToNameBinding<'ra> for NameBinding<'ra> {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum NameBindingKind<'ra> {
     Res(Res<NodeId>),
     Module(Module<'ra>),
@@ -154,21 +171,20 @@ impl<'ra> Deref for NameBinding<'ra> {
     type Target = NameBindingData<'ra>;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        self.0
     }
 }
 
-/// モジュールの名前空間における名前解決の情報を記録します。
-#[derive(Debug, Clone, Default, PartialEq)]
+/// モジュールの名前空間における名前解決の情報を記録する。
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
 pub struct NameResolution<'ra> {
     // /// 名前空間内で名前を定義する可能性のある単一インポート。
     // pub single_imports: FxIndexSet<Import<'ra>>,
     // pub shadowed_glob: Option<NameBinding<'ra>>,
 
-    /// この名前に対して判明している、最もシャドウ（隠蔽）されにくい束縛（binding）。
-    /// または、既知の束縛がない場合は None。
-    pub binding: Option<NameBinding<'ra>>, // これは必須
-
+    /// この名前に対して判明している、最もシャドウイングされにくい束縛。
+    /// 既知の束縛がない場合は None。
+    pub binding: Option<NameBinding<'ra>>,
 }
 
 impl<'ra> NameResolution<'ra> {
@@ -221,6 +237,7 @@ struct Resolver<'ra, 'tcx> {
 
     // DefIdから対応するModuleDataへのマップ (ローカルクレート内の全モジュール)
     module_map: HashMap<DefId, Module<'ra>>,
+    binding_parent_modules: HashMap<NameBinding<'ra>, Module<'ra>>,
 
     /// NodeId (アイテム定義ノード) から、それが定義する LocalDefId へのマップ
     node_id_to_def_id: HashMap<NodeId, LocalDefId>,
@@ -263,15 +280,15 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     }
 
-    fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
+    pub fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
         BindingKey { ident, ns }
     }
 
-    fn resolutions(&mut self, module: Module<'ra>) -> &'ra Resolutions<'ra> {
+    pub fn resolutions(&mut self, module: Module<'ra>) -> &'ra Resolutions<'ra> {
         &module.0.lazy_resolutions
     }
 
-    fn resolution(
+    pub fn resolution(
         &mut self,
         module: Module<'ra>,
         key: BindingKey,
@@ -281,5 +298,13 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             .borrow_mut()
             .entry(key)
             .or_insert_with(|| self.arenas.alloc_name_resolution())
+    }
+
+    pub fn set_binding_parent_module(&mut self, binding: NameBinding<'ra>, module: Module<'ra>) {
+        if let Some(old_module) = self.binding_parent_modules.insert(binding, module) {
+            if module != old_module {
+                panic!("bug: 同じ定義に対して親モジュールが変更されることはない")
+            }
+        }
     }
 }

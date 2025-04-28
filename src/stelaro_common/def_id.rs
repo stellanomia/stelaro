@@ -28,7 +28,7 @@ impl fmt::Display for SteloNum {
 pub struct DefIndex(u32);
 
 /// ステロのルートモジュールを表すインデックス。
-/// このインデックスを持つ定義は、そのステロのトップレベルモジュールです。
+/// このインデックスを持つ定義は、そのステロのトップレベルモジュールとなる。
 pub const STELO_ROOT_INDEX: DefIndex = DefIndex(0);
 
 impl DefIndex {
