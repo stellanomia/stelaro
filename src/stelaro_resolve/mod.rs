@@ -150,6 +150,14 @@ impl<'ra> NameBindingData<'ra> {
     }
 }
 
+impl<'ra> Deref for NameBinding<'ra> {
+    type Target = NameBindingData<'ra>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
 /// モジュールの名前空間における名前解決の情報を記録します。
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct NameResolution<'ra> {
@@ -253,6 +261,10 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
 
+    }
+
+    fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
+        BindingKey { ident, ns }
     }
 
     fn resolutions(&mut self, module: Module<'ra>) -> &'ra Resolutions<'ra> {
