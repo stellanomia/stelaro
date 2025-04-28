@@ -1,6 +1,6 @@
 use crate::stelaro_common::Symbol;
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum PrimTy {
     Bool,
     Char,
@@ -9,7 +9,7 @@ pub enum PrimTy {
     Float(FloatTy),
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum IntTy {
     Isize,
     I8,
@@ -19,7 +19,7 @@ pub enum IntTy {
     I128,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum UintTy {
     Usize,
     U8,
@@ -29,14 +29,14 @@ pub enum UintTy {
     U128,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum FloatTy {
     F32,
     F64,
 }
 
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ParamTy {
     pub index: u32,
     pub name: Symbol,
