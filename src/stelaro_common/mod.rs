@@ -7,7 +7,7 @@ pub mod span;
 
 
 pub use arena::{Arena, TypedArena};
-pub use def_id::{DefId, LocalDefId};
+pub use def_id::{DefId, LocalDefId, DefIndex, SteloNum, LOCAL_STELO, STELO_DEF_ID, STELO_ROOT_INDEX};
 pub use map::IndexMap;
 pub use span::Span;
 pub use symbol::{Symbol, Ident};
