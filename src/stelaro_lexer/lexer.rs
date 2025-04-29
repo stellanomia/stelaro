@@ -259,7 +259,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
 
             let mut is_float = false;
 
-            while let c @ ('0'..='9') | c@ '.' = self.first() {
+            while let c @ ('0'..='9') | c @ '.' = self.first() {
                 match c {
                     '0'..='9' => {
                         self.bump();
