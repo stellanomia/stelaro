@@ -22,7 +22,7 @@ impl<'sess> Parser<'sess> {
     ) -> Self {
         let mut parser = Parser {
             sess,
-            token_stream: token_stream.filter(|t| t.kind != TokenKind::LineComment).collect(),
+            token_stream,
             token: Token::dummy(),
             prev_token: Token::dummy(),
             next_node_id: NodeId::from_u32(1),

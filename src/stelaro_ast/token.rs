@@ -28,6 +28,8 @@ pub enum TokenKind {
     Minus,
     /// `*`
     Star,
+    /// `/`
+    Slash,
     /// `%`
     Percent,
     /// `:`
@@ -36,11 +38,6 @@ pub enum TokenKind {
     PathSep,
     /// `;`
     Semicolon,
-
-    /// `/`
-    Slash,
-    /// `//`
-    LineComment,
     /// `!`
     Bang,
     /// `!=`
@@ -235,7 +232,6 @@ impl fmt::Display for TokenKind {
             TokenKind::PathSep => wrt!(f, "::"),
             TokenKind::Semicolon => wrt!(f, ";"),
             TokenKind::Slash => wrt!(f, "/"),
-            TokenKind::LineComment => wrt!(f, "コメント"),
             TokenKind::Bang => wrt!(f, "!"),
             TokenKind::BangEqual => wrt!(f, "!="),
             TokenKind::Equal => wrt!(f, "="),

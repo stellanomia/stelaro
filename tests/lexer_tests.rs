@@ -67,7 +67,6 @@ fn main() {
         ),
         TokenKind::Semicolon,
         TokenKind::RBrace,
-        TokenKind::LineComment,
         TokenKind::While,
         TokenKind::Literal (
             Lit {
