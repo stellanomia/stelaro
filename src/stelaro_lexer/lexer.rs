@@ -48,7 +48,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
     }
 
     fn next_token(&mut self) -> Result<Token, ErrorEmitted> {
-        self.skip_whitespace();
+        self.skip_whitespace_and_comment();
 
         // 読み始めるトークンの最初の位置を保持する
         let pos = self.pos;
@@ -110,15 +110,8 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             '/' => {
                 self.bump();
 
-                if self.first() == '/' {
-                    self.bump();
-                    while self.first() != '\n' {
-                        self.bump();
-                    }
-                    TokenKind::LineComment
-                }else {
-                    TokenKind::Slash
-                }
+                // コメントは skip_whitespace_and_comment で捨てられる
+                TokenKind::Slash
             },
             '!' => {
                 self.bump();
@@ -229,6 +222,10 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
         self.cursor.first()
     }
 
+    fn second(&self) -> char {
+        self.cursor.second()
+    }
+
     fn prev(&self) -> char {
         self.cursor.prev
     }
@@ -238,9 +235,21 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
         self.cursor.bump()
     }
 
-    fn skip_whitespace(&mut self) {
-        while self.first().is_whitespace() {
-            self.bump();
+    fn skip_whitespace_and_comment(&mut self) {
+        loop {
+            match self.first() {
+                '/' if self.second() == '/' => {
+                    while !matches!(self.first(), '\n' | EOF_CHAR) {
+                        self.bump();
+                    }
+                },
+                c if c.is_whitespace() => {
+                    self.bump();
+                }
+                _ => {
+                    break
+                }
+            }
         }
     }
 
