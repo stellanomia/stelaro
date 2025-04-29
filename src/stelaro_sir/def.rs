@@ -1,4 +1,4 @@
-use std::array::IntoIter;
+// use std::array::IntoIter;
 
 use crate::stelaro_ast::ast::NodeId;
 use crate::stelaro_common::DefId;
@@ -72,24 +72,24 @@ pub struct PerNS<T> {
     pub type_ns: T,
 }
 
-trait PerNSExt<T> {
-    fn map<U, F: FnMut(T) -> U>(self, f: F) -> PerNS<U>;
+// trait PerNSExt<T> {
+//     fn map<U, F: FnMut(T) -> U>(self, f: F) -> PerNS<U>;
 
-    fn into_iter(self) -> IntoIter<T, 2>;
+//     fn into_iter(self) -> IntoIter<T, 2>;
 
-    fn iter(&self) -> IntoIter<&T, 2>;
-}
+//     fn iter(&self) -> IntoIter<&T, 2>;
+// }
 
-impl<T> PerNSExt<T> for PerNS<T> {
-    fn map<U, F: FnMut(T) -> U>(self, mut f: F) -> PerNS<U> {
-        PerNS { value_ns: f(self.value_ns), type_ns: f(self.type_ns) }
-    }
+// impl<T> PerNSExt<T> for PerNS<T> {
+//     fn map<U, F: FnMut(T) -> U>(self, mut f: F) -> PerNS<U> {
+//         PerNS { value_ns: f(self.value_ns), type_ns: f(self.type_ns) }
+//     }
 
-    fn into_iter(self) -> IntoIter<T, 2> {
-        [self.value_ns, self.type_ns].into_iter()
-    }
+//     fn into_iter(self) -> IntoIter<T, 2> {
+//         [self.value_ns, self.type_ns].into_iter()
+//     }
 
-    fn iter(&self) -> IntoIter<&T, 2> {
-        [&self.value_ns, &self.type_ns].into_iter()
-    }
-}
+//     fn iter(&self) -> IntoIter<&T, 2> {
+//         [&self.value_ns, &self.type_ns].into_iter()
+//     }
+// }
