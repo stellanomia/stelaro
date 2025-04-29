@@ -1,4 +1,5 @@
 mod def_collector;
+mod module_graph_builder;
 mod diagnostics;
 
 use std::cell::RefCell;
