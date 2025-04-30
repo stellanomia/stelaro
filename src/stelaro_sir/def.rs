@@ -1,8 +1,10 @@
 // use std::array::IntoIter;
 
 use crate::stelaro_ast::ast::NodeId;
-use crate::stelaro_common::DefId;
+use crate::stelaro_common::{DefId, Symbol};
 use crate::stelaro_ty::ty::PrimTy;
+
+use super::definitions::DefPathData;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum DefKind {
@@ -13,7 +15,6 @@ pub enum DefKind {
     Fn, // 関数定義
     // Static, // Static item
     // Const,  // Const item
-    Let,    // Let文
 }
 
 
@@ -24,7 +25,23 @@ impl DefKind {
             DefKind::Fn => "function",
             DefKind::Mod if def_id.is_stelo_root() && !def_id.is_local() => "stelo",
             DefKind::Mod => "module",
-            DefKind::Let => todo!(),
+        }
+    }
+
+    pub fn def_path_data(self, name: Option<Symbol>) -> DefPathData {
+        match self {
+            DefKind::Mod
+                    // | DefKind::Struct
+                    // | DefKind::Enum
+                    // | DefKind::Variant
+                        => DefPathData::TypeNs(Some(name.unwrap())),
+            DefKind::Fn
+                    // | DefKind::Const
+                    // | DefKind::ConstParam
+                    // | DefKind::Static { .. }
+                    // | DefKind::Field
+                        => DefPathData::ValueNs(name.unwrap()),
+            // DefKind::Ctor => DefPathData::Ctor,
         }
     }
 }

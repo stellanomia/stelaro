@@ -277,6 +277,20 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         module
     }
 
+    fn create_def(
+        &mut self,
+        parent: LocalDefId,
+        node_id: NodeId,
+        name: Option<Symbol>,
+        def_kind: DefKind,
+    ) -> LocalDefId {
+        assert!(
+            !self.node_id_to_def_id.contains_key(&node_id),
+        );
+
+        self.tcx.create_def(parent, name, def_kind)
+    }
+
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
 
     }

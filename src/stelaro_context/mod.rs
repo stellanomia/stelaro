@@ -2,12 +2,15 @@ use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap};
 
 use crate::stelaro_ast::ast::NodeId;
+use crate::stelaro_common::{LocalDefId, Symbol};
 use crate::stelaro_common::{Arena, def_id::DefId};
+use crate::stelaro_sir::def::DefKind;
 use crate::stelaro_sir::Definition;
 use crate::stelaro_ty::{Ty, TyKind};
 
 use super::Session;
 
+#[derive(Clone, Copy)]
 pub struct TyCtxt<'tcx> {
     gcx: &'tcx GlobalCtxt<'tcx>,
 }
@@ -39,5 +42,15 @@ impl<'tcx> TyCtxt<'tcx> {
     #[inline(always)]
     fn sess(&self) -> &Session {
         self.sess
+    }
+
+    pub(crate) fn create_def(
+        self,
+        parent: LocalDefId,
+        name: Option<Symbol>,
+        def_kind: DefKind,
+    ) -> LocalDefId {
+        let data = def_kind.def_path_data(name);
+        todo!()
     }
 }
