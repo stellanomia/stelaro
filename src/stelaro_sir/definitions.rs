@@ -16,7 +16,7 @@ pub enum DefPathData {
     /// 値名前空間に属するもの。
     ValueNs(Symbol),
 
-    // Subportions of items:
-    // /// Implicit constructor for a unit or tuple-like struct or enum variant.
+    // アイテムの構成要素:
+    // /// ユニット型あるいはタプル様の構造体、またはenumバリアントの暗黙的なコンストラクタ。
     // Ctor,
 }
