@@ -1,5 +1,6 @@
 #![feature(associated_type_defaults)]
 #![feature(never_type)]
+#![allow(clippy::should_implement_trait)]
 
 pub mod stelaro_ast;
 pub mod stelaro_common;
