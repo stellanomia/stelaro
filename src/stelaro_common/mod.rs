@@ -1,5 +1,6 @@
 pub mod arena;
 pub mod def_id;
+pub mod idx;
 pub mod symbol;
 pub mod map;
 pub mod source_map;
