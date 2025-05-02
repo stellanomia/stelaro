@@ -5,7 +5,7 @@ use crate::stelaro_ast::ast::NodeId;
 use crate::stelaro_common::{LocalDefId, Symbol};
 use crate::stelaro_common::{Arena, def_id::DefId};
 use crate::stelaro_sir::def::DefKind;
-use crate::stelaro_sir::Definition;
+use crate::stelaro_sir::definitions::Definitions;
 use crate::stelaro_ty::{Ty, TyKind};
 
 use super::Session;
@@ -23,7 +23,7 @@ pub struct GlobalCtxt<'tcx> {
     pub resolution_map: RefCell<HashMap<NodeId, DefId>>,
 
     // DefId から実際の定義へのマップ
-    pub definitions: RefCell<HashMap<DefId, &'tcx Definition<'tcx>>>,
+    pub definitions: RefCell<Definitions>,
 
     // 同一のTyKind<'ctx>に対して同一の参照を保持させるためのインターナー
     pub types_interner: RefCell<HashMap<TyKind<'tcx>, Ty<'tcx>>>,
@@ -51,6 +51,8 @@ impl<'tcx> TyCtxt<'tcx> {
         def_kind: DefKind,
     ) -> LocalDefId {
         let data = def_kind.def_path_data(name);
+
+        // self.
         todo!()
     }
 }

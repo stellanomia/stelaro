@@ -6,7 +6,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 
-use crate::stelaro_common::{Span, Symbol, TypedArena, DefId, LocalDefId, Ident, IndexMap};
+use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir::def::{DefKind, Namespace, PerNS, Res};
 use crate::stelaro_ast::ast::{NodeId, Stelo};
@@ -244,7 +244,7 @@ struct Resolver<'ra, 'tcx> {
     node_id_to_def_id: HashMap<NodeId, LocalDefId>,
 
     /// LocalDefId から、それを定義するアイテムの NodeId へのマップ
-    def_id_to_node_id: HashMap<LocalDefId, NodeId>,
+    def_id_to_node_id: IndexVec<LocalDefId, NodeId>,
 
     /// 現在解決中のモジュール
     current_module: RefCell<Module<'ra>>,
@@ -288,7 +288,12 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             !self.node_id_to_def_id.contains_key(&node_id),
         );
 
-        self.tcx.create_def(parent, name, def_kind)
+        let def_id = self.tcx.create_def(parent, name, def_kind);
+
+        self.node_id_to_def_id.insert(node_id, def_id);
+        assert_eq!(self.def_id_to_node_id.push(node_id), def_id);
+
+        def_id
     }
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
