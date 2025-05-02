@@ -1,5 +1,7 @@
 use std::fmt;
 
+use super::Idx;
+
 // NOTE: std, core 実装まで使われない
 /// stelo を一意に識別する番号。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -22,6 +24,29 @@ impl fmt::Display for SteloNum {
 }
 
 
+impl Idx for SteloNum {
+    fn new(idx: usize) -> Self {
+        Self(Idx::new(idx))
+    }
+
+    fn index(self) -> usize {
+        self.into()
+    }
+}
+
+impl From<SteloNum> for usize {
+    fn from(value: SteloNum) -> Self {
+        value.0 as usize
+    }
+}
+
+impl From<SteloNum> for u32 {
+    fn from(value: SteloNum) -> Self {
+        value.0
+    }
+}
+
+
 /// ステロ内の定義を一意に識別するインデックス。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[repr(transparent)]
@@ -36,6 +61,28 @@ impl DefIndex {
     pub fn new(index: u32) -> Self { DefIndex(index) }
     #[inline]
     pub fn as_u32(self) -> u32 { self.0 }
+}
+
+impl Idx for DefIndex {
+    fn new(idx: usize) -> Self {
+        Self(Idx::new(idx))
+    }
+
+    fn index(self) -> usize {
+        self.into()
+    }
+}
+
+impl From<DefIndex> for usize {
+    fn from(value: DefIndex) -> Self {
+        value.0 as usize
+    }
+}
+
+impl From<DefIndex> for u32 {
+    fn from(value: DefIndex) -> Self {
+        value.0
+    }
 }
 
 
@@ -123,6 +170,29 @@ impl LocalDefId {
     }
 }
 
+
+impl Idx for LocalDefId {
+    fn new(idx: usize) -> Self {
+        Self { local_def_index: Idx::new(idx) }
+    }
+
+    fn index(self) -> usize {
+        self.into()
+    }
+}
+
+
+impl From<LocalDefId> for usize {
+    fn from(value: LocalDefId) -> Self {
+        value.local_def_index.0 as usize
+    }
+}
+
+impl From<LocalDefId> for u32 {
+    fn from(value: LocalDefId) -> Self {
+        value.local_def_index.0
+    }
+}
 
 impl TryFrom<DefId> for LocalDefId {
     type Error = DefId; // 変換失敗時は元の DefId を返す
