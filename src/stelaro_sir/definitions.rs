@@ -1,6 +1,9 @@
 use crate::stelaro_common::Symbol;
 
+#[derive(Debug)]
+pub struct Definitions {
 
+}
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum DefPathData {
