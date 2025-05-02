@@ -4,3 +4,7 @@ language = "ja"
 multilingual = false
 src = "src"
 title = "stelaro"
+
+[output.html]
+default-theme = "ayu"
+preferred-dark-theme = "ayu"
