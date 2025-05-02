@@ -1,4 +1,5 @@
 //! rustc の `rustc_index/vec.rs` に基づいて設計されています。
+
 use std::{borrow::{Borrow, BorrowMut}, fmt, marker::PhantomData, ops::{Deref, DerefMut, RangeBounds}, slice, vec};
 use super::{idx::Idx, IndexSlice};
 
