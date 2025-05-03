@@ -21,12 +21,12 @@ impl Hasher for Unhasher {
     }
 
     fn write(&mut self, _bytes: &[u8]) {
-        unimplemented!("use write_u64");
+        unimplemented!("write_u64 を使用");
     }
 
     #[inline]
     fn write_u64(&mut self, value: u64) {
-        debug_assert_eq!(0, self.value, "Unhasher doesn't mix values!");
+        debug_assert_eq!(0, self.value, "Unhasher は複数の値を混ぜ合わせてハッシュ値を生成しません");
         self.value = value;
     }
 }
