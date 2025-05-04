@@ -26,7 +26,7 @@ impl EmissionGuarantee for ErrorEmitted {
     }
 }
 
-/// 致命的エラーは発散する（プログラムを終了）
+/// 致命的エラーは発散する (プログラムを終了)
 impl EmissionGuarantee for FatalError {
     type EmitResult = !;
 

@@ -3,7 +3,7 @@ use crate::stelaro_common::span::Span;
 
 use super::{diagnostics::DiagsParser, parser::Parser, PResult};
 
-/// 中置演算子（AssocOp）の定義
+/// 中置演算子 (AssocOp) の定義
 #[derive(Copy, Clone, Debug, PartialEq)]
 enum AssocOp {
     Add,
@@ -28,7 +28,7 @@ enum AssocOp {
 enum PrecedenceLimit {
     Inclusive(Precedence), // 優先順位がこの値以上なら許容
     Exclusive(Precedence), // 優先順位がこの値より大きい場合のみ許容
-    None, // 制約なし（最初の式をパースする際など）
+    None, // 制約なし (最初の式をパースする際など)
 }
 
 impl AssocOp {
