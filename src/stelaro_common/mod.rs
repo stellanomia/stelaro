@@ -1,22 +1,30 @@
 pub mod arena;
 pub mod def_id;
+pub mod fingerprint;
+pub mod hashes;
 pub mod idx;
-pub mod symbol;
+pub mod index_vec;
 pub mod map;
 pub mod slice;
 pub mod source_map;
 pub mod span;
-pub mod index_vec;
+pub mod stable_hasher;
+pub mod symbol;
+pub mod unhash;
 
 
 pub use arena::{Arena, TypedArena};
-pub use def_id::{DefId, LocalDefId, DefIndex, SteloNum, LOCAL_STELO, STELO_DEF_ID, STELO_ROOT_INDEX};
+pub use def_id::{DefId, DefPathHash, StableSteloId, LocalDefId, DefIndex, SteloNum, LOCAL_STELO, STELO_DEF_ID, STELO_ROOT_INDEX};
+// pub use fingerprint::{Fingerprint, FingerprintComponent, PackedFingerprint};
+pub use hashes::{Hash64, Hash128};
 pub use idx::{Idx, IntoSliceIdx};
+pub use index_vec::IndexVec;
 pub use map::IndexMap;
 pub use slice::IndexSlice;
 pub use span::Span;
+// impl_hash_stable_trivial は stelaro_common 外部に公開されるべきではない
+pub use stable_hasher::{StableHasher, StableHasherHash, FromStableHash};
 pub use symbol::{Symbol, Ident};
-pub use index_vec::IndexVec;
 
 use symbol::Interner;
 
