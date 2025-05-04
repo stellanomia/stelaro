@@ -236,7 +236,7 @@ struct Resolver<'ra, 'tcx> {
     /// 匿名モジュールへのマップ
     block_map: HashMap<NodeId, Module<'ra>>,
 
-    // DefIdから対応するModuleDataへのマップ (ローカルクレート内の全モジュール)
+    // DefIdから対応するModuleDataへのマップ (ローカルステロ内の全モジュール)
     module_map: HashMap<DefId, Module<'ra>>,
     binding_parent_modules: HashMap<NameBinding<'ra>, Module<'ra>>,
 
