@@ -66,7 +66,7 @@ pub trait ToStableHashKey<HCX> {
 ///  - `DefIndex`, `SteloNum`, `LocalDefId`: これらの具体的な値は、
 ///    コンパイルセッション間で異なる可能性のある状態に依存するため。
 ///
-/// 関連定数 `CAN_USE_UNSTABLE_SORT` は、不安定ソート（`sort_unstable`）を
+/// 関連定数 `CAN_USE_UNSTABLE_SORT` は、不安定ソート (`sort_unstable`) を
 /// 使用できるかどうかを示します。`a == b` が 「aとbが意味的に完全に同一」
 /// であることを意味する場合に限り、`true` に設定してください。
 pub trait StableOrd: Ord {

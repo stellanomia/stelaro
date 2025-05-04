@@ -22,7 +22,7 @@ impl FingerprintComponent for Hash64 {
     }
 }
 
-/// Fingerprint を構成できる型を示すトレイト。
+/// `Fingerprint` を構成できる型を示すトレイト。
 impl FingerprintComponent for u64 {
     #[inline]
     fn as_u64(&self) -> u64 {
@@ -33,7 +33,7 @@ impl FingerprintComponent for u64 {
 impl Fingerprint {
     pub const ZERO: Fingerprint = Fingerprint(0, 0);
 
-    /// 2つの構成要素から新しい Fingerprint を作成する。
+    /// 2つの構成要素から新しい `Fingerprint` を作成する。
     #[inline]
     pub fn new<A, B>(a: A, b: B) -> Fingerprint
     where
@@ -43,9 +43,9 @@ impl Fingerprint {
         Fingerprint(a.as_u64(), b.as_u64())
     }
 
-    /// Fingerprint をより小さなハッシュ値 (Hash64) に変換する。
-    /// Fingerprint の両半分が良い品質のハッシュ値であることが期待されるが、
-    /// DefPathHash の Fingerprint のように StableCrateId 部分が同じになる場合があるため、
+    /// `Fingerprint` をより小さなハッシュ値 (`Hash64`) に変換する。
+    /// `Fingerprint` の両半分が良い品質のハッシュ値であることが期待されるが、
+    /// `DefPathHash` の `Fingerprint` のように `StableSteloId` 部分が同じになる場合があるため、
     /// 2つの値を組み合わせて品質の良いハッシュ値を得る。
     #[inline]
     pub fn to_smaller_hash(&self) -> Hash64 {
@@ -58,7 +58,7 @@ impl Fingerprint {
         (Hash64::new(self.0), Hash64::new(self.1))
     }
 
-    /// 2つの Fingerprint を結合する。
+    /// 2つの `Fingerprint` を結合する。
     #[inline]
     pub fn combine(self, other: Fingerprint) -> Fingerprint {
         // この実装方法については https://stackoverflow.com/a/27952689 を参照。
@@ -68,7 +68,7 @@ impl Fingerprint {
         )
     }
 
-    /// 2つの Fingerprint を順序に依存しない方法で結合する。
+    /// 2つの `Fingerprint` を順序に依存しない方法で結合する。
     /// これが必要な場面か確認する必要がある。
     #[inline]
     pub fn combine_commutative(self, other: Fingerprint) -> Fingerprint {
@@ -84,7 +84,7 @@ impl Fingerprint {
         format!("{:016x}{:016x}", self.0, self.1)
     }
 
-    /// Fingerprint をリトルエンディアンのバイト配列 ([u8; 16]) に変換する。
+    /// `Fingerprint` をリトルエンディアンのバイト配列 ([u8; 16]) に変換する。
     #[inline]
     pub fn to_le_bytes(&self) -> [u8; 16] {
         // `unsafe { mem::transmute(*k) }` と同じ機械語に最適化されることを期待。
@@ -99,7 +99,7 @@ impl Fingerprint {
         result
     }
 
-    /// リトルエンディアンのバイト配列 ([u8; 16]) から Fingerprint を作成する。
+    /// リトルエンディアンのバイト配列 (`[u8; 16]`) から `Fingerprint` を作成する。
     #[inline]
     pub fn from_le_bytes(bytes: [u8; 16]) -> Fingerprint {
         Fingerprint(
@@ -138,7 +138,7 @@ impl FingerprintHasher for unhash::Unhasher {
     #[inline]
     fn write_fingerprint(&mut self, fingerprint: &Fingerprint) {
         // フィンガープリントの両方の部分 (64ビット×2) は、どちらも良質なハッシュ値であると期待されているが、
-        // `DefPathHash` に含まれるフィンガープリントのうち、`StableCrateId` の部分は同じクレートに属する
+        // `DefPathHash` に含まれるフィンガープリントのうち、`StableSteloId` の部分は同じステロに属する
         // すべての `DefPathHash` で共通になるため、それでも2つの値を結合しておく。
         // これにより、そうしたケースにおいても高品質なハッシュが得られるようにする。
         //

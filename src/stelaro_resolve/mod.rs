@@ -55,11 +55,11 @@ impl<'ra> Deref for Module<'ra> {
     }
 }
 
-// この型は Interned（重複を避けた共有データ）として使うが、
-// 実際にはデータの一意性（Hash/PartialEqによる比較）を強制していない。
+// この型は Interned (重複を避けた共有データ) として使うが、
+// 実際にはデータの一意性 (Hash/PartialEqによる比較) を強制していない。
 //
 // 現時点では Hash を実装するが、実際にハッシュ関数を呼ばれると
-// 到達不能（unreachable）としてパニックすることで、誤使用を検知する。
+// 到達不能 (unreachable) としてパニックすることで、誤使用を検知する。
 impl std::hash::Hash for ModuleData<'_> {
     fn hash<H>(&self, _: &mut H)
     where
@@ -189,7 +189,7 @@ pub struct NameResolution<'ra> {
 }
 
 impl<'ra> NameResolution<'ra> {
-    /// 名前に対する束縛（binding）が判明していればそれを返し、不明な場合は None を返します。
+    /// 名前に対する束縛 (binding) が判明していればそれを返し、不明な場合は None を返します。
     pub fn binding(&self) -> Option<NameBinding<'ra>> {
         // self.binding.and_then(|binding| {
         //     if !binding.is_glob_import() || self.single_imports.is_empty() { // single_imports を参照しない
