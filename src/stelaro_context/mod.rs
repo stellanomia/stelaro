@@ -52,7 +52,6 @@ impl<'tcx> TyCtxt<'tcx> {
     ) -> LocalDefId {
         let data = def_kind.def_path_data(name);
 
-        // self.
-        todo!()
+        self.definitions.borrow_mut().create_def(parent, data)
     }
 }
