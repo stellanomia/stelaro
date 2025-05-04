@@ -15,7 +15,7 @@ pub mod unhash;
 
 pub use arena::{Arena, TypedArena};
 pub use def_id::{DefId, DefPathHash, StableSteloId, LocalDefId, DefIndex, SteloNum, LOCAL_STELO, STELO_DEF_ID, STELO_ROOT_INDEX};
-// pub use fingerprint::{Fingerprint, FingerprintComponent, PackedFingerprint};
+pub use fingerprint::{Fingerprint, FingerprintComponent};
 pub use hashes::{Hash64, Hash128};
 pub use idx::{Idx, IntoSliceIdx};
 pub use index_vec::IndexVec;
