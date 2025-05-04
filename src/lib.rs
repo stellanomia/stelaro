@@ -1,5 +1,6 @@
 #![feature(associated_type_defaults)]
 #![feature(never_type)]
+#![feature(min_specialization)]
 #![allow(clippy::should_implement_trait)]
 
 pub mod stelaro_ast;
