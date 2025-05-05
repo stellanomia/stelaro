@@ -11,7 +11,7 @@ impl<'sess> Parser<'sess> {
                 let (ident, f) = self.parse_fn()?;
                 Ok(Some(
                     Item {
-                        kind: ItemKind::Function(f),
+                        kind: ItemKind::Fn(f),
                         id: self.next_node_id(),
                         span: start.merge(&self.prev_token.span),
                         ident,

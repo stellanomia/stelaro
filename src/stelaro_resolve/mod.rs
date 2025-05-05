@@ -6,7 +6,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 
-use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena};
+use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir::def::{DefKind, Namespace, PerNS, Res};
 use crate::stelaro_ast::ast::{NodeId, Stelo};
@@ -38,11 +38,8 @@ pub struct ModuleData<'ra> {
     /// このスコープがどのような種類か (名前付きモジュールか、単なるブロックか) を示す
     pub kind: ModuleKind,
 
-    pub lazy_resolutions: Resolutions<'ra>,
-
-    /// このスコープ内で直接利用可能な定義をもつ
-    /// 識別子 (名前) をキーとし、異なる名前空間での解決結果を値として持つ
-    pub definitions: RefCell<HashMap<Ident, PerNS<Option<Res>>>>,
+    /// このモジュール内における名前と (進行中である可能性のある) 解決結果との対応関係。
+    pub lazy_resolutions: RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>,
 
     pub span: Span,
 }
@@ -97,7 +94,6 @@ impl<'ra> ModuleData<'ra> {
             parent,
             kind,
             lazy_resolutions: Default::default(),
-            definitions: Default::default(),
             span,
         }
     }
@@ -210,11 +206,14 @@ impl<'ra> NameResolution<'ra> {
 pub struct ResolverArenas<'ra> {
     /// モジュール定義 (`mod foo {}`) やブロック (`{ ... }`) のスコープ情報を格納する
     pub modules: TypedArena<'ra, ModuleData<'ra>>,
+    pub local_modules: RefCell<Vec<Module<'ra>>>,
 
     /// パス (`a::b::c`) のセグメント (`Ident`) のリストを格納するアリーナ
-    pub paths: TypedArena<'ra, Vec<Ident>>,
+    pub ast_paths: TypedArena<'ra, Vec<Ident>>,
 
     pub name_resolutions: TypedArena<'ra, RefCell<NameResolution<'ra>>>,
+
+    pub name_bindings: TypedArena<'ra, NameBindingData<'ra>>
 
     /*
     /// `use` 文の情報を格納するアリーナ (インポート実装時に必要)
@@ -223,8 +222,47 @@ pub struct ResolverArenas<'ra> {
 }
 
 impl<'ra> ResolverArenas<'ra> {
+    fn new_module(
+        &'ra self,
+        parent: Option<Module<'ra>>,
+        kind: ModuleKind,
+        span: Span,
+        module_map: &mut IndexMap<DefId, Module<'ra>>,
+    ) -> Module<'ra> {
+        let module_data = ModuleData::new(
+            parent,
+            kind,
+            span,
+        );
+
+        let module = Module(self.modules.alloc(module_data));
+
+        let def_id = module.def_id();
+
+        if def_id.is_none_or(|def_id| def_id.is_local()) {
+            self.local_modules.borrow_mut().push(module);
+        }
+
+        if let Some(def_id) = def_id {
+            module_map.insert(def_id, module);
+            // let vis = ty::Visibility::<DefId>::Public;
+            // let binding = (module, vis, module.span).to_name_binding(self);
+            // module_self_bindings.insert(module, binding);
+        }
+
+        module
+    }
+
     pub fn alloc_name_resolution(&'ra self) -> &'ra RefCell<NameResolution<'ra>> {
         self.name_resolutions.alloc(Default::default())
+    }
+
+    fn local_modules(&'ra self) -> std::cell::Ref<'ra, Vec<Module<'ra>>> {
+        self.local_modules.borrow()
+    }
+
+    fn alloc_name_binding(&'ra self, name_binding: NameBindingData<'ra>) -> NameBinding<'ra> {
+        NameBinding(self.name_bindings.alloc(name_binding))
     }
 }
 
@@ -237,7 +275,7 @@ struct Resolver<'ra, 'tcx> {
     block_map: HashMap<NodeId, Module<'ra>>,
 
     // DefIdから対応するModuleDataへのマップ (ローカルステロ内の全モジュール)
-    module_map: HashMap<DefId, Module<'ra>>,
+    module_map: IndexMap<DefId, Module<'ra>>,
     binding_parent_modules: HashMap<NameBinding<'ra>, Module<'ra>>,
 
     /// NodeId (アイテム定義ノード) から、それが定義する LocalDefId へのマップ
@@ -262,19 +300,13 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         kind: ModuleKind,
         span: Span,
     ) -> Module<'ra> {
-        let module_data = ModuleData::new(
+        let module_map = &mut self.module_map;
+        self.arenas.new_module(
             parent,
             kind,
             span,
-        );
-
-        let module = Module(self.arenas.modules.alloc(module_data));
-
-        if let Some(def_id) = module.def_id() {
-            self.module_map.insert(def_id, module);
-        }
-
-        module
+            module_map,
+        )
     }
 
     fn create_def(
@@ -327,4 +359,29 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             }
         }
     }
+}
+
+impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
+    pub fn new(
+        tcx: TyCtxt<'tcx>,
+        crate_span: Span,
+        arenas: &'ra ResolverArenas<'ra>,
+    ) -> Resolver<'ra, 'tcx> {
+        let root_def_id = STELO_DEF_ID.to_def_id();
+        let mut module_map = IndexMap::default();
+        // let mut module_self_bindings = HashMap::default();
+        let graph_root = arenas.new_module(
+            None,
+            ModuleKind::Def(DefKind::Mod, root_def_id, None),
+            crate_span,
+            &mut module_map,
+            // &mut module_self_bindings,
+        );
+
+        todo!()
+    }
+
+    // pub fn into_outputs(self) -> ResolverOutputs {
+
+    // }
 }
