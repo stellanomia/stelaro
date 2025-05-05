@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{Block, Expr, ExprKind, ModSpan, NodeId, Stelo, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}};
+use crate::stelaro_ast::{ast::{Block, Expr, ExprKind, ModSpan, Stelo, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}, NodeId, STELO_NODE_ID};
 use crate::stelaro_common::{span::Span, symbol::Ident};
 use crate::stelaro_diagnostic::diag::{DiagCtxtHandle, ErrorEmitted};
 use crate::stelaro_session::Session;
@@ -103,7 +103,7 @@ impl<'sess> Parser<'sess> {
                 span: ModSpan {
                     inner_span: start.merge(&self.prev_token.span)
                 },
-                id: NodeId::STELO_NODE_ID,
+                id: STELO_NODE_ID,
             }
         )
     }

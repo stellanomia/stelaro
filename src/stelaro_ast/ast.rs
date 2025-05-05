@@ -1,6 +1,6 @@
 use crate::stelaro_common::{span::Span, symbol::Ident};
 
-use super::{token::{Lit, Token, TokenKind}, ty::Ty};
+use super::{token::{Lit, Token, TokenKind}, ty::Ty, NodeId};
 
 #[derive(Debug)]
 pub struct Stelo {
@@ -233,19 +233,4 @@ pub enum UnOp {
     Not,
     ///  `-` 演算子 負の値
     Neg,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct NodeId(u32);
-
-impl NodeId {
-    pub const STELO_NODE_ID: NodeId = NodeId(0);
-
-    pub fn from_u32(value: u32) -> Self {
-        NodeId(value)
-    }
-
-    pub fn as_u32(&self) -> u32 {
-        self.0
-    }
 }

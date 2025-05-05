@@ -116,8 +116,8 @@ impl DefKey {
         // これまでの情報からローカル部分のハッシュ値を計算する。
         let local_hash = hasher.finish();
 
-        // 新しい DefPathHash を構築します。その際、ハッシュのクレートID部分 (StableSteloId)
-        // が親から適切にコピーされるようにします。これにより、クレートID部分は
+        // 新しい DefPathHash を構築します。その際、ハッシュのID部分 (StableSteloId)
+        // が親から適切にコピーされるようにします。これにより、ステロID部分は
         // この DefPathTable 内の全ての DefPathHash にルートから再帰的に伝播します。
         DefPathHash::new(parent.stable_stelo_id(), local_hash)
     }
@@ -139,7 +139,7 @@ pub struct DisambiguatedDefPathData {
 
 #[derive(Debug, Clone)]
 pub struct DefPath {
-    /// クレートルートからアイテムに至るパスのデータ。
+    /// ステロルートからアイテムに至るパスのデータ。
     pub data: Vec<DisambiguatedDefPathData>,
 
     /// このパスの起点となるステロを示す。

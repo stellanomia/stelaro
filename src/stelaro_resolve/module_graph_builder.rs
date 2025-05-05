@@ -1,4 +1,3 @@
-use std::ops::ControlFlow;
 use visit::Visitor;
 
 use super::BindingKey;
