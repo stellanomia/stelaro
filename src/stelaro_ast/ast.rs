@@ -20,7 +20,7 @@ pub struct Item {
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ItemKind {
-    Function(Function),
+    Fn(Function),
     Mod(Mod),
     // Struct(Struct),
     // Enum(Enum),

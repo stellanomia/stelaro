@@ -49,9 +49,9 @@ impl From<SteloNum> for u32 {
 
 /// `DefPathHash` は `DefPath` を固定長ハッシュで表現した構造体です。
 /// これは2つの独立した64ビットハッシュから構成されます。
-/// 最初のハッシュは、この `DefPathHash` が由来するクレートを一意に識別し
-/// ([`StableSteloId`] を参照)、次のハッシュはそのクレート内の対応する `DefPath` を
-/// 一意に識別します。これらを組み合わせることで、クレートグラフ全体で一意な識別子を形成します。
+/// 最初のハッシュは、この `DefPathHash` が由来するステロを一意に識別し
+/// ([`StableSteloId`] を参照)、次のハッシュはそのステロ内の対応する `DefPath` を
+/// 一意に識別します。これらを組み合わせることで、ステログラフ全体で一意な識別子を形成します。
 /// 高品質なハッシュ関数を使用すれば、ハッシュの衝突確率は
 /// 非常に低いですが、該当するアイテムの名前を変更したり
 /// するなどで簡単に回避することができます。
@@ -73,7 +73,7 @@ impl DefPathHash {
     }
 
     /// 指定された [StableSteloId] と `local_hash` を用いて、新しい [DefPathHash] を構築します。
-    /// ただし、`local_hash` はそのクレート内で一意でなければなりません。
+    /// ただし、`local_hash` はそのステロ内で一意でなければなりません。
     pub fn new(stable_stelo_id: StableSteloId, local_hash: Hash64) -> DefPathHash {
         DefPathHash(Fingerprint::new(stable_stelo_id.0, local_hash))
     }
@@ -118,7 +118,7 @@ impl StableSteloId {
         // }
 
         // // コンパイラバージョンによってシンボルが衝突しないようにするため、
-        // // 明示的にバージョン文字列を含める（rustc と同様）
+        // // 明示的にバージョン文字列を含める (rustc と同様)
         // if let Some(val) = std::env::var_os("STELARO_FORCE_STELARO_VERSION") {
         //     hasher.write(val.to_string_lossy().into_owned().as_bytes())
         // } else {

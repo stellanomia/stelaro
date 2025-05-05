@@ -141,7 +141,7 @@ where
     visitor.visit_ident(ident)?;
 
     match kind {
-        super::ast::ItemKind::Function(function) => visitor.visit_fn_decl(function)?,
+        super::ast::ItemKind::Fn(function) => visitor.visit_fn_decl(function)?,
         super::ast::ItemKind::Mod(module) => {
             match module {
                 Mod::Inline(items, ..) => walk_list!(visitor, visit_item, items),
