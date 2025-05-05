@@ -6,10 +6,10 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 
+use crate::stelaro_ast::{ast::Stelo, NodeId, STELO_NODE_ID};
 use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_sir::def::{DefKind, Namespace, PerNS, Res};
-use crate::stelaro_ast::ast::{NodeId, Stelo};
+use crate::stelaro_sir::def::{DefKind, Namespace, Res};
 
 
 /// モジュール内の名前を識別するキー
@@ -377,6 +377,10 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             &mut module_map,
             // &mut module_self_bindings,
         );
+
+        let mut def_id_to_node_id: IndexVec<LocalDefId, NodeId> = IndexVec::default();
+        assert_eq!(def_id_to_node_id.push(STELO_NODE_ID), STELO_DEF_ID);
+        let node_id_to_def_id: HashMap<NodeId, DefId> = HashMap::default();
 
         todo!()
     }

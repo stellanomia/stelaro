@@ -6,7 +6,7 @@ input_file: tests/parser_inputs/expr2.stelo
 Stelo {
     items: [
         Item {
-            kind: Function(
+            kind: Fn(
                 Function {
                     span: Span {
                         start: 0,

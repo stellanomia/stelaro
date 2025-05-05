@@ -1,6 +1,6 @@
 // use std::array::IntoIter;
 
-use crate::stelaro_ast::ast::NodeId;
+use crate::stelaro_ast::NodeId;
 use crate::stelaro_common::{DefId, Symbol};
 use crate::stelaro_ty::ty::PrimTy;
 
