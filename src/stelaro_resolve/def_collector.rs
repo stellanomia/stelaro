@@ -1,6 +1,6 @@
-use std::{mem, ops::ControlFlow};
+use std::mem;
 
-use crate::{stelaro_ast::{ast::*, visit::{walk_item, walk_param, Visitor}}, stelaro_common::{LocalDefId, Span, Symbol}, stelaro_sir::def::DefKind};
+use crate::{stelaro_ast::{ast::*, visit::{walk_item, Visitor}}, stelaro_common::{LocalDefId, Symbol}, stelaro_sir::def::DefKind};
 
 use super::Resolver;
 
@@ -35,7 +35,8 @@ impl<'a, 'ra, 'tcx> DefCollector<'a, 'ra, 'tcx> {
 }
 
 impl<'a, 'ra, 'tcx> Visitor<'a> for DefCollector<'a, 'ra, 'tcx> {
-    fn visit_item(&mut self, item: &'a Item) -> ControlFlow<Self::BreakTy> {
+    fn visit_item(&mut self, item: &'a Item) {
+        let parent_def = self.parent_def;
         let def_kind = match &item.kind {
             ItemKind::Fn(..) => DefKind::Fn,
             ItemKind::Mod(..) => DefKind::Mod,
@@ -43,20 +44,8 @@ impl<'a, 'ra, 'tcx> Visitor<'a> for DefCollector<'a, 'ra, 'tcx> {
 
         let _ = self.create_def(item.id, Some(item.ident.name), def_kind);
 
-        walk_item(self, item)
-    }
-
-    fn visit_fn_decl(&mut self, f: &'a Function) -> ControlFlow<Self::BreakTy> {
-        let FnSig { params, ret_ty, span } = &f.sig;
-
-        for param in params {
-            self.visit_param(param)?;
-        }
-
-        todo!()
-    }
-
-    fn visit_param(&mut self, p: &'a Param) -> std::ops::ControlFlow<!> {
-        walk_param(self, p)
+        self.with_parent(parent_def, |this| {
+            walk_item(this, item);
+        });
     }
 }
