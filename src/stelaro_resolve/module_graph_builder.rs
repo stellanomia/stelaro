@@ -97,11 +97,11 @@ impl<'r, 'ra, 'tcx> Visitor<'r> for ModuleGraphBuilder<'r, 'ra, 'tcx> {
     //     visit::walk_item(self, item)
     // }
 
-    fn visit_fn_decl(&mut self, f: &'r Function) -> ControlFlow<Self::BreakTy> {
+    fn visit_fn_decl(&mut self, f: &'r Function) {
         visit::walk_fn_decl(self, f)
     }
 
-    fn visit_block(&mut self, b: &'r Block) -> ControlFlow<Self::BreakTy> {
+    fn visit_block(&mut self, b: &'r Block) {
         let parent: Module<'ra> = self.parent_module;
 
         if self.block_needs_anonymous_module(b) {
@@ -114,10 +114,8 @@ impl<'r, 'ra, 'tcx> Visitor<'r> for ModuleGraphBuilder<'r, 'ra, 'tcx> {
             self.r.block_map.insert(b.id, module);
             self.parent_module = module;
         }
-        visit::walk_block(self, b)?;
+        visit::walk_block(self, b);
         // 元の親に戻す
         self.parent_module = parent;
-
-        ControlFlow::Continue(())
     }
 }
