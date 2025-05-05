@@ -284,9 +284,6 @@ struct Resolver<'ra, 'tcx> {
     /// LocalDefId から、それを定義するアイテムの NodeId へのマップ
     def_id_to_node_id: IndexVec<LocalDefId, NodeId>,
 
-    /// 現在解決中のモジュール
-    current_module: RefCell<Module<'ra>>,
-
     main_def: Option<MainDefinition>,
 
     /// 既に重複して定義されている名前に対して、診断がさらに重複しないようにする
@@ -364,25 +361,37 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     pub fn new(
         tcx: TyCtxt<'tcx>,
-        crate_span: Span,
+        stelo_span: Span,
         arenas: &'ra ResolverArenas<'ra>,
     ) -> Resolver<'ra, 'tcx> {
         let root_def_id = STELO_DEF_ID.to_def_id();
         let mut module_map = IndexMap::default();
-        // let mut module_self_bindings = HashMap::default();
         let graph_root = arenas.new_module(
             None,
             ModuleKind::Def(DefKind::Mod, root_def_id, None),
-            crate_span,
+            stelo_span,
             &mut module_map,
-            // &mut module_self_bindings,
         );
 
-        let mut def_id_to_node_id: IndexVec<LocalDefId, NodeId> = IndexVec::default();
+        let mut def_id_to_node_id = IndexVec::default();
         assert_eq!(def_id_to_node_id.push(STELO_NODE_ID), STELO_DEF_ID);
-        let node_id_to_def_id: HashMap<NodeId, DefId> = HashMap::default();
+        let mut node_id_to_def_id: HashMap<NodeId, LocalDefId> = HashMap::default();
+        let stelo: LocalDefId = tcx.create_local_stelo_def_id(stelo_span);
 
-        todo!()
+        node_id_to_def_id.insert(STELO_NODE_ID, stelo);
+
+        Resolver {
+            tcx,
+            arenas,
+            graph_root,
+            block_map: Default::default(),
+            module_map,
+            binding_parent_modules: HashMap::new(),
+            node_id_to_def_id,
+            def_id_to_node_id,
+            main_def: None,
+            name_already_seen: HashMap::new(),
+        }
     }
 
     // pub fn into_outputs(self) -> ResolverOutputs {

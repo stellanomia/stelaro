@@ -29,14 +29,14 @@ pub fn temp(src: String) {
     let source_map = Rc::new(SourceMap::new());
     let sess = Session::new(dcx, source_map);
     let mut lexer = Lexer::new(&sess, &src);
-    if let Ok(ts) = lexer.lex() {
-        let mut parser = Parser::new(&sess, ts);
+    let Ok(ts) = lexer.lex() else {
+        unimplemented!()
+    };
+    let mut parser = Parser::new(&sess, ts);
 
-        if let Ok(ast) = parser.parse_stelo() {
-            dbg!(&ast);
-        }
-    }
-
+    let Ok(ast) = parser.parse_stelo() else {
+        unimplemented!()
+    };
 }
 
 
