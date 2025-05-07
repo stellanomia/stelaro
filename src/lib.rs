@@ -37,6 +37,8 @@ pub fn temp(src: String) {
     let Ok(ast) = parser.parse_stelo() else {
         unimplemented!()
     };
+
+    dbg!(ast);
 }
 
 

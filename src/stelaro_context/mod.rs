@@ -67,4 +67,8 @@ impl<'tcx> TyCtxt<'tcx> {
         assert_eq!(key, STELO_DEF_ID);
         key
     }
+
+    pub fn def_kind(&self, def_id: DefId) -> DefKind {
+        todo!()
+    }
 }

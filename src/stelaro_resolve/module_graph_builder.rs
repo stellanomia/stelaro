@@ -4,12 +4,19 @@ use super::BindingKey;
 use super::Module;
 use super::ModuleKind;
 use super::NameBinding;
+use super::NameBindingData;
+use super::NameBindingKind;
 use super::Resolver;
+use super::ResolverArenas;
 use super::ToNameBinding;
 
 use crate::stelaro_ast::visit;
 use crate::stelaro_ast::ast::*;
+use crate::stelaro_ast::NodeId;
+use crate::stelaro_common::DefId;
 use crate::stelaro_common::Ident;
+use crate::stelaro_common::Span;
+use crate::stelaro_sir::def;
 use crate::stelaro_sir::def::Namespace;
 use crate::stelaro_sir::def::Res;
 
@@ -60,6 +67,28 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     }
 }
 
+impl<'ra> ToNameBinding<'ra>
+    for (Module<'ra>, /*ty::Visibility<Id>,*/ Span)
+{
+    fn to_name_binding(self, arenas: &'ra ResolverArenas<'ra>) -> NameBinding<'ra> {
+        arenas.alloc_name_binding(NameBindingData {
+            kind: NameBindingKind::Module(self.0),
+            // vis: self.1.to_def_id(),
+            span: self.1,
+        })
+    }
+}
+
+impl<'ra> ToNameBinding<'ra> for (Res<NodeId>, /*ty::Visibility<Id>,*/ Span) {
+    fn to_name_binding(self, arenas: &'ra ResolverArenas<'ra>) -> NameBinding<'ra> {
+        arenas.alloc_name_binding(NameBindingData {
+            kind: NameBindingKind::Res(self.0),
+            // vis: self.1.to_def_id(),
+            span: self.1,
+        })
+    }
+}
+
 struct ModuleGraphBuilder<'r, 'ra, 'tcx> {
     r: &'r mut Resolver<'ra, 'tcx>,
     parent_module: Module<'ra>,
@@ -79,22 +108,22 @@ impl<'r, 'ra, 'tcx> ModuleGraphBuilder<'r, 'ra, 'tcx> {
 
 impl<'r, 'ra, 'tcx> Visitor<'r> for ModuleGraphBuilder<'r, 'ra, 'tcx> {
     // 将来的に resolve_visibility する
-    // fn visit_item(&mut self, item: &'r Item) -> ControlFlow<Self::BreakTy> {
-    //     let parent = self.parent_module;
-    //     let Item { kind, id, span, ident } = item;
-    //     let def_id = local_def_id.to_def_id();
-    //     let def_kind = self.r.tcx.def_kind(def_id);
-    //     let res = Res::Def(def_kind, def_id);
+    fn visit_item(&mut self, item: &'r Item) {
+        let parent = self.parent_module;
+        let Item { kind, id, span, ident } = item;
+        let local_def_id = self.r.node_id_to_def_id.get(id).unwrap();
+        let def_id = local_def_id.to_def_id();
+        let def_kind = self.r.tcx.def_kind(def_id);
+        let res: def::Res<NodeId> = Res::Def(def_kind, def_id);
 
-    //     match kind {
-    //         ItemKind::Function(function) => {
-    //             let module = ;
-    //             self.r.define(parent, *ident, Namespace::ValueNS, (module, /* vis */,span));
-    //         },
-    //         ItemKind::Mod(_) => todo!(),
-    //     }
-    //     visit::walk_item(self, item)
-    // }
+        match kind {
+            ItemKind::Fn(function) => {
+                self.r.define(parent, *ident, Namespace::ValueNS, (res, /* vis ,*/ *span ));
+            },
+            ItemKind::Mod(_) => todo!(),
+        }
+        visit::walk_item(self, item)
+    }
 
     fn visit_fn_decl(&mut self, f: &'r Function) {
         visit::walk_fn_decl(self, f)
