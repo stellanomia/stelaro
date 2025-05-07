@@ -1,6 +1,6 @@
 use std::mem;
 
-use crate::{stelaro_ast::{ast::*, visit::{walk_item, Visitor}, NodeId}, stelaro_common::STELO_DEF_ID};
+use crate::{stelaro_ast::{ast::*, visit::{walk_item, Visitor}, NodeId}, stelaro_common::{Span, STELO_DEF_ID}};
 use crate::stelaro_common::{LocalDefId, Symbol};
 use crate::stelaro_sir::def::DefKind;
 
@@ -26,6 +26,7 @@ impl<'a, 'ra, 'tcx> DefCollector<'a, 'ra, 'tcx> {
         node_id: NodeId,
         name: Option<Symbol>,
         def_kind: DefKind,
+        span: Span,
     ) -> LocalDefId {
         let parent_def = self.parent_def;
         self.resolver
@@ -34,6 +35,7 @@ impl<'a, 'ra, 'tcx> DefCollector<'a, 'ra, 'tcx> {
                 node_id,
                 name,
                 def_kind,
+                span,
             )
     }
 
@@ -51,7 +53,7 @@ impl<'a, 'ra, 'tcx> Visitor<'a> for DefCollector<'a, 'ra, 'tcx> {
             ItemKind::Mod(..) => DefKind::Mod,
         };
 
-        let def_id = self.create_def(item.id, Some(item.ident.name), def_kind);
+        let def_id = self.create_def(item.id, Some(item.ident.name), def_kind, item.span);
 
         self.with_parent(def_id, |this| {
             walk_item(this, item);

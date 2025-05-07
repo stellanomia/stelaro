@@ -236,6 +236,12 @@ impl DefId {
     pub fn is_top_level_module(self) -> bool {
         self.is_local() && self.is_stelo_root()
     }
+
+    #[inline]
+    pub fn as_local(self) -> Option<LocalDefId> {
+        self.is_local().then_some(LocalDefId { local_def_index: self.index })
+    }
+
 }
 
 impl std::fmt::Debug for DefId {
