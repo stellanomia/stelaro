@@ -6,6 +6,8 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 
+use def_collector::collect_definitions;
+
 use crate::stelaro_ast::{ast::Stelo, NodeId, STELO_NODE_ID};
 use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
@@ -326,7 +328,9 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     }
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
+        collect_definitions(self, stelo);
 
+        
     }
 
     pub fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
