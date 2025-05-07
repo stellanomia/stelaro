@@ -6,8 +6,6 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::ops::Deref;
 
-use def_collector::collect_definitions;
-
 use crate::stelaro_ast::{ast::Stelo, NodeId, STELO_NODE_ID};
 use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
@@ -314,12 +312,19 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         node_id: NodeId,
         name: Option<Symbol>,
         def_kind: DefKind,
+        span: Span,
     ) -> LocalDefId {
         assert!(
             !self.node_id_to_def_id.contains_key(&node_id),
         );
 
         let def_id = self.tcx.create_def(parent, name, def_kind);
+
+        let _id1 = self.tcx.source_span.borrow_mut().push(span);
+        let _id2 = self.tcx.def_kind_table.borrow_mut().push(def_kind);
+
+        debug_assert_eq!(_id1, _id2);
+        debug_assert_eq!(def_id, _id1);
 
         self.node_id_to_def_id.insert(node_id, def_id);
         assert_eq!(self.def_id_to_node_id.push(node_id), def_id);
@@ -328,9 +333,8 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     }
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
-        collect_definitions(self, stelo);
-
-        
+        self.build_module_graph(stelo, self.graph_root);
+        todo!()
     }
 
     pub fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
