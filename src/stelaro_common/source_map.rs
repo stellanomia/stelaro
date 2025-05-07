@@ -1,7 +1,10 @@
+// FIXME: 全体的な SourceMap の実装改善
+
 use std::io;
 use std::rc::Rc;
 use std::{cell::RefCell, fs, hash::{DefaultHasher, Hash, Hasher}, path::{Path, PathBuf}};
 
+#[allow(unused)]
 pub struct SourceMap {
     // TODO: 単一ファイルでコードが評価出来たら複数ファイル対応(files: SourceMapFilesに変更)
     file: RefCell<Rc<SourceFile>>,
@@ -39,6 +42,7 @@ impl Default for SourceMap {
 
 struct FileLoader;
 
+#[allow(unused)]
 impl FileLoader {
     pub fn file_exists(&self, path: &Path) -> bool {
         path.exists()
@@ -64,6 +68,7 @@ impl SourceFile {
     }
 }
 
+#[allow(unused)]
 #[derive(Debug, Default)]
 pub struct FileId(u64);
 
