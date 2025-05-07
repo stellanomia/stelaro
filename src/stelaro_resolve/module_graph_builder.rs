@@ -46,8 +46,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let binding = def.to_name_binding(self.arenas);
         let key = self.new_binding_key(ident, ns);
         if let Err(old_binding) = self.try_define(parent, key, binding) {
-            // self.report_conflict(parent, ident, ns, old_binding, binding);
-            todo!()
+            self.report_conflict(parent, ident, ns, old_binding, binding);
         }
     }
 

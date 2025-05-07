@@ -2,6 +2,7 @@ use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap};
 
 use crate::stelaro_common::{def_id::DefId, Arena, IndexVec, LocalDefId, Span, Symbol, STELO_DEF_ID};
+use crate::stelaro_diagnostic::diag::DiagCtxtHandle;
 use crate::stelaro_sir::{def::DefKind, definitions::Definitions};
 use crate::stelaro_ty::{Ty, TyKind};
 
@@ -43,9 +44,8 @@ impl<'tcx> Deref for TyCtxt<'tcx> {
 
 
 impl<'tcx> TyCtxt<'tcx> {
-    #[inline(always)]
-    fn sess(&self) -> &Session {
-        self.sess
+    pub fn dcx(self) -> DiagCtxtHandle<'tcx> {
+        self.sess.dcx()
     }
 
     pub fn create_def(
@@ -67,7 +67,11 @@ impl<'tcx> TyCtxt<'tcx> {
 
     pub fn local_def_kind(&self, local_def_id: LocalDefId) -> DefKind {
         // LocalDefId が生成されるとき、同時に DefKind は必ず登録される
-        *self.def_kind_table.borrow().get(local_def_id).unwrap()
+        self.def_kind_table
+            .borrow()
+            .get(local_def_id)
+            .copied()
+            .expect("bug: LocalDefId とともに DefKind が登録されていない")
     }
 
     pub fn def_kind(&self, def_id: DefId) -> DefKind {
