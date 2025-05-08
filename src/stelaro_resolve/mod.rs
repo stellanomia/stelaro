@@ -75,7 +75,11 @@ impl<'ra> Module<'ra> {
         }
     }
 
-    fn def_id(self) -> Option<DefId> {
+    fn def_id(self) -> DefId {
+        self.opt_def_id().expect("`ModuleData::def_id` はブロックモジュールに対して呼ばれました")
+    }
+
+    fn opt_def_id(self) -> Option<DefId> {
         match self.kind {
             ModuleKind::Def(_, def_id, _) => Some(def_id),
             _ => None,
@@ -237,7 +241,7 @@ impl<'ra> ResolverArenas<'ra> {
 
         let module = Module(self.modules.alloc(module_data));
 
-        let def_id = module.def_id();
+        let def_id = module.opt_def_id();
 
         if def_id.is_none_or(|def_id| def_id.is_local()) {
             self.local_modules.borrow_mut().push(module);
