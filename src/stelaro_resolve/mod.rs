@@ -85,6 +85,10 @@ impl<'ra> Module<'ra> {
             _ => None,
         }
     }
+
+    fn is_normal(self) -> bool {
+        matches!(self.kind, ModuleKind::Def(DefKind::Mod, _, _))
+    }
 }
 
 

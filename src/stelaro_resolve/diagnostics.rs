@@ -29,6 +29,19 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             ModuleKind::Block => "block",
         };
 
+        let (name, span) =
+            (ident.name, self.tcx.sess.source_map().truncate_span_to_item_header(new_binding.span));
+
+        if self.name_already_seen.get(&name) == Some(&span) {
+            return;
+        }
+
+        let old_kind = match (ns, old_binding.module()) {
+            (Namespace::ValueNS, _) => "value",
+            (Namespace::TypeNS, Some(module)) if module.is_normal() => "module",
+            (Namespace::TypeNS, _) => "type",
+        };
+
 
     }
 }

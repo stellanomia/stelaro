@@ -4,6 +4,8 @@ use std::io;
 use std::rc::Rc;
 use std::{cell::RefCell, fs, hash::{DefaultHasher, Hash, Hasher}, path::{Path, PathBuf}};
 
+use super::Span;
+
 #[allow(unused)]
 pub struct SourceMap {
     // TODO: 単一ファイルでコードが評価出来たら複数ファイル対応(files: SourceMapFilesに変更)
@@ -30,6 +32,14 @@ impl SourceMap {
         // 存在する場合、filesからRc<SourceFile>を取得し、
         // 存在しない場合、SourceFile::new()し、filesにregisterする。
         Rc::new(SourceFile::new(path, src))
+    }
+
+    pub fn truncate_span_to_item_header(&self, span: Span) -> Span {
+        self.span_until_char(span, '{')
+    }
+
+    pub fn span_until_char(&self, span: Span, c: char) -> Span {
+        let snippet = todo!();
     }
 }
 
