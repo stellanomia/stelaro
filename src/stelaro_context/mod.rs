@@ -14,8 +14,8 @@ pub struct TyCtxt<'tcx> {
 }
 
 pub struct GlobalCtxt<'tcx> {
-    arena: &'tcx Arena,
-    sess: &'tcx Session,
+    pub arena: &'tcx Arena,
+    pub sess: &'tcx Session,
 
     /// DefId から実際の定義へのマップ
     pub definitions: RefCell<Definitions>,
