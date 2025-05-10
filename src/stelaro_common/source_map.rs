@@ -39,10 +39,20 @@ impl SourceMap {
         self.span_until_char(span, '{')
     }
 
+    // FIXME: 複数ファイルの実装になると完全に破綻する
     pub fn span_until_char(&self, span: Span, c: char) -> Span {
-        let snippet = &self.file.src[span.as_range_usize()];
+        let snippet = &self.file
+            .src[span.as_range_usize()]
+            .split(c)
+            .next()
+            .unwrap_or("")
+            .trim_end();
 
-        todo!()
+        if !snippet.is_empty() && !snippet.contains('\n') {
+            (span.start, span.start + snippet.len() as u32).into()
+        } else {
+            span
+        }
     }
 }
 
