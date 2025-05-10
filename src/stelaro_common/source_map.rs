@@ -2,15 +2,16 @@
 
 use std::io;
 use std::rc::Rc;
-use std::{cell::RefCell, fs, hash::{DefaultHasher, Hash, Hasher}, path::{Path, PathBuf}};
+use std::{fs, hash::Hash, path::{Path, PathBuf}};
 
-use super::Span;
+use super::stable_hasher::HashStable;
+use super::{Hash128, Span, StableHasher};
 
 #[allow(unused)]
 pub struct SourceMap {
-    // TODO: 単一ファイルでコードが評価出来たら複数ファイル対応(files: SourceMapFilesに変更)
-    file: RefCell<Rc<SourceFile>>,
-    file_loader: FileLoader
+    // TODO: 単一ファイルで codegen が可能になったら複数ファイル対応(files: SourceMapFilesに変更)
+    file: Rc<SourceFile>,
+    file_loader: FileLoader,
 }
 
 impl SourceMap {
@@ -39,7 +40,9 @@ impl SourceMap {
     }
 
     pub fn span_until_char(&self, span: Span, c: char) -> Span {
-        let snippet = todo!();
+        let snippet = &self.file.src[span.as_range_usize()];
+
+        todo!()
     }
 }
 
@@ -67,25 +70,30 @@ impl FileLoader {
 pub struct SourceFile {
     pub name: PathBuf,
     pub src: Rc<String>,
-    pub file_id: FileId,
+    pub file_id: SourceFileId,
 }
 
 impl SourceFile {
     pub fn new(name: PathBuf, src: String) -> Self {
-        let file_id = FileId::from_file_name(&name);
+        let file_id = SourceFileId::from_file_name(&name);
 
         SourceFile { name, src: Rc::new(src), file_id }
     }
 }
 
-#[allow(unused)]
 #[derive(Debug, Default)]
-pub struct FileId(u64);
+pub struct SourceFileId(pub Hash128);
 
-impl FileId {
-    pub fn from_file_name(filename: &Path) -> FileId {
-        let mut hasher = DefaultHasher::new();
+impl SourceFileId {
+    pub fn from_file_name(filename: &Path) -> Self {
+        let mut hasher = StableHasher::new();
         filename.hash(&mut hasher);
-        FileId(hasher.finish())
+        SourceFileId(hasher.finish())
+    }
+}
+
+impl HashStable for SourceFileId {
+    fn hash_stable(&self, hasher: &mut StableHasher) {
+        self.0.hash_stable(hasher);
     }
 }
