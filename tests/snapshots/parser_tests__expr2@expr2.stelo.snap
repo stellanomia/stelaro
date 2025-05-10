@@ -41,7 +41,7 @@ Stelo {
                                             kind: Ident(
                                                 Ident {
                                                     name: Symbol(
-                                                        21,
+                                                        2,
                                                     ),
                                                     span: Span {
                                                         start: 20,
@@ -81,7 +81,7 @@ Stelo {
                                                                             kind: Ident(
                                                                                 Ident {
                                                                                     name: Symbol(
-                                                                                        22,
+                                                                                        21,
                                                                                     ),
                                                                                     span: Span {
                                                                                         start: 38,
@@ -144,7 +144,7 @@ Stelo {
                                                                                     PathSegment {
                                                                                         ident: Ident {
                                                                                             name: Symbol(
-                                                                                                22,
+                                                                                                21,
                                                                                             ),
                                                                                             span: Span {
                                                                                                 start: 54,
