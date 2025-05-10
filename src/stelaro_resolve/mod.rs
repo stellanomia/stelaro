@@ -1,6 +1,7 @@
 mod def_collector;
-mod module_graph_builder;
 mod diagnostics;
+mod late;
+mod module_graph_builder;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
