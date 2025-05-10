@@ -1,5 +1,5 @@
 use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
-use crate::stelaro_common::{span::Span, Symbol};
+use crate::stelaro_common::Symbol;
 use crate::stelaro_diagnostic::diag::ErrorEmitted;
 use crate::stelaro_session::Session;
 
@@ -210,10 +210,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
         Ok(
             Token {
                 kind: token_kind,
-                span: Span {
-                    start: pos,
-                    end: self.pos,
-                }
+                span: (pos, self.pos).into()
             }
         )
     }

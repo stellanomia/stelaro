@@ -53,7 +53,7 @@ impl DiagCtxtInner {
 
         let mut report = Report::build (
             level_to_ariadne_kind(diag.level),
-            diag.span.start..diag.span.end
+            diag.span.as_range_usize()
         );
 
 
@@ -69,7 +69,7 @@ impl DiagCtxtInner {
         if !diag.label.is_empty() {
             for (span, msg) in diag.label {
                 report = report.with_label(
-                    Label::new(span.start..span.end).with_message(msg)
+                    Label::new(span.as_range_usize()).with_message(msg)
                 );
             }
         }
