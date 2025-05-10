@@ -65,5 +65,4 @@ mod tests {
         assert_eq!(", ", symbol2.as_str());
         assert_eq!("World!", symbol3.as_str());
     }
-
 }

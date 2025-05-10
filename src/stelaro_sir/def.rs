@@ -28,6 +28,14 @@ impl DefKind {
         }
     }
 
+    pub fn descr_ja(self, def_id: DefId) -> &'static str {
+        match self {
+            DefKind::Fn => "関数",
+            DefKind::Mod if def_id.is_stelo_root() && !def_id.is_local() => "ステロ",
+            DefKind::Mod => "モジュール",
+        }
+    }
+
     pub fn def_path_data(self, name: Option<Symbol>) -> DefPathData {
         match self {
             DefKind::Mod
@@ -79,6 +87,13 @@ impl Namespace {
         match self {
             Self::TypeNS => "type",
             Self::ValueNS => "value",
+        }
+    }
+
+    pub fn descr_ja(self) -> &'static str {
+        match self {
+            Self::TypeNS => "型",
+            Self::ValueNS => "値",
         }
     }
 }
