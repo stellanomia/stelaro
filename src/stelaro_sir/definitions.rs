@@ -96,7 +96,7 @@ pub struct DefKey {
 }
 
 impl DefKey {
-    pub(crate) fn compute_stable_hash(&self, parent: DefPathHash) -> DefPathHash {
+    pub fn compute_stable_hash(&self, parent: DefPathHash) -> DefPathHash {
         let mut hasher = StableHasher::new();
 
         parent.hash(&mut hasher);
@@ -222,7 +222,7 @@ impl Definitions {
     }
 
     /// (親を持たない) ルート定義と、その他のいくつかの予約済み定義を持つ新しい `Definitions` を作成します。
-    pub fn new(stable_crate_id: StableSteloId) -> Definitions {
+    pub fn new(stable_stelo_id: StableSteloId) -> Definitions {
         let key = DefKey {
             parent: None,
             disambiguated_data: DisambiguatedDefPathData {
@@ -231,11 +231,11 @@ impl Definitions {
             },
         };
 
-        let parent_hash = DefPathHash::new(stable_crate_id, Hash64::ZERO);
+        let parent_hash = DefPathHash::new(stable_stelo_id, Hash64::ZERO);
         let def_path_hash = key.compute_stable_hash(parent_hash);
 
         // ルートとなる定義を作成する
-        let mut table = DefPathTable::new(stable_crate_id);
+        let mut table = DefPathTable::new(stable_stelo_id);
         let root = LocalDefId { local_def_index: table.allocate(key, def_path_hash) };
         assert_eq!(root.local_def_index, STELO_ROOT_INDEX);
 
