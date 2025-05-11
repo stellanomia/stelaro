@@ -206,8 +206,8 @@ impl<'ra> NameResolution<'ra> {
         self.binding
     }
 
-    // pub(crate) fn add_single_import(&mut self, import: Import<'ra>) { ... }
-    // pub(crate) fn set_binding(&mut self, binding: NameBinding<'ra>) { ... }
+    // pub fn add_single_import(&mut self, import: Import<'ra>) { ... }
+    // pub fn set_binding(&mut self, binding: NameBinding<'ra>) { ... }
 }
 
 /// ライフタイム `'ra` を持つデータ構造を格納するためのアリーナ

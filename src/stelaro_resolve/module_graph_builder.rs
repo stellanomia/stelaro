@@ -51,7 +51,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     }
 
     // 衝突時は既存の NameBinding を返す
-    pub(crate) fn try_define(
+    pub fn try_define(
         &mut self,
         module: Module<'ra>,
         key: BindingKey,

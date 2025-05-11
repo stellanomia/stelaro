@@ -84,3 +84,10 @@ impl<'tcx> TyCtxt<'tcx> {
         }
     }
 }
+
+
+impl<'tcx> TyCtxt<'tcx> {
+    pub fn create_global_ctxt() {
+        todo!()
+    }
+}

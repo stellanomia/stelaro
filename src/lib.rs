@@ -34,11 +34,11 @@ pub fn temp(src: String) {
     };
     let mut parser = Parser::new(&sess, ts);
 
-    let Ok(ast) = parser.parse_stelo() else {
+    let Ok(stelo) = parser.parse_stelo() else {
         unimplemented!()
     };
 
-    dbg!(ast);
+    dbg!(stelo);
 }
 
 
