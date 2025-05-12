@@ -13,6 +13,8 @@ pub mod symbol;
 pub mod unhash;
 
 
+use std::rc::Rc;
+
 pub use arena::{Arena, TypedArena};
 pub use def_id::{DefId, DefPathHash, StableSteloId, LocalDefId, DefIndex, SteloNum, LOCAL_STELO, STELO_DEF_ID, STELO_ROOT_INDEX};
 pub use fingerprint::{Fingerprint, FingerprintComponent};
@@ -21,6 +23,7 @@ pub use idx::{Idx, IntoSliceIdx};
 pub use index_vec::IndexVec;
 pub use map::IndexMap;
 pub use slice::IndexSlice;
+pub use source_map::SourceMap;
 pub use span::Span;
 // impl_hash_stable_trivial は stelaro_common 外部に公開されるべきではない
 pub use stable_hasher::{StableHasher, StableHasherHash, FromStableHash};
@@ -31,6 +34,7 @@ use symbol::Interner;
 
 thread_local! {
     static INTERNER: Interner = Interner::new();
+    static SOURCE_MAP: Option<Rc<SourceMap>> = const { None };
 }
 
 
