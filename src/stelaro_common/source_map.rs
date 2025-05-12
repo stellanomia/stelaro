@@ -5,7 +5,7 @@ use std::rc::Rc;
 use std::{fs, hash::Hash, path::{Path, PathBuf}};
 
 use super::stable_hasher::HashStable;
-use super::{Hash128, Span, StableHasher};
+use super::{Hash128, Span, StableHasher, SOURCE_MAP};
 
 #[allow(unused)]
 pub struct SourceMap {
@@ -106,4 +106,8 @@ impl HashStable for SourceFileId {
     fn hash_stable(&self, hasher: &mut StableHasher) {
         self.0.hash_stable(hasher);
     }
+}
+
+pub fn get_source_map() -> Option<Rc<SourceMap>> {
+    SOURCE_MAP.with(|source_map| source_map.clone())
 }
