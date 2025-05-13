@@ -5,20 +5,19 @@ use std::rc::Rc;
 use std::{fs, hash::Hash, path::{Path, PathBuf}};
 
 use super::stable_hasher::HashStable;
-use super::{Hash128, Span, StableHasher, SOURCE_MAP};
+use super::{Hash128, Span, StableHasher, SESSION_GLOBALS};
 
-#[allow(unused)]
 pub struct SourceMap {
     // TODO: 単一ファイルで codegen が可能になったら複数ファイル対応(files: SourceMapFilesに変更)
     file: Rc<SourceFile>,
-    file_loader: FileLoader,
+    file_loader: Box<dyn FileLoader + Sync + Send>,
 }
 
 impl SourceMap {
     pub fn new() -> Self {
         SourceMap {
             file: Default::default(),
-            file_loader: FileLoader,
+            file_loader: Box::new(RealFileLoader),
         }
     }
 
@@ -34,6 +33,16 @@ impl SourceMap {
         // 存在しない場合、SourceFile::new()し、filesにregisterする。
         Rc::new(SourceFile::new(path, src))
     }
+
+    pub fn with_inputs(
+        SourceMapInputs { file_loader }: SourceMapInputs,
+    ) -> SourceMap {
+        SourceMap {
+            file: Default::default(),
+            file_loader,
+        }
+    }
+
 
     pub fn truncate_span_to_item_header(&self, span: Span) -> Span {
         self.span_until_char(span, '{')
@@ -62,16 +71,34 @@ impl Default for SourceMap {
     }
 }
 
+/// パーサーが使用するファイルシステム操作の抽象。
+pub trait FileLoader {
+    /// ファイルが存在するかどうかを問い合わせる。
+    fn file_exists(&self, path: &Path) -> bool;
 
-struct FileLoader;
+    /// UTF-8 ファイルの内容をメモリに読み込む。
+    /// ソースファイルを正規化するため、サイズ変更が必要になる場合があり、
+    /// この関数は String を返さなければならない。
+    fn read_file(&self, path: &Path) -> io::Result<String>;
+}
 
-#[allow(unused)]
-impl FileLoader {
-    pub fn file_exists(&self, path: &Path) -> bool {
+
+/// `std::fs` を使用して実際のファイルを読み込む `FileLoader`
+pub struct RealFileLoader;
+
+impl FileLoader for RealFileLoader {
+    fn file_exists(&self, path: &Path) -> bool {
         path.exists()
     }
 
     fn read_file(&self, path: &Path) -> io::Result<String> {
+        // path のメタデータが取得でき、かつファイルサイズが SourceFile::MAX_FILE_SIZE より大きい場合
+        if path.metadata().is_ok_and(|metadata| metadata.len() > SourceFile::MAX_FILE_SIZE.into()) {
+            return Err(io::Error::other(format!(
+                "{} バイトより大きいテキストファイルはサポートされていません",
+                SourceFile::MAX_FILE_SIZE
+            )));
+        }
         fs::read_to_string(path)
     }
 }
@@ -84,6 +111,8 @@ pub struct SourceFile {
 }
 
 impl SourceFile {
+    const MAX_FILE_SIZE: u32 = u32::MAX - 1;
+
     pub fn new(name: PathBuf, src: String) -> Self {
         let file_id = SourceFileId::from_file_name(&name);
 
@@ -109,5 +138,9 @@ impl HashStable for SourceFileId {
 }
 
 pub fn get_source_map() -> Option<Rc<SourceMap>> {
-    SOURCE_MAP.with(|source_map| source_map.clone())
+    SESSION_GLOBALS.with(|session_globals| session_globals.source_map.clone())
+}
+
+pub struct SourceMapInputs {
+    pub file_loader: Box<dyn FileLoader + Send + Sync>,
 }
