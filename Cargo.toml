@@ -11,6 +11,7 @@ ariadne = "0.5.1"
 bumpalo = "3.17.0"
 indexmap = "2.9.0"
 rustc-stable-hash = "0.1.2"
+scoped-tls = "1.0.1"
 
 [dev-dependencies]
 insta = { version = "1.42.2", features = ["glob"] }
