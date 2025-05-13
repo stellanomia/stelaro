@@ -1,6 +1,6 @@
 use std::{cell::RefCell, collections::HashMap};
 
-use super::{span::Span, INTERNER};
+use super::{span::Span, SESSION_GLOBALS};
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
 pub struct Ident {
@@ -34,8 +34,8 @@ impl Symbol {
     }
 
     pub fn intern(string: &str) -> Self {
-        INTERNER.with(|interner| {
-            interner.intern(string)
+        SESSION_GLOBALS.with(|session_globals| {
+            session_globals.symbol_interner.intern(string)
         })
     }
 
@@ -44,8 +44,8 @@ impl Symbol {
     /// インターナーは長命で、この関数は通常短命な用途で使用されるため、実際には問題ない
     /// ※インターナーが参照する文字列が解放された後にこれを呼び出してはいけない
     pub fn as_str(&self) -> &str {
-        INTERNER.with(|interner| {
-            unsafe {std::mem::transmute::<&str, &str>(interner.get(*self))}
+        SESSION_GLOBALS.with(|session_globals| {
+            unsafe {std::mem::transmute::<&str, &str>(session_globals.symbol_interner.get(*self))}
         })
     }
 
