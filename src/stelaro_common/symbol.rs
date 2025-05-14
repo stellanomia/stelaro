@@ -45,7 +45,11 @@ impl Symbol {
     /// ※インターナーが参照する文字列が解放された後にこれを呼び出してはいけない
     pub fn as_str(&self) -> &str {
         SESSION_GLOBALS.with(|session_globals| {
-            unsafe {std::mem::transmute::<&str, &str>(session_globals.symbol_interner.get(*self))}
+            unsafe {
+                std::mem::transmute::<&str, &str>(
+                    session_globals.symbol_interner.get(*self)
+                )
+            }
         })
     }
 

@@ -48,7 +48,6 @@ impl SourceMap {
         self.span_until_char(span, '{')
     }
 
-    // FIXME: 複数ファイルの実装になると完全に破綻する
     pub fn span_until_char(&self, span: Span, c: char) -> Span {
         let snippet = &self.file
             .src[span.as_range_usize()]
