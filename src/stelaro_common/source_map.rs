@@ -9,7 +9,7 @@ use super::{Hash128, Span, StableHasher, SESSION_GLOBALS};
 
 pub struct SourceMap {
     // TODO: 単一ファイルで codegen が可能になったら複数ファイル対応(files: SourceMapFilesに変更)
-    file: Rc<SourceFile>,
+    pub file: Rc<SourceFile>,
     file_loader: Box<dyn FileLoader + Sync + Send>,
 }
 

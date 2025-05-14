@@ -285,8 +285,8 @@ mod tests {
     use crate::stelaro_common::source_map::SourceMap;
 
     fn create_sess(src: Rc<String>) -> Session {
-        let dcx = DiagCtxt::new(Rc::clone(&src));
         let source_map = Rc::new(SourceMap::new());
+        let dcx = DiagCtxt::new(Rc::clone(&src));
         Session::new(dcx, source_map)
     }
 
