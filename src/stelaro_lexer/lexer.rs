@@ -6,7 +6,7 @@ use crate::stelaro_session::Session;
 use super::cursor::{Cursor, EOF_CHAR};
 use super::diagnostics::DiagsLexer;
 
-pub struct Lexer<'src , 'sess> {
+pub struct Lexer<'src, 'sess> {
     src: &'src str,
     cursor: Cursor<'src>,
     pos: usize,
