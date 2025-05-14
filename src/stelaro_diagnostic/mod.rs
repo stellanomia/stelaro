@@ -1,19 +1,20 @@
 pub mod diag;
+pub mod emitter;
 
-use std::{cell::RefCell, rc::Rc};
+use std::cell::RefCell;
 use diag::{DiagCtxtHandle, DiagCtxtInner};
+use emitter::DynEmitter;
 
 
-#[derive(Debug)]
 pub struct DiagCtxt {
     inner: RefCell<DiagCtxtInner>,
 }
 
 impl DiagCtxt {
-    pub fn new(src: Rc<String>) -> DiagCtxt {
+    pub fn new(emitter: Box<DynEmitter>) -> DiagCtxt {
         DiagCtxt {
             inner: RefCell::new(
-                DiagCtxtInner::new(src)
+                DiagCtxtInner::new(emitter)
             ),
         }
     }

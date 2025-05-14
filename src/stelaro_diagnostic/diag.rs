@@ -1,7 +1,7 @@
-use crate::stelaro_common::span::Span;
-use super::DiagCtxt;
+use crate::stelaro_common::{span::Span, Hash128};
+use super::{emitter::DynEmitter, DiagCtxt};
 
-use std::{collections::HashSet, marker::PhantomData, ops::Deref, process, rc::Rc};
+use std::{collections::HashSet, marker::PhantomData, ops::Deref, process};
 
 #[allow(unused)]
 use ariadne::{Label, Report, Source};
@@ -36,72 +36,34 @@ impl EmissionGuarantee for FatalError {
     }
 }
 
-#[allow(unused)]
-#[derive(Debug)]
 pub struct DiagCtxtInner {
-    err_counts: Vec<ErrorEmitted>,
-    emitted_diagnostic_codes: HashSet<i32>,
-    src: Rc<String>,
+    pub err_counts: Vec<ErrorEmitted>,
+    pub emitted_diagnostics: HashSet<Hash128>,
+    pub emitter: Box<DynEmitter>,
 }
 
 impl DiagCtxtInner {
-    pub fn new(src: Rc<String>) -> Self {
-        Self { err_counts: Vec::new(), emitted_diagnostic_codes: HashSet::new(), src }
+    pub fn new(emitter: Box<DynEmitter>) -> Self {
+        Self { err_counts: Vec::new(), emitted_diagnostics: HashSet::new(), emitter }
     }
 
     pub fn emit_diagnostic(&mut self, diag: DiagInner) -> Option<ErrorEmitted> {
+        let already_emitted = {
+            let mut hasher = StableHasher::new();
+            diag.hash(&mut hasher);
+            let diagnostic_hash = hasher.finish();
+            !self.emitted_diagnostics.insert(diagnostic_hash)
+        };
+        self.emitter.emit_diagnostic(diag);
 
-        let mut report = Report::build (
-            level_to_ariadne_kind(diag.level),
-            diag.span.as_range_usize()
-        );
-
-
-        if diag.code.is_some() {
-            report = report.with_code(diag.code.unwrap());
-            self.emitted_diagnostic_codes.insert(diag.code.unwrap());
-        }
-
-        if !diag.msg.is_empty() {
-            report = report.with_message(diag.msg.join("\n"));
-        }
-
-        if !diag.label.is_empty() {
-            for (span, msg) in diag.label {
-                report = report.with_label(
-                    Label::new(span.as_range_usize()).with_message(msg)
-                );
-            }
-        }
-
-        if !diag.help.is_empty() {
-            for msg in diag.help {
-                report = report.with_help(msg);
-            }
-        }
-
-        #[cfg(not(test))] {
-            if report.finish().print(Source::from(self.src.as_ref())).is_err() {
-                None
-            }else {
-                self.err_counts.push(ErrorEmitted(()));
-                Some(ErrorEmitted(()))
-            }
-        }
-
-        #[cfg(test)]
-        {
-            let _ = report.finish();
-            self.err_counts.push(ErrorEmitted(()));
-            Some(ErrorEmitted(()))
-        }
+        Some(ErrorEmitted(()))
     }
 }
 
 #[derive(Debug)]
 pub struct ErrorEmitted(());
 
-#[derive(Debug)]
+#[derive(Clone, Copy)]
 pub struct DiagCtxtHandle<'a> {
     pub dcx: &'a DiagCtxt,
 }
@@ -153,7 +115,6 @@ impl<'a> DiagCtxtHandle<'a> {
     }
 }
 
-#[derive(Debug)]
 pub struct Diag<'dcx, G:EmissionGuarantee> {
     dcx: DiagCtxtHandle<'dcx>,
     diag: Option<Box<DiagInner>>,
@@ -208,12 +169,12 @@ impl<'a, G:EmissionGuarantee> Diag<'a, G> {
 
 #[derive(Debug)]
 pub struct DiagInner {
-    code: Option<i32>,
-    level: Level,
-    msg: Vec<String>,
-    label: Vec<(Span, String)>,
-    help: Vec<String>,
-    span: Span,
+    pub code: Option<i32>,
+    pub level: Level,
+    pub msg: Vec<String>,
+    pub label: Vec<(Span, String)>,
+    pub help: Vec<String>,
+    pub span: Span,
 }
 
 impl DiagInner {
@@ -226,15 +187,5 @@ impl DiagInner {
             span,
             code: None,
         }
-    }
-}
-
-
-fn level_to_ariadne_kind(level: Level) -> ariadne::ReportKind<'static> {
-    match level {
-        Level::Error => ariadne::ReportKind::Error,
-        Level::Warning => ariadne::ReportKind::Warning,
-        Level::Help => ariadne::ReportKind::Advice,
-        Level::FatalError => ariadne::ReportKind::Custom("fatal", ariadne::Color::BrightRed),
     }
 }

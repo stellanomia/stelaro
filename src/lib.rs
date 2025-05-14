@@ -21,12 +21,13 @@ use stelaro_common::source_map::SourceMap;
 use stelaro_diagnostic::DiagCtxt;
 use stelaro_lexer::Lexer;
 use stelaro_parse::parser::Parser;
-use stelaro_session::Session;
+use stelaro_session::{session::default_emitter, Session};
 
 pub fn temp(src: String) {
     let src = Rc::new(src.to_string());
-    let dcx = DiagCtxt::new(Rc::clone(&src));
     let source_map = Rc::new(SourceMap::new());
+    let emitter = default_emitter(Rc::clone(&source_map));
+    let dcx = DiagCtxt::new(emitter);
     let sess = Session::new(dcx, source_map);
     let mut lexer = Lexer::new(&sess, &src);
     let Ok(ts) = lexer.lex() else {
