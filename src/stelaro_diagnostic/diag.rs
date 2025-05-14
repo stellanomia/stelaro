@@ -1,11 +1,7 @@
-use crate::stelaro_common::{span::Span, Hash128};
+use crate::stelaro_common::{Span, Hash128, StableHasher};
 use super::{emitter::DynEmitter, DiagCtxt};
 
-use std::{collections::HashSet, marker::PhantomData, ops::Deref, process};
-
-#[allow(unused)]
-use ariadne::{Label, Report, Source};
-
+use std::{collections::HashSet, hash::{Hasher, Hash}, marker::PhantomData, ops::Deref, process};
 
 
 /// 診断メッセージの出力保証を表すトレイト
@@ -31,36 +27,81 @@ impl EmissionGuarantee for FatalError {
     type EmitResult = !;
 
     fn emit_producing_guarantee(diag: Diag<'_, Self>) -> ! {
-        diag.emit_producing_nothing();
+        diag.emit_without_guarantee();
         std::process::exit(1)
     }
 }
 
 pub struct DiagCtxtInner {
-    pub err_counts: Vec<ErrorEmitted>,
+    /// 発行されたエラーを保持する
+    pub errors: Vec<ErrorEmitted>,
+
+    /// 送信された診断のハッシュ値を保持する。
     pub emitted_diagnostics: HashSet<Hash128>,
+
+    /// 送信された診断のエラーコード。
+    pub emitted_diagnostic_codes: HashSet<i32>,
+
+    /// 重複が排除され、実際に表示されたエラーの個数を表す。
+    pub emitted_err_count: usize,
+
+    /// 重複が排除され、実際に表示された警告の個数を表す。
+    pub emitted_warn_count: usize,
+
     pub emitter: Box<DynEmitter>,
 }
 
 impl DiagCtxtInner {
     pub fn new(emitter: Box<DynEmitter>) -> Self {
-        Self { err_counts: Vec::new(), emitted_diagnostics: HashSet::new(), emitter }
+        Self {
+            errors: Vec::new(),
+            emitted_diagnostics: HashSet::new(),
+            emitted_diagnostic_codes: HashSet::new(),
+            emitted_err_count: 0,
+            emitted_warn_count: 0,
+            emitter
+        }
     }
 
     pub fn emit_diagnostic(&mut self, diag: DiagInner) -> Option<ErrorEmitted> {
+
+        if let Some(code) = diag.code {
+            self.emitted_diagnostic_codes.insert(code);
+        }
+
         let already_emitted = {
             let mut hasher = StableHasher::new();
             diag.hash(&mut hasher);
             let diagnostic_hash = hasher.finish();
             !self.emitted_diagnostics.insert(diagnostic_hash)
         };
-        self.emitter.emit_diagnostic(diag);
 
-        Some(ErrorEmitted(()))
+
+        let is_error = diag.is_error();
+
+        if !already_emitted {
+            if is_error {
+                self.emitted_err_count += 1;
+            } else if matches!(diag.level, Level::Warning) {
+                self.emitted_warn_count += 1;
+            }
+
+            self.emitter.emit_diagnostic(diag);
+        }
+
+
+        if is_error {
+            let guarantee = ErrorEmitted(());
+            self.errors.push(guarantee);
+            Some(guarantee)
+        } else {
+            None
+        }
+
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, Hash)]
 pub struct ErrorEmitted(());
 
 #[derive(Clone, Copy)]
@@ -76,7 +117,7 @@ impl Deref for DiagCtxtHandle<'_> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Level {
     FatalError,
     Error,
@@ -102,7 +143,7 @@ impl<'a> DiagCtxtHandle<'a> {
     }
 
     pub fn emit_fatal(self, msg: String) -> ! {
-        println!("\x1b[31merror:\x1b[0m {}", msg);
+        eprintln!("\x1b[31merror:\x1b[0m {}", msg);
         process::exit(1)
     }
 
@@ -134,7 +175,7 @@ impl<'a, G:EmissionGuarantee> Diag<'a, G> {
         *self.diag.take().unwrap()
     }
 
-    fn emit_producing_nothing(mut self) {
+    fn emit_without_guarantee(mut self) {
         let diag = self.take_diag();
         self.dcx.emit_diagnostic(diag);
     }
@@ -143,6 +184,7 @@ impl<'a, G:EmissionGuarantee> Diag<'a, G> {
         let diag = self.take_diag();
 
         let guar = self.dcx.emit_diagnostic(diag);
+        // エラーを発行したのにも関わらず、送信保証が得られないならパニックすべき
         guar.unwrap()
     }
 
@@ -187,5 +229,49 @@ impl DiagInner {
             span,
             code: None,
         }
+    }
+
+        pub fn is_error(&self) -> bool {
+        match self.level {
+            Level::FatalError | Level::Error => true,
+            Level::Warning
+            | Level::Help => false,
+        }
+    }
+
+    /// Hash, PartialEq の実装に使用するためのフィールド取得メソッド
+    fn keys(
+        &self,
+    ) -> (
+        &Level,
+        &Vec<String>,
+        &Option<i32>,
+        &Span,
+        &Vec<(Span, String)>,
+        &Vec<String>,
+    ) {
+        (
+            &self.level,
+            &self.msg,
+            &self.code,
+            &self.span,
+            &self.label,
+            &self.help,
+        )
+    }
+}
+
+impl Hash for DiagInner {
+    fn hash<H>(&self, state: &mut H)
+    where
+        H: Hasher,
+    {
+        self.keys().hash(state);
+    }
+}
+
+impl PartialEq for DiagInner {
+    fn eq(&self, other: &Self) -> bool {
+        self.keys() == other.keys()
     }
 }
