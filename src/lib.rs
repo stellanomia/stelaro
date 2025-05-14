@@ -2,6 +2,7 @@
 #![feature(never_type)]
 #![feature(min_specialization)]
 #![allow(clippy::should_implement_trait)]
+#![allow(clippy::type_complexity)]
 
 pub mod stelaro_ast;
 pub mod stelaro_common;
