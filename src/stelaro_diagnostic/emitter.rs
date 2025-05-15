@@ -14,6 +14,7 @@ pub trait Emitter {
     fn source_map(&self) -> Option<&SourceMap>;
 }
 
+/// `ariadne` クレートを用いた診断を担う
 pub struct AriadneEmitter {
     source_map: Option<Rc<SourceMap>>,
 }
@@ -82,7 +83,7 @@ fn level_to_ariadne_kind(level: Level) -> ariadne::ReportKind<'static> {
     }
 }
 
-/// テストなどに用いられ、表示されるべきでない場合に用いる
+/// テストなどに用いられ、診断が表示されるべきでない場合に用いる
 pub struct SilentEmitter;
 
 impl Emitter for SilentEmitter {
