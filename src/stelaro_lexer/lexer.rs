@@ -103,7 +103,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 if self.first() == ':' {
                     self.bump();
                     TokenKind::PathSep
-                }else {
+                } else {
                     TokenKind::Colon
                 }
             },
@@ -119,7 +119,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 if self.first() == '=' {
                     self.bump();
                     TokenKind::BangEqual
-                }else {
+                } else {
                     TokenKind::Bang
                 }
             },
@@ -129,7 +129,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 if self.first() == '=' {
                     self.bump();
                     TokenKind::EqualEqual
-                }else {
+                } else {
                     TokenKind::Equal
                 }
             },
@@ -139,7 +139,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 if self.first() == '=' {
                     self.bump();
                     TokenKind::GreaterEqual
-                }else {
+                } else {
                     TokenKind::Greater
                 }
             },
@@ -149,7 +149,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 if self.first() == '=' {
                     self.bump();
                     TokenKind::LessEqual
-                }else {
+                } else {
                     TokenKind::Less
                 }
             },
@@ -439,7 +439,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                                 symbol: Symbol::intern(&self.src[pos..self.pos]),
                             }
                         )
-                    }else {
+                    } else {
                         TokenKind::Ident(
                             Symbol::intern(keyword_or_ident)
                         )
