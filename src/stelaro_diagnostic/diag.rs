@@ -24,7 +24,7 @@ impl EmissionGuarantee for ErrorEmitted {
 
 impl EmissionGuarantee for () {
     fn emit_producing_guarantee(diag: Diag<'_, Self>) -> Self::EmitResult {
-        diag.emit_producing_nothing();
+        diag.emit_without_guarantee();
     }
 }
 
