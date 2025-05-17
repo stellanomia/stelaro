@@ -52,7 +52,7 @@ pub fn build_session(
     let dcx = DiagCtxt::new(emitter);
 
     Session {
-        dcx ,
+        dcx,
         paths:
             CompilerPaths {
                 input: paths.input,
