@@ -90,6 +90,12 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 self.bump();
                 TokenKind::Star
             },
+            '/' => {
+                self.bump();
+
+                // コメントは skip_whitespace_and_comment で捨てられる
+                TokenKind::Slash
+            },
             '%' => {
                 self.bump();
                 TokenKind::Percent
@@ -106,12 +112,6 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 } else {
                     TokenKind::Colon
                 }
-            },
-            '/' => {
-                self.bump();
-
-                // コメントは skip_whitespace_and_comment で捨てられる
-                TokenKind::Slash
             },
             '!' => {
                 self.bump();
