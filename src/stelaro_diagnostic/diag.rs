@@ -136,7 +136,7 @@ impl<'a> DiagCtxtHandle<'a> {
         Diag::new(self, span, Level::Error)
     }
 
-    pub fn struct_warn(self, span: Span) -> Diag<'a, ErrorEmitted> {
+    pub fn struct_warn(self, span: Span) -> Diag<'a, ()> {
         Diag::new(self, span, Level::Warning)
     }
 
