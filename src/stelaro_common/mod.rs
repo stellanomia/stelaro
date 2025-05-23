@@ -93,4 +93,18 @@ mod tests {
         assert_eq!("ghi", interner.get(Symbol::new(3)));
         assert_eq!("def", interner.get(Symbol::new(2)));
     }
+
+    #[test]
+    fn test_symbol() {
+        create_default_session_globals_then(|| {
+            let str = "Hello, World!";
+            let symbol1 = Symbol::intern(&str[0..5]);
+            let symbol2 = Symbol::intern(&str[5..7]);
+            let symbol3 = Symbol::intern(&str[7..]);
+
+            assert_eq!("Hello", symbol1.as_str());
+            assert_eq!(", ", symbol2.as_str());
+            assert_eq!("World!", symbol3.as_str());
+        });
+    }
 }
