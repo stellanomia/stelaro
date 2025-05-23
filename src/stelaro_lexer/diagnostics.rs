@@ -129,23 +129,28 @@ impl From<ErrorCode> for i32 {
 mod tests {
     use std::rc::Rc;
 
-    use crate::stelaro_lexer::diagnostics::ErrorCode;
-    use crate::stelaro_parse::new_parser_from_src;
-    use crate::stelaro_session::Session;
+    use crate::stelaro_common::create_default_session_globals_then;
+    use crate::stelaro_diagnostic::emitter::SilentEmitter;
     use crate::stelaro_diagnostic::DiagCtxt;
+    use crate::stelaro_lexer::{diagnostics::ErrorCode, Lexer};
+    use crate::stelaro_session::ParseSess;
     use crate::stelaro_common::source_map::SourceMap;
 
-    fn create_sess(src: Rc<String>) -> Session {
-        let dcx = DiagCtxt::new(Rc::clone(&src));
+    fn create_test_context() -> ParseSess {
         let source_map = Rc::new(SourceMap::new());
-        Session::new(dcx, source_map)
+        let emitter = SilentEmitter::new();
+        let dcx = DiagCtxt::new(Box::new(emitter));
+        ParseSess::with_dcx(dcx, source_map)
     }
 
-    fn get_sess_after_src_lex(src: &str) -> (Session, bool) {
-        let src = Rc::new(src.to_string());
-        let sess = create_sess(Rc::clone(&src));
-        let is_err = new_parser_from_src(&sess, src.to_string()).is_err();
-        (sess, is_err)
+    fn get_sess_after_src_lex(src: &str) -> (ParseSess, bool) {
+        create_default_session_globals_then(|| {
+            let src = Rc::new(src.to_string());
+            let psess = create_test_context();
+            let mut lexer = Lexer::new(&psess, &src);
+            let is_err = lexer.lex().is_err();
+            (psess, is_err)
+        })
     }
 
     #[test]

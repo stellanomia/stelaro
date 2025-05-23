@@ -279,51 +279,62 @@ impl From<ErrorCode> for i32 {
 mod tests {
     use std::rc::Rc;
 
-    use crate::stelaro_session::Session;
-    use crate::stelaro_parse::{diagnostics::ErrorCode, new_parser_from_src, parser::Parser};
+    use crate::stelaro_common::create_default_session_globals_then;
+    use crate::stelaro_diagnostic::emitter::SilentEmitter;
+    use crate::stelaro_session::ParseSess;
+    use crate::stelaro_parse::{diagnostics::ErrorCode, new_parser_from_source_str, parser::Parser};
     use crate::stelaro_diagnostic::DiagCtxt;
     use crate::stelaro_common::source_map::SourceMap;
 
-    fn create_sess(src: Rc<String>) -> Session {
+    fn create_test_context() -> ParseSess {
         let source_map = Rc::new(SourceMap::new());
-        let dcx = DiagCtxt::new(Rc::clone(&src));
-        Session::new(dcx, source_map)
+        let emitter = SilentEmitter::new();
+        let dcx = DiagCtxt::new(Box::new(emitter));
+        ParseSess::with_dcx(dcx, source_map)
     }
 
-    fn create_parser(sess: &Session, src: Rc<String>) -> Parser<'_> {
-        new_parser_from_src(sess, src.to_string()).unwrap()
+    fn src_to_parser<'a>(psess: &'a ParseSess, src: Rc<String>) -> Parser<'a> {
+        new_parser_from_source_str(
+            psess,
+            "parse_test".into(),
+            src.to_string()
+        ).unwrap()
     }
 
-    fn get_sess_after_expr_parse(src: &str) -> (Session, bool) {
-        let src = Rc::new(src.to_string());
-        let sess = create_sess(Rc::clone(&src));
-        let mut parser = create_parser(&sess, src);
-        let is_err = parser.parse_expr().is_err();
-        (sess, is_err)
+    fn get_sess_after_expr_parse(src: &str) -> (ParseSess, bool) {
+        create_default_session_globals_then(|| {
+            let src = Rc::new(src.to_string());
+            let psess = create_test_context();
+            let is_err = src_to_parser(&psess, src).parse_expr().is_err();
+            (psess, is_err)
+        })
     }
 
-    fn get_sess_after_stmt_parse(src: &str) -> (Session, bool) {
-        let src = Rc::new(src.to_string());
-        let sess = create_sess(Rc::clone(&src));
-        let mut parser = create_parser(&sess, src);
-        let is_err = parser.parse_stmt().is_err();
-        (sess, is_err)
+    fn get_sess_after_stmt_parse(src: &str) -> (ParseSess, bool) {
+        create_default_session_globals_then(|| {
+            let src = Rc::new(src.to_string());
+            let psess = create_test_context();
+            let is_err = src_to_parser(&psess, src).parse_stmt().is_err();
+            (psess, is_err)
+        })
     }
 
-    fn get_sess_after_item_parse(src: &str) -> (Session, bool) {
-        let src = Rc::new(src.to_string());
-        let sess = create_sess(Rc::clone(&src));
-        let mut parser = create_parser(&sess, src);
-        let is_err = parser.parse_item().is_err();
-        (sess, is_err)
+    fn get_sess_after_item_parse(src: &str) -> (ParseSess, bool) {
+        create_default_session_globals_then(|| {
+            let src = Rc::new(src.to_string());
+            let psess = create_test_context();
+            let is_err = src_to_parser(&psess, src).parse_item().is_err();
+            (psess, is_err)
+        })
     }
 
-    fn get_sess_after_stelo_parse(src: &str) -> (Session, bool) {
-        let src = Rc::new(src.to_string());
-        let sess = create_sess(Rc::clone(&src));
-        let mut parser = create_parser(&sess, src);
-        let is_err = parser.parse_stelo().is_err();
-        (sess, is_err)
+    fn get_sess_after_stelo_parse(src: &str) -> (ParseSess, bool) {
+        create_default_session_globals_then(|| {
+            let src = Rc::new(src.to_string());
+            let psess = create_test_context();
+            let is_err = src_to_parser(&psess, src).parse_stelo().is_err();
+            (psess, is_err)
+        })
     }
 
 
