@@ -84,7 +84,14 @@ fn level_to_ariadne_kind(level: Level) -> ariadne::ReportKind<'static> {
 }
 
 /// テストなどに用いられ、診断が表示されるべきでない場合に用いる
+#[derive(Default)]
 pub struct SilentEmitter;
+
+impl SilentEmitter {
+    pub fn new() -> Self {
+        SilentEmitter
+    }
+}
 
 impl Emitter for SilentEmitter {
     fn source_map(&self) -> Option<&SourceMap> {

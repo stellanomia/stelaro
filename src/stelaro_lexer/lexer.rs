@@ -1,7 +1,7 @@
 use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
 use crate::stelaro_common::Symbol;
 use crate::stelaro_diagnostic::diag::ErrorEmitted;
-use crate::stelaro_session::Session;
+use crate::stelaro_session::ParseSess;
 
 use super::cursor::{Cursor, EOF_CHAR};
 use super::diagnostics::DiagsLexer;
@@ -10,19 +10,19 @@ pub struct Lexer<'src, 'sess> {
     src: &'src str,
     cursor: Cursor<'src>,
     pos: usize,
-    sess: &'sess Session,
+    psess: &'sess ParseSess,
 }
 
 impl<'src, 'sess> Lexer<'src, 'sess> {
     pub fn new(
-        sess: &'sess Session,
+        psess: &'sess ParseSess,
         src: &'src str,
     ) -> Self {
         Self {
             src,
             cursor: Cursor::new(src),
             pos: 0,
-            sess,
+            psess,
         }
     }
 
@@ -199,7 +199,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
 
                 Err(
                     DiagsLexer::unexpected_character(
-                        self.sess.dcx(),
+                        self.psess.dcx(),
                         c,
                         (pos..pos+1).into()
                     ).emit()
@@ -265,7 +265,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                         if is_float {
                             Err(
                                 DiagsLexer::invalid_float_format(
-                                    self.sess.dcx(),
+                                    self.psess.dcx(),
                                     (pos..self.pos).into()
                                 ).emit()
                             )?
@@ -282,7 +282,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             if self.prev() == '.' {
                 Err(
                     DiagsLexer::missing_fractional_part(
-                        self.sess.dcx(),
+                        self.psess.dcx(),
                         (pos..self.pos).into(),
                     ).emit()
                 )?
@@ -311,7 +311,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                     self.bump();
                     Err(
                         DiagsLexer::invalid_escape_sequence(
-                            self.sess.dcx(),
+                            self.psess.dcx(),
                             self.prev(),
                             (self.pos-1..self.pos).into()
                         ).emit()
@@ -339,7 +339,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                     // 通常の文字列リテラル中に改行が見つかった場合はエラー
                     Err(
                         DiagsLexer::unterminated_string_literal(
-                            self.sess.dcx(),
+                            self.psess.dcx(),
                             (pos..self.pos-1).into()
                         ).emit()
                     )?
@@ -362,7 +362,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
 
                 Err(
                     DiagsLexer::unexpected_quote(
-                        self.sess.dcx(),
+                        self.psess.dcx(),
                         (pos..self.pos-1).into()
                     ).emit()
                 )?
@@ -394,14 +394,14 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             if quote_not_found {
                 Err(
                     DiagsLexer::unterminated_char_literal(
-                        self.sess.dcx(),
+                        self.psess.dcx(),
                         (end-1..end).into()
                     ).emit()
                 )?
             } else {
                 Err(
                     DiagsLexer::multiple_characters_in_char_literal(
-                        self.sess.dcx(),
+                        self.psess.dcx(),
                         (pos..end+1).into()
                     ).emit()
                 )?

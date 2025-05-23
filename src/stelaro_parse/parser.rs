@@ -1,14 +1,13 @@
-use crate::stelaro_ast::{ast::{Block, Expr, ExprKind, ModSpan, Stelo, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}, NodeId, STELO_NODE_ID};
+use crate::{stelaro_ast::{ast::{Block, Expr, ExprKind, ModSpan, Stelo, Stmt, StmtKind}, token::{Lit, LiteralKind, Token, TokenKind, TokenStream}, NodeId, STELO_NODE_ID}, stelaro_session::ParseSess};
 use crate::stelaro_common::{span::Span, symbol::Ident};
-use crate::stelaro_diagnostic::diag::{DiagCtxtHandle, ErrorEmitted};
-use crate::stelaro_session::Session;
+use crate::stelaro_diagnostic::{DiagCtxtHandle, ErrorEmitted};
 
 use super::diagnostics::DiagsParser;
 use super::PResult;
 
 
 pub struct Parser<'sess> {
-    sess: &'sess Session,
+    pub psess: &'sess ParseSess,
     pub token_stream: TokenStream,
     pub token: Token,
     pub prev_token: Token,
@@ -17,11 +16,11 @@ pub struct Parser<'sess> {
 
 impl<'sess> Parser<'sess> {
     pub fn new(
-        sess: &'sess Session,
+        psess: &'sess ParseSess,
         token_stream: TokenStream,
     ) -> Self {
         let mut parser = Parser {
-            sess,
+            psess,
             token_stream,
             token: Token::dummy(),
             prev_token: Token::dummy(),
@@ -35,7 +34,7 @@ impl<'sess> Parser<'sess> {
 
     #[inline]
     pub fn dcx(&self) -> DiagCtxtHandle<'_> {
-        self.sess.dcx()
+        self.psess.dcx()
     }
 
     pub fn next_node_id(&mut self) -> NodeId {
