@@ -20,7 +20,7 @@ pub use idx::{Idx, IntoSliceIdx};
 pub use index_vec::IndexVec;
 pub use map::IndexMap;
 pub use slice::IndexSlice;
-pub use source_map::{SourceMap, SourceMapInputs};
+pub use source_map::{SourceMap, SourceMapInputs, RealFileLoader};
 pub use span::Span;
 // impl_hash_stable_trivial は stelaro_common 外部に公開されるべきではない
 pub use stable_hasher::{StableHasher, StableHasherHash, FromStableHash};

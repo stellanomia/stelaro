@@ -1,7 +1,7 @@
 use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap};
 
-use crate::stelaro_common::{def_id::DefId, Arena, IndexVec, LocalDefId, Span, Symbol, STELO_DEF_ID};
+use crate::stelaro_common::{def_id::DefId, Arena, IndexVec, LocalDefId, Span, StableSteloId, Symbol, STELO_DEF_ID};
 use crate::stelaro_diagnostic::diag::DiagCtxtHandle;
 use crate::stelaro_sir::{def::DefKind, definitions::Definitions};
 use crate::stelaro_ty::{Ty, TyKind};
@@ -60,9 +60,12 @@ impl<'tcx> TyCtxt<'tcx> {
     }
 
     pub fn create_local_stelo_def_id(self, stelo_span: Span) -> LocalDefId {
-        let key = self.source_span.borrow_mut().push(stelo_span);
-        assert_eq!(key, STELO_DEF_ID);
-        key
+        let key_span = self.source_span.borrow_mut().push(stelo_span);
+        let key_def_kind = self.def_kind_table.borrow_mut().push(DefKind::Mod);
+
+        assert_eq!(key_span, STELO_DEF_ID);
+        assert_eq!(key_def_kind, STELO_DEF_ID);
+        STELO_DEF_ID
     }
 
     pub fn local_def_kind(&self, local_def_id: LocalDefId) -> DefKind {
@@ -87,7 +90,22 @@ impl<'tcx> TyCtxt<'tcx> {
 
 
 impl<'tcx> TyCtxt<'tcx> {
-    pub fn create_global_ctxt() {
-        todo!()
+    pub fn new(gcx: &'tcx GlobalCtxt<'tcx>) -> Self {
+        Self { gcx }
+    }
+
+    pub fn create_global_ctxt(
+        sess: &'tcx Session,
+        stable_stelo_id: StableSteloId,
+        arena: &'tcx Arena,
+    ) -> GlobalCtxt<'tcx> {
+        GlobalCtxt {
+            arena,
+            sess,
+            definitions: RefCell::new(Definitions::new(stable_stelo_id)),
+            types_interner: RefCell::new(HashMap::new()),
+            source_span: RefCell::new(IndexVec::new()),
+            def_kind_table: RefCell::new(IndexVec::new()),
+        }
     }
 }
