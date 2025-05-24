@@ -16,8 +16,11 @@ pub mod stelaro_session;
 pub mod stelaro_sir;
 pub mod stelaro_ty;
 
-use stelaro_common::{create_session_globals_then, source_map::RealFileLoader, SourceMapInputs};
+
+use stelaro_common::{create_session_globals_then, RealFileLoader, Arena, SourceMapInputs, StableSteloId, Symbol};
+use stelaro_context::TyCtxt;
 use stelaro_parse::new_parser_from_source_str;
+use stelaro_resolve::{Resolver, ResolverArenas};
 use stelaro_session::{config::Input, session::{build_session, CompilerPaths}, Session};
 
 pub fn temp(src: String) {
@@ -35,14 +38,34 @@ pub fn temp(src: String) {
 
     create_session_globals_then(Some(SourceMapInputs { file_loader }),|| {
         let sess = build_session(paths);
+        let name = "temp";
 
         let mut parser = new_parser_from_source_str(
             &sess.psess,
-            "temp".into(),
+            name.into(),
             src,
         ).unwrap();
 
         let stelo = parser.parse_stelo().unwrap();
+        let arena = Arena::new();
+        let stable_stelo_id = StableSteloId::new(Symbol::intern(name));
+
+        let gcx = &TyCtxt::create_global_ctxt(
+            &sess,
+            stable_stelo_id,
+            &arena,
+        );
+
+        let tcx = TyCtxt::new(gcx);
+        let arenas = &ResolverArenas::default();
+
+        let mut resolver = Resolver::new(
+            tcx,
+            stelo.span.inner_span,
+            arenas,
+        );
+
+        resolver.resolve_stelo(&stelo);
 
         dbg!(stelo);
     });

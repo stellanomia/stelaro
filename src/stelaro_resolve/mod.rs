@@ -5,7 +5,9 @@ mod module_graph_builder;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::hash::Hash;
 use std::ops::Deref;
+use std::ptr;
 
 use crate::stelaro_ast::{ast::Stelo, NodeId, STELO_NODE_ID};
 use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, STELO_DEF_ID};
@@ -122,16 +124,28 @@ pub struct MainDefinition {
     pub span: Span,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NameBinding<'ra>(&'ra NameBindingData<'ra>);
 
 /// 型やモジュール定義(将来的にプライベートである可能性のある値)を記録します。
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NameBindingData<'ra> {
     kind: NameBindingKind<'ra>,
     span: Span,
     // ambiguity: Option<(NameBinding<'ra>, AmbiguityKind)>,
     // vis: ty::Visibility<DefId>,
+}
+
+impl Hash for NameBinding<'_> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        ptr::hash(self.0, state);
+    }
+}
+
+impl Hash for NameBindingData<'_> {
+    fn hash<H: std::hash::Hasher>(&self, _: &mut H) {
+        unreachable!()
+    }
 }
 
 pub trait ToNameBinding<'ra> {
@@ -331,6 +345,8 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
         let _id1 = self.tcx.source_span.borrow_mut().push(span);
         let _id2 = self.tcx.def_kind_table.borrow_mut().push(def_kind);
+        dbg!(&self.tcx.def_kind_table);
+        dbg!(&self.tcx.source_span);
 
         debug_assert_eq!(_id1, _id2);
         debug_assert_eq!(def_id, _id1);
@@ -343,7 +359,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
         self.build_module_graph(stelo, self.graph_root);
-        todo!()
     }
 
     pub fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
