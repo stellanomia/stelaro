@@ -391,7 +391,7 @@ mod tests {
     #[test]
     fn test_unexpected_token_for_type() {
         let (sess, is_err) = get_sess_after_item_parse(
-            "fn main(x: i32, y:i32) => {"
+            "fn main(x: i32, y:i32): {"
         );
 
         assert!(is_err);
@@ -437,7 +437,7 @@ mod tests {
     fn test_cannot_use_underscore_as_identifier() {
         let (sess, is_err) = get_sess_after_stelo_parse(
             r#"
-    fn f(x: i32, y: i32) => i32 {
+    fn f(x: i32, y: i32) : i32 {
         let z = if x < y {
             y
         } else {
@@ -462,7 +462,7 @@ mod tests {
     fn test_unexpected_token_for_item() {
         let (sess, is_err) = get_sess_after_stelo_parse(
             r#"
-    fn f(x: i32, y: i32) => bool {
+    fn f(x: i32, y: i32): bool {
         print("Hello");
         true
     }
@@ -484,7 +484,7 @@ mod tests {
         let (sess, is_err) = get_sess_after_stelo_parse(
             r#"
     mod my_mod {
-        fn f() => i32 {
+        fn f(): i32 {
             0
 
 
