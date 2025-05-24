@@ -16,7 +16,7 @@ use crate::stelaro_sir::def::{DefKind, Namespace, Res};
 
 
 /// モジュール内の名前を識別するキー
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialOrd, Ord)]
 pub struct BindingKey {
     pub ident: Ident,
     pub ns: Namespace,
@@ -25,6 +25,20 @@ pub struct BindingKey {
 impl BindingKey {
     pub fn new(ident: Ident, ns: Namespace) -> Self {
         BindingKey { ident, ns }
+    }
+}
+
+impl PartialEq for BindingKey {
+    fn eq(&self, other: &Self) -> bool {
+        self.ident.name == other.ident.name && self.ns == other.ns
+        // self.ident.span は比較しない
+    }
+}
+
+impl std::hash::Hash for BindingKey {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.ident.name.hash(state);
+        self.ns.hash(state);
     }
 }
 
@@ -362,7 +376,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
         self.build_module_graph(stelo, self.graph_root);
-        dbg!(&self.binding_parent_modules);
     }
 
     pub fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {

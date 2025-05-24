@@ -7,6 +7,10 @@ fn main() {
     -x * y
 }
 
+fn main() {
+    let x = 0;
+}
+
 mod my_mod {
     fn f(): i32 {
         let x = if 123 < 456 {

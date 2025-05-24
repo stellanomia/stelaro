@@ -1,15 +1,17 @@
 use visit::Visitor;
 
-use super::def_collector::collect_definitions;
-use super::BindingKey;
-use super::Module;
-use super::ModuleKind;
-use super::NameBinding;
-use super::NameBindingData;
-use super::NameBindingKind;
-use super::Resolver;
-use super::ResolverArenas;
-use super::ToNameBinding;
+use super::{
+    def_collector::collect_definitions,
+    BindingKey,
+    Module,
+    ModuleKind,
+    NameBinding,
+    NameBindingData,
+    NameBindingKind,
+    Resolver,
+    ResolverArenas,
+    ToNameBinding
+};
 
 use crate::stelaro_ast::{ast::*, visit, NodeId};
 use crate::stelaro_common::{Ident, Span};
