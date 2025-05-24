@@ -94,9 +94,8 @@ impl<'sess> Parser<'sess> {
         let start= self.prev_token.span;
         let params = self.parse_fn_params()?;
 
-        let ret_ty = if self.token.kind == TokenKind::Equal {
+        let ret_ty = if self.token.kind == TokenKind::Colon {
             self.bump();
-            self.eat(TokenKind::Greater, self.token.span)?;
 
             let ty = self.parse_ty()?;
 
