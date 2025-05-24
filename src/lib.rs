@@ -67,7 +67,7 @@ pub fn temp(src: String) {
 
         resolver.resolve_stelo(&stelo);
 
-        dbg!(stelo);
+        // dbg!(stelo);
     });
 }
 
