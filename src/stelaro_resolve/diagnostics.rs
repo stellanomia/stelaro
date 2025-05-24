@@ -21,7 +21,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         // 名前衝突が起こった二個目の名前に対して診断する
         if old_binding.span.start > new_binding.span.start {
             // new_binding, old_binding を入れ替える
-            self.report_conflict(parent, ident, ns, old_binding, new_binding);
+            return self.report_conflict(parent, ident, ns, old_binding, new_binding);
         }
 
         let container_dscr = match parent.kind {
