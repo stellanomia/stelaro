@@ -8,7 +8,7 @@ fn main() {
 }
 
 mod my_mod {
-    fn f() : i32 {
+    fn f(): i32 {
         let x = if 123 < 456 {
             789
         } else {
