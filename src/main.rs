@@ -16,7 +16,7 @@ mod my_mod {
         };
 
         x
-    
+    }
 
     fn a() {
         print("Hello");

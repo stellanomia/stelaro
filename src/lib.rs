@@ -24,7 +24,7 @@ pub fn temp(src: String) {
     let paths = CompilerPaths {
         input: Input::Str {
             name: "temp".to_string(),
-            input: "".to_string()
+            input: src.to_string()
         },
         output_dir: None,
         output_file: None,

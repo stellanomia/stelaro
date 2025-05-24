@@ -134,7 +134,7 @@ pub struct NameBindingData<'ra> {
     // vis: ty::Visibility<DefId>,
 }
 
-trait ToNameBinding<'ra> {
+pub trait ToNameBinding<'ra> {
     fn to_name_binding(self, arenas: &'ra ResolverArenas<'ra>) -> NameBinding<'ra>;
 }
 
@@ -275,7 +275,7 @@ impl<'ra> ResolverArenas<'ra> {
     }
 }
 
-struct Resolver<'ra, 'tcx> {
+pub struct Resolver<'ra, 'tcx> {
     tcx: TyCtxt<'tcx>,
     arenas: &'ra ResolverArenas<'ra>,
     graph_root: Module<'ra>,
