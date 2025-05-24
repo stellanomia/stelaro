@@ -1,8 +1,8 @@
-use std::{cell::RefCell, collections::HashMap};
+use std::{cell::RefCell, collections::HashMap, hash::Hash};
 
 use super::{span::Span, SESSION_GLOBALS};
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Ident {
     pub name: Symbol,
     pub span: Span,

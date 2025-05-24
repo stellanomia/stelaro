@@ -55,9 +55,9 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         diag.set_label(
             old_binding.span,
             format!(
-                "既に{} `{}` はここで定義されています",
+                "既に{}名前空間内に `{}` はここで定義されています",
                 old_kind_dscr,
-                name_str
+                name_str,
             )
         );
 
