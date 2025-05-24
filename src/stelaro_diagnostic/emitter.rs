@@ -28,7 +28,12 @@ impl AriadneEmitter {
 impl Emitter for AriadneEmitter {
     fn emit_diagnostic(&mut self, diag: DiagInner) {
         // TODO: 複数ファイル対応時には、Spanに対して入力ソース、ファイル名を得られるように変更する
-        let file = &self.source_map.as_ref().unwrap().file;
+        let file = &self.source_map
+            .as_ref()
+            .unwrap()
+            .file
+            .borrow();
+
         let name = file.name.file_name()
             .map(|name| name.to_str())
             .unwrap_or(file.name.to_str())
