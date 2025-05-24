@@ -7,7 +7,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::ops::Deref;
-use std::ptr;
+use std::{fmt, ptr};
 
 use crate::stelaro_ast::{ast::Stelo, NodeId, STELO_NODE_ID};
 use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, STELO_DEF_ID};
@@ -30,10 +30,10 @@ impl BindingKey {
 
 type Resolutions<'ra> = RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Module<'tcx>(&'tcx ModuleData<'tcx>);
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct ModuleData<'ra> {
     /// 親スコープへの参照 (ルートモジュールでは None)
     pub parent: Option<Module<'ra>>,
@@ -69,6 +69,11 @@ impl std::hash::Hash for ModuleData<'_> {
     }
 }
 
+impl<'ra> fmt::Debug for Module<'ra> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.res())
+    }
+}
 
 impl<'ra> Module<'ra> {
     fn res(self) -> Option<Res> {
@@ -345,8 +350,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
         let _id1 = self.tcx.source_span.borrow_mut().push(span);
         let _id2 = self.tcx.def_kind_table.borrow_mut().push(def_kind);
-        dbg!(&self.tcx.def_kind_table);
-        dbg!(&self.tcx.source_span);
 
         debug_assert_eq!(_id1, _id2);
         debug_assert_eq!(def_id, _id1);
@@ -359,6 +362,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
         self.build_module_graph(stelo, self.graph_root);
+        dbg!(&self.binding_parent_modules);
     }
 
     pub fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
