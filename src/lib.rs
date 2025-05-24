@@ -16,15 +16,11 @@ pub mod stelaro_session;
 pub mod stelaro_sir;
 pub mod stelaro_ty;
 
-use std::rc::Rc;
-
-use stelaro_lexer::Lexer;
-use stelaro_parse::parser::Parser;
+use stelaro_common::{create_session_globals_then, source_map::RealFileLoader, SourceMapInputs};
+use stelaro_parse::new_parser_from_source_str;
 use stelaro_session::{config::Input, session::{build_session, CompilerPaths}, Session};
 
 pub fn temp(src: String) {
-    let src = Rc::new(src.to_string());
-
     let paths = CompilerPaths {
         input: Input::Str {
             name: "temp".to_string(),
@@ -35,18 +31,21 @@ pub fn temp(src: String) {
         temps_dir: None,
     };
 
-    let sess = build_session(paths);
-    let mut lexer = Lexer::new(&sess.psess, &src);
-    let Ok(ts) = lexer.lex() else {
-        unimplemented!()
-    };
-    let mut parser = Parser::new(&sess.psess, ts);
+    let file_loader = Box::new(RealFileLoader);
 
-    let Ok(stelo) = parser.parse_stelo() else {
-        unimplemented!()
-    };
+    create_session_globals_then(Some(SourceMapInputs { file_loader }),|| {
+        let sess = build_session(paths);
 
-    dbg!(stelo);
+        let mut parser = new_parser_from_source_str(
+            &sess.psess,
+            "temp".into(),
+            src,
+        ).unwrap();
+
+        let stelo = parser.parse_stelo().unwrap();
+
+        dbg!(stelo);
+    });
 }
 
 

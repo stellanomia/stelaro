@@ -1,5 +1,6 @@
 // FIXME: 全体的な SourceMap の実装改善
 
+use std::cell::RefCell;
 use std::io;
 use std::rc::Rc;
 use std::{fs, hash::Hash, path::{Path, PathBuf}};
@@ -9,7 +10,7 @@ use super::{Hash128, Span, StableHasher, SESSION_GLOBALS};
 
 pub struct SourceMap {
     // TODO: 単一ファイルで codegen が可能になったら複数ファイル対応(files: SourceMapFilesに変更)
-    pub file: Rc<SourceFile>,
+    pub file: RefCell<Rc<SourceFile>>,
     file_loader: Box<dyn FileLoader + Sync + Send>,
 }
 
@@ -31,7 +32,9 @@ impl SourceMap {
         // 複数ファイルの場合、filesにこのpathから得たFileIdが存在しないか確認する
         // 存在する場合、filesからRc<SourceFile>を取得し、
         // 存在しない場合、SourceFile::new()し、filesにregisterする。
-        Rc::new(SourceFile::new(path, src))
+        let file = Rc::new(SourceFile::new(path, src));
+        *self.file.borrow_mut() = Rc::clone(&file);
+        file
     }
 
     pub fn with_inputs(
@@ -49,7 +52,8 @@ impl SourceMap {
     }
 
     pub fn span_until_char(&self, span: Span, c: char) -> Span {
-        let snippet = &self.file
+        let file = self.file.borrow();
+        let snippet = file
             .src[span.as_range_usize()]
             .split(c)
             .next()
