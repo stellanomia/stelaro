@@ -145,7 +145,7 @@ impl<'a> DiagCtxtHandle<'a> {
     }
 
     pub fn struct_fatal(self, span: Span) -> Diag<'a, FatalError> {
-        Diag::new(self, span, Level::Help)
+        Diag::new(self, span, Level::FatalError)
     }
 
     pub fn emit_fatal(self, msg: String) -> ! {
