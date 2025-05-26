@@ -333,7 +333,6 @@ pub struct Resolver<'ra, 'tcx> {
 }
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
-
     fn local_def_id(&self, node: NodeId) -> LocalDefId {
         *self.node_id_to_def_id
             .get(&node)
@@ -359,6 +358,18 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     fn local_def_kind(&self, node: NodeId) -> DefKind {
         self.tcx.def_kind(self.local_def_id(node).into())
+    }
+
+    pub fn expect_local_module(&mut self, def_id: LocalDefId) -> Module<'ra> {
+        self.get_local_module(def_id).expect("引数の `DefId` はモジュールではありません")
+    }
+
+    pub fn get_local_module(&mut self, def_id: LocalDefId) -> Option<Module<'ra>> {
+        if let module @ Some(..) = self.module_map.get(&def_id.to_def_id()) {
+            module.copied()
+        } else {
+            None
+        }
     }
 
     fn create_def(

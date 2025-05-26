@@ -1,8 +1,8 @@
 use std::mem;
 
-use crate::stelaro_ast::{ast::{Block, Expr, FnRetTy, Function, Item, ItemKind, Local, Param, Pat, Path, PathSegment, Stelo, Stmt}, ty::Ty, visit::{self, walk_item}, NodeId, Visitor, VisitorResult};
-use crate::stelaro_common::{Ident, IndexMap, Span};
-use crate::stelaro_sir::def::{DefKind, PerNS, Res};
+use crate::{stelaro_ast::{ast::*, ty::Ty, visit::{self}, NodeId, Visitor, VisitorResult}, stelaro_sir::def::Namespace};
+use crate::{stelaro_common::{Ident, IndexMap, Span}};
+use crate::stelaro_sir::def::{DefKind, Namespace::{ValueNS, TypeNS}, PerNS, Res};
 
 use super::{Module, Resolver};
 
@@ -149,15 +149,44 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         }
     }
 
+    /// 与えられた名前空間 (`ns`) において、与えられた `kind` の新しい最も内側のスコープ内で、
+    /// 何らかの `work`（処理）を実行します。
+    fn with_rib<T>(
+        &mut self,
+        ns: Namespace,
+        kind: ScopeKind<'ra>,
+        work: impl FnOnce(&mut Self) -> T,
+    ) -> T {
+        self.scopes[ns].push(Scope::new(kind));
+        let ret = work(self);
+        self.scopes[ns].pop();
+        ret
+    }
+
+    fn with_mod_rib<T>(&mut self, id: NodeId, f: impl FnOnce(&mut Self) -> T) -> T {
+        let module = self.r.expect_local_module(self.r.local_def_id(id));
+        // 現在のモジュールを f を実行する際の親モジュールに設定する
+        let orig_module = mem::replace(&mut self.parent_module, module);
+        self.with_rib(ValueNS, ScopeKind::Module(module), |this| {
+            this.with_rib(TypeNS, ScopeKind::Module(module), |this| {
+                let ret = f(this);
+                this.parent_module = orig_module;
+                ret
+            })
+        })
+    }
+
     fn resolve_item(&mut self, item: &'ast Item) {
         let def_kind = self.r.local_def_kind(item.id);
 
         match &item.kind {
             ItemKind::Fn(function) => {
-
+                
             },
-            ItemKind::Mod(module) => {
-
+            ItemKind::Mod(_) => {
+                self.with_mod_rib(item.id, |this| {
+                    visit::walk_item(this, item)
+                })
             }
         }
     }
