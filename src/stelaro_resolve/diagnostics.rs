@@ -63,14 +63,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             )
         );
 
-        diag.set_label(
-            new_binding.span,
-            format!(
-                "`{}` はここで再度定義されています",
-                name_str
-            )
-        );
-
         diag.emit();
         self.name_already_seen.insert(name, span);
     }
