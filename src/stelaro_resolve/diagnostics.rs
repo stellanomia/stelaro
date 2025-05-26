@@ -53,7 +53,9 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         );
 
         diag.set_label(
-            old_binding.span,
+            self.tcx.sess
+                .source_map()
+                .truncate_span_to_item_header(old_binding.span),
             format!(
                 "既に{}名前空間内に `{}` はここで定義されています",
                 old_kind_dscr,
