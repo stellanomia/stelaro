@@ -1,4 +1,6 @@
-use crate::stelaro_ast::{ast::{Function, Item, Stelo}, visit, NodeId, Visitor};
+use std::mem;
+
+use crate::stelaro_ast::{ast::{Block, Expr, FnRetTy, Function, Item, ItemKind, Local, Param, Pat, Path, PathSegment, Stelo, Stmt}, ty::Ty, visit::{self, walk_item}, NodeId, Visitor, VisitorResult};
 use crate::stelaro_common::{Ident, IndexMap, Span};
 use crate::stelaro_sir::def::{DefKind, PerNS, Res};
 
@@ -65,10 +67,68 @@ pub struct LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 
     /// 診断用のメタデータを保持する
     diag_metadata: Box<DiagMetadata<'ast>>,
+
+    /// 関数の本体の中を処理しているかどうかを表す
+    in_func_body: bool,
 }
 
 impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'ra, 'tcx> {
 
+    fn visit_item(&mut self, item: &'ast Item) -> Self::Result {
+        let prev_item = self.diag_metadata.current_item.replace(item);
+        let prev_in_func_body = mem::replace(&mut self.in_func_body, false);
+        self.resolve_item(item);
+        self.in_func_body = prev_in_func_body;
+        self.diag_metadata.current_item = prev_item;
+    }
+
+    fn visit_fn_decl(&mut self, f: &'ast Function) -> Self::Result {
+        visit::walk_fn_decl(self, f)
+    }
+
+    fn visit_ident(&mut self, _ident: &'ast Ident) -> Self::Result {
+        Self::Result::output()
+    }
+
+    fn visit_block(&mut self, b: &'ast Block) -> Self::Result {
+        visit::walk_block(self, b)
+    }
+
+    fn visit_param(&mut self, param: &'ast Param) -> Self::Result {
+        visit::walk_param(self, param)
+    }
+
+    fn visit_fn_ret_ty(&mut self, ret_ty: &'ast FnRetTy) -> Self::Result {
+        visit::walk_fn_ret_ty(self, ret_ty)
+    }
+
+    fn visit_stmt(&mut self, stmt: &'ast Stmt) -> Self::Result {
+        visit::walk_stmt(self, stmt)
+    }
+
+    fn visit_ty(&mut self, ty: &'ast Ty) -> Self::Result {
+        visit::walk_ty(self, ty)
+    }
+
+    fn visit_local(&mut self, local: &'ast Local) -> Self::Result {
+        visit::walk_local(self, local)
+    }
+
+    fn visit_path(&mut self, path: &'ast Path) -> Self::Result {
+        visit::walk_path(self, path)
+    }
+
+    fn visit_path_segment(&mut self, path_segment: &'ast PathSegment) -> Self::Result {
+        visit::walk_path_segment(self, path_segment)
+    }
+
+    fn visit_pat(&mut self, pat: &'ast Pat) -> Self::Result {
+        visit::walk_pat(self, pat)
+    }
+
+    fn visit_expr(&mut self, expr: &'ast Expr) -> Self::Result {
+        visit::walk_expr(self, expr)
+    }
 }
 
 impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
@@ -85,6 +145,20 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             },
             last_block_scope: None,
             diag_metadata: Default::default(),
+            in_func_body: false,
+        }
+    }
+
+    fn resolve_item(&mut self, item: &'ast Item) {
+        let def_kind = self.r.local_def_kind(item.id);
+
+        match &item.kind {
+            ItemKind::Fn(function) => {
+
+            },
+            ItemKind::Mod(module) => {
+
+            }
         }
     }
 }
