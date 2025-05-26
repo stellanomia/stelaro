@@ -149,12 +149,16 @@ impl<'a> DiagCtxtHandle<'a> {
     }
 
     pub fn emit_fatal(self, msg: String) -> ! {
-        eprintln!("\x1b[31merror:\x1b[0m {}", msg);
+        eprintln!("\x1b[31mError:\x1b[0m {}", msg);
         process::exit(1)
     }
 
     fn emit_diagnostic(&self, diag: DiagInner) -> Option<ErrorEmitted> {
         self.inner.borrow_mut().emit_diagnostic(diag)
+    }
+
+    pub fn has_errors(self) -> bool {
+        !self.inner.borrow().errors.is_empty()
     }
 
     pub fn has_err_code(self, code: i32) -> bool {
