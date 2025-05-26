@@ -7,9 +7,7 @@ fn main() {
     -x * y
 }
 
-fn main() {
-    let x = 0;
-}
+fn f() {}
 
 mod my_mod {
     fn f(): i32 {
