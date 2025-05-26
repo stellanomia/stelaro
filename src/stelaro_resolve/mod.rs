@@ -376,6 +376,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
         self.build_module_graph(stelo, self.graph_root);
+        self.late_resolve_stelo(stelo);
     }
 
     pub fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
