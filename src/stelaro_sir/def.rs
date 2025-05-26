@@ -1,4 +1,4 @@
-// use std::array::IntoIter;
+use std::array::IntoIter;
 
 use crate::stelaro_ast::NodeId;
 use crate::stelaro_common::{DefId, Symbol};
@@ -104,24 +104,36 @@ pub struct PerNS<T> {
     pub type_ns: T,
 }
 
-// trait PerNSExt<T> {
-//     fn map<U, F: FnMut(T) -> U>(self, f: F) -> PerNS<U>;
+impl<T> PerNS<T> {
+    fn map<U, F: FnMut(T) -> U>(self, mut f: F) -> PerNS<U> {
+        PerNS { value_ns: f(self.value_ns), type_ns: f(self.type_ns) }
+    }
 
-//     fn into_iter(self) -> IntoIter<T, 2>;
+    fn into_iter(self) -> IntoIter<T, 2> {
+        [self.value_ns, self.type_ns].into_iter()
+    }
 
-//     fn iter(&self) -> IntoIter<&T, 2>;
-// }
+    fn iter(&self) -> IntoIter<&T, 2> {
+        [&self.value_ns, &self.type_ns].into_iter()
+    }
+}
 
-// impl<T> PerNSExt<T> for PerNS<T> {
-//     fn map<U, F: FnMut(T) -> U>(self, mut f: F) -> PerNS<U> {
-//         PerNS { value_ns: f(self.value_ns), type_ns: f(self.type_ns) }
-//     }
+impl<T> ::std::ops::Index<Namespace> for PerNS<T> {
+    type Output = T;
 
-//     fn into_iter(self) -> IntoIter<T, 2> {
-//         [self.value_ns, self.type_ns].into_iter()
-//     }
+    fn index(&self, ns: Namespace) -> &T {
+        match ns {
+            Namespace::ValueNS => &self.value_ns,
+            Namespace::TypeNS => &self.type_ns,
+        }
+    }
+}
 
-//     fn iter(&self) -> IntoIter<&T, 2> {
-//         [&self.value_ns, &self.type_ns].into_iter()
-//     }
-// }
+impl<T> ::std::ops::IndexMut<Namespace> for PerNS<T> {
+    fn index_mut(&mut self, ns: Namespace) -> &mut T {
+        match ns {
+            Namespace::ValueNS => &mut self.value_ns,
+            Namespace::TypeNS => &mut self.type_ns,
+        }
+    }
+}
