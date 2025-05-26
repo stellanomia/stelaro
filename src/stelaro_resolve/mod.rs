@@ -333,6 +333,15 @@ pub struct Resolver<'ra, 'tcx> {
 }
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
+
+    fn local_def_id(&self, node: NodeId) -> LocalDefId {
+        *self.node_id_to_def_id
+            .get(&node)
+            .unwrap_or_else(||
+                panic!("bug: NodeId: {:?} に対応する定義がありません", node)
+            )
+    }
+
     fn new_module(
         &mut self,
         parent: Option<Module<'ra>>,
@@ -346,6 +355,10 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             span,
             module_map,
         )
+    }
+
+    fn local_def_kind(&self, node: NodeId) -> DefKind {
+        self.tcx.def_kind(self.local_def_id(node).into())
     }
 
     fn create_def(
@@ -376,6 +389,11 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
         self.build_module_graph(stelo, self.graph_root);
+
+        if self.dcx().has_errors() {
+            return;
+        }
+
         self.late_resolve_stelo(stelo);
     }
 
@@ -406,9 +424,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             }
         }
     }
-}
 
-impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     pub fn new(
         tcx: TyCtxt<'tcx>,
         stelo_span: Span,
