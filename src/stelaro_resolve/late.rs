@@ -82,6 +82,14 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
         self.diag_metadata.current_item = prev_item;
     }
 
+    fn visit_block(&mut self, b: &'ast Block) -> Self::Result {
+        self.resolve_block(b);
+    }
+
+    fn visit_expr(&mut self, expr: &'ast Expr) -> Self::Result {
+        self.resolve_expr(expr, None);
+    }
+    
     fn visit_fn_decl(&mut self, f: &'ast Function) -> Self::Result {
         visit::walk_fn_decl(self, f)
     }
@@ -163,7 +171,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         ret
     }
 
-    fn with_mod_rib<T>(&mut self, id: NodeId, f: impl FnOnce(&mut Self) -> T) -> T {
+    fn with_mod_scope<T>(&mut self, id: NodeId, f: impl FnOnce(&mut Self) -> T) -> T {
         let module = self.r.expect_local_module(self.r.local_def_id(id));
         // 現在のモジュールを f を実行する際の親モジュールに設定する
         let orig_module = mem::replace(&mut self.parent_module, module);
@@ -176,19 +184,57 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         })
     }
 
+    fn with_param_scope<T>(
+        &mut self,
+        kind: ScopeKind<'ra>,
+        f: impl FnOnce(&mut Self) -> T,
+    ) -> T {
+        self.scopes[ValueNS].push(Scope::new(kind));
+        self.scopes[TypeNS].push(Scope::new(kind));
+
+        let ret = f(self);
+
+        self.scopes[TypeNS].pop();
+        self.scopes[ValueNS].pop();
+
+        ret
+    }
+
     fn resolve_item(&mut self, item: &'ast Item) {
         let def_kind = self.r.local_def_kind(item.id);
 
         match &item.kind {
-            ItemKind::Fn(function) => {
-                
+            ItemKind::Fn(_) => {
+                self.with_param_scope(ScopeKind::Item(def_kind), |this| {
+                    visit::walk_item(this, item)
+                })
             },
             ItemKind::Mod(_) => {
-                self.with_mod_rib(item.id, |this| {
+                self.with_mod_scope(item.id, |this| {
                     visit::walk_item(this, item)
                 })
             }
         }
+    }
+
+    fn resolve_block(&mut self, block: &'ast Block) {
+        let orig_module = self.parent_module;
+
+        // NOTE: 現在、Stmt は Item をとり得らない。
+        // anonymous_module が存在する場合、グラフを下げる必要がある。
+        // let anonymous_module = self.r.block_map.get(&block.id).cloned();
+
+        self.scopes[ValueNS].push(Scope::new(ScopeKind::NoRestriction));
+
+        for stmt in &block.stmts {
+            visit::walk_stmt(self, stmt)
+        }
+
+        self.parent_module = orig_module;
+        self.last_block_scope = self.scopes[ValueNS].pop();
+        // if anonymous_module.is_some() {
+        //     self.ribs[TypeNS].pop();
+        // }
     }
 }
 
