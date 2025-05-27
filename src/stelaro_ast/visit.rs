@@ -421,10 +421,6 @@ where
             try_visit!(visitor.visit_expr(lhs));
             try_visit!(visitor.visit_expr(rhs));
         },
-        ExprKind::AssignOp(_bin_op, lhs, rhs) => {
-            try_visit!(visitor.visit_expr(lhs));
-            try_visit!(visitor.visit_expr(rhs));
-        },
         ExprKind::Path(path) => {
             try_visit!(visitor.visit_path(path));
         },
