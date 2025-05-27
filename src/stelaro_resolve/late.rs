@@ -89,17 +89,13 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
     fn visit_expr(&mut self, expr: &'ast Expr) -> Self::Result {
         self.resolve_expr(expr, None);
     }
-    
+
     fn visit_fn_decl(&mut self, f: &'ast Function) -> Self::Result {
         visit::walk_fn_decl(self, f)
     }
 
     fn visit_ident(&mut self, _ident: &'ast Ident) -> Self::Result {
         Self::Result::output()
-    }
-
-    fn visit_block(&mut self, b: &'ast Block) -> Self::Result {
-        visit::walk_block(self, b)
     }
 
     fn visit_param(&mut self, param: &'ast Param) -> Self::Result {
@@ -132,10 +128,6 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
 
     fn visit_pat(&mut self, pat: &'ast Pat) -> Self::Result {
         visit::walk_pat(self, pat)
-    }
-
-    fn visit_expr(&mut self, expr: &'ast Expr) -> Self::Result {
-        visit::walk_expr(self, expr)
     }
 }
 
@@ -235,6 +227,21 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         // if anonymous_module.is_some() {
         //     self.ribs[TypeNS].pop();
         // }
+    }
+
+    fn resolve_expr(&mut self, expr: &'ast Expr, parent: Option<&'ast Expr>) {
+        match &expr.kind {
+            ExprKind::Call(expr, exprs) => todo!(),
+            ExprKind::If(expr, block, expr1) => todo!(),
+            ExprKind::Block(block) => todo!(),
+            ExprKind::Binary(bin_op, expr, expr1) => todo!(),
+            ExprKind::Unary(un_op, expr) => todo!(),
+            ExprKind::Lit(lit) => todo!(),
+            ExprKind::Return(expr) => todo!(),
+            ExprKind::Paren(expr) => todo!(),
+            ExprKind::Assign(expr, expr1) => todo!(),
+            ExprKind::Path(path) => todo!(),
+        }
     }
 }
 
