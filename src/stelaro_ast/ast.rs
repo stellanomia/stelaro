@@ -149,8 +149,8 @@ pub enum ExprKind {
     Return(Option<Box<Expr>>),
     Paren(Box<Expr>),
     Assign(Box<Expr>, Box<Expr>),
-    AssignOp(BinOp, Box<Expr>, Box<Expr>),
     Path(Path),
+    // AssignOp(BinOp, Box<Expr>, Box<Expr>),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
