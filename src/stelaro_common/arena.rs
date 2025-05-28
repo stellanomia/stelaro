@@ -36,6 +36,10 @@ impl<'a, T> TypedArena<'a, T> {
     {
         self.inner.alloc_slice_copy(slice)
     }
+
+    pub fn capacity(&'a self) -> usize {
+        self.inner.chunk_capacity()
+    }
 }
 
 impl<'a, T> Default for TypedArena<'a, T> {

@@ -123,7 +123,17 @@ impl SourceFile {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(
+    Debug,
+    Default,
+    Clone,
+    Copy,
+    Hash,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord
+)]
 pub struct SourceFileId(pub Hash128);
 
 impl SourceFileId {
