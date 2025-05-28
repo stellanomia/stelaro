@@ -7,7 +7,7 @@ fn main() {
     -x * y
 }
 
-fn f() {}
+fn main() {}
 
 mod my_mod {
     fn f(): i32 {
@@ -22,6 +22,12 @@ mod my_mod {
 
     fn a() {
         print("Hello");
+    }
+}
+
+mod my_mod {
+    fn a() {
+
     }
 }
 "#.trim().to_string());

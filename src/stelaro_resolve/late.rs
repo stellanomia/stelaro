@@ -41,6 +41,28 @@ impl<'ra, R> Scope<'ra, R> {
     }
 }
 
+/// パス (`Path`) が出現する構文上の文脈。
+#[derive(Copy, Clone, Debug)]
+pub enum PathSource<'a> {
+    /// 型注釈などで使われるパス。
+    Type,
+
+    /// 式の中で使われるパス。
+    /// `Option<&'a Expr>` は親の式への参照で、文脈依存の解決に役立つ。
+    Expr(Option<&'a Expr>),
+
+    /// パターン内で使われるパス。
+    Pat,
+}
+impl<'a> PathSource<'a> {
+    fn namespace(self) -> Namespace {
+        match self {
+            PathSource::Type => TypeNS,
+            PathSource::Expr(..)
+            | PathSource::Pat => ValueNS,
+        }
+    }
+}
 /// 診断メッセージ生成時に使用される文脈情報を保持する構造体。
 #[derive(Debug, Default)]
 pub struct DiagMetadata<'ast> {
@@ -231,17 +253,63 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 
     fn resolve_expr(&mut self, expr: &'ast Expr, parent: Option<&'ast Expr>) {
         match &expr.kind {
-            ExprKind::Call(expr, exprs) => todo!(),
-            ExprKind::If(expr, block, expr1) => todo!(),
-            ExprKind::Block(block) => todo!(),
-            ExprKind::Binary(bin_op, expr, expr1) => todo!(),
-            ExprKind::Unary(un_op, expr) => todo!(),
-            ExprKind::Lit(lit) => todo!(),
-            ExprKind::Return(expr) => todo!(),
-            ExprKind::Paren(expr) => todo!(),
-            ExprKind::Assign(expr, expr1) => todo!(),
-            ExprKind::Path(path) => todo!(),
+            ExprKind::Call(callee, args) => {
+                self.resolve_expr(callee, Some(expr));
+
+                for arg in args {
+                    self.resolve_expr(arg, None);
+                }
+            },
+            ExprKind::If(cond, then, opt_else) => {
+                self.with_rib(ValueNS, ScopeKind::NoRestriction, |this| {
+                    this.visit_expr(cond);
+                    this.visit_block(then);
+                });
+
+                if let Some(expr) = opt_else {
+                    self.visit_expr(expr)
+                }
+            },
+            ExprKind::Block(block) => {
+                self.resolve_block(block);
+            },
+            ExprKind::Return(opt_expr) => {
+                if let Some(expr) = opt_expr {
+                    self.resolve_expr(expr, None);
+                }
+            },
+            ExprKind::Path(path) => {
+                self.resolve_path_with_context(
+                    expr.id,
+                    path,
+                    PathSource::Expr(parent)
+                );
+
+                visit::walk_expr(self, expr);
+            },
+            _ => {
+                visit::walk_expr(self, expr)
+            }
         }
+    }
+
+    fn resolve_path_with_context(
+        &mut self,
+        id: NodeId,
+        path: &'ast Path,
+        source: PathSource,
+    ) {
+        
+    }
+
+    fn resolve_path_fragment_with_context(
+        &mut self,
+        path: &[Segment],
+        source: PathSource<'ast>,
+        finalize: Finalize,
+        record_partial_res: RecordPartialRes,
+    ) -> PartialRes {
+        todo!()
     }
 }
 
