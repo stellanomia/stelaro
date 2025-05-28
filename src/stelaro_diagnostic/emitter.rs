@@ -48,8 +48,8 @@ impl Emitter for AriadneEmitter {
             report = report.with_message(diag.msg.join("\n"));
         }
 
-        if diag.code.is_some() {
-            report = report.with_code(diag.code.unwrap())
+        if let Some(code) = diag.code {
+            report = report.with_code(code)
         }
 
         if !diag.label.is_empty() {
