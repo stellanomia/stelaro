@@ -14,7 +14,7 @@ rustc-stable-hash = "0.1.2"
 scoped-tls = "1.0.1"
 
 [dev-dependencies]
-insta = { version = "1.42.2", features = ["glob"] }
+insta = { version = "1.43.1", features = ["glob"] }
 
 [profile.dev.package]
 insta.opt-level = 3
