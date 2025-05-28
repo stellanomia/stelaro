@@ -1,5 +1,6 @@
 mod def_collector;
 mod diagnostics;
+mod ident;
 mod late;
 mod module_graph_builder;
 
