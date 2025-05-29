@@ -73,6 +73,6 @@ where
 
 /// SourceMap はなし
 pub fn create_default_session_globals_then<R>(f: impl FnOnce() -> R) -> R {
-    create_session_globals_then( None, f)
+    create_session_globals_then(None, f)
 }
 
