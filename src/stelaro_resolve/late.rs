@@ -81,7 +81,7 @@ pub struct LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     /// 処理中の親となるモジュール
     parent_module: Module<'ra>,
 
-    /// 名前空間（Value, Type, Macro）ごとに、現在のローカルスコープのスタックを保持する
+    /// 名前空間 (Value, Type, Macro) ごとに、現在のローカルスコープのスタックを保持する
     scopes: PerNS<Vec<Scope<'ra>>>,
 
     /// 最後にポップされたスコープを診断のために保持する
@@ -172,7 +172,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     }
 
     /// 与えられた名前空間 (`ns`) において、与えられた `kind` の新しい最も内側のスコープ内で、
-    /// 何らかの `work`（処理）を実行します。
+    /// 何らかの `work` (処理) を実行します。
     fn with_rib<T>(
         &mut self,
         ns: Namespace,
@@ -302,15 +302,14 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         
     }
 
-    fn resolve_path_fragment_with_context(
-        &mut self,
-        path: &[Segment],
-        source: PathSource<'ast>,
-        finalize: Finalize,
-        record_partial_res: RecordPartialRes,
-    ) -> PartialRes {
-        todo!()
-    }
+    // fn resolve_path_fragment_with_context(
+    //     &mut self,
+    //     path: &[Segment],
+    //     source: PathSource<'ast>,
+    //     finalize: Finalize,
+    // ) -> Res {
+    //     todo!()
+    // }
 }
 
 
