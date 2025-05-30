@@ -12,7 +12,7 @@ use super::{Module, Resolver};
 /// アイテム定義など、名前の可視性が変わる様々な場所で導入されます。
 /// スコープ内には、識別子とその解決結果 (`Res`) のマッピングが保持されます。
 #[derive(Debug)]
-struct Scope<'ra, R = Res<NodeId>> {
+pub struct Scope<'ra, R = Res<NodeId>> {
     /// このスコープ内で定義された束縛
     pub bindings: IndexMap<Ident, R>,
     pub kind: ScopeKind<'ra>,
@@ -20,7 +20,7 @@ struct Scope<'ra, R = Res<NodeId>> {
 
 /// 特定のスコープでどのような名前アクセスが許可されるか、あるいは制限されるかを定義します。
 #[derive(Debug, Clone, Copy)]
-enum ScopeKind<'ra> {
+pub enum ScopeKind<'ra> {
 
     /// 通常のスコープ。特別なアクセス制限は適用されません。
     NoRestriction,
@@ -64,6 +64,43 @@ impl<'a> PathSource<'a> {
         }
     }
 }
+
+/// AST に依存しない `PathSegment` の最小限の表現。
+#[derive(Clone, Copy, Debug)]
+pub struct Segment {
+    ident: Ident,
+    id: Option<NodeId>,
+}
+
+impl Segment {
+    fn from_path(path: &Path) -> Vec<Segment> {
+        path.segments.iter().map(|s| s.into()).collect()
+    }
+
+    fn from_ident(ident: Ident) -> Segment {
+        Segment {
+            ident,
+            id: None,
+        }
+    }
+
+    fn from_ident_and_id(ident: Ident, id: NodeId) -> Segment {
+        Segment {
+            ident,
+            id: Some(id),
+        }
+    }
+}
+
+impl<'a> From<&'a PathSegment> for Segment {
+    fn from(seg: &'a PathSegment) -> Segment {
+        Segment {
+            ident: seg.ident,
+            id: Some(seg.id),
+        }
+    }
+}
+
 /// 診断メッセージ生成時に使用される文脈情報を保持する構造体。
 #[derive(Debug, Default)]
 pub struct DiagMetadata<'ast> {
@@ -298,19 +335,38 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         &mut self,
         id: NodeId,
         path: &'ast Path,
-        source: PathSource,
+        source: PathSource<'ast>,
     ) {
-        
+        self.resolve_path_fragment_with_context(
+            id,
+            &Segment::from_path(path),
+            source,
+        );
     }
 
-    // fn resolve_path_fragment_with_context(
-    //     &mut self,
-    //     path: &[Segment],
-    //     source: PathSource<'ast>,
-    //     finalize: Finalize,
-    // ) -> Res {
-    //     todo!()
-    // }
+    fn resolve_path_fragment_with_context(
+        &mut self,
+        id: NodeId,
+        path: &[Segment],
+        source: PathSource<'ast>,
+    ) -> Res {
+        todo!()
+    }
+
+
+    fn resolve_path(
+        &mut self,
+        path: &[Segment],
+        opt_ns: Option<Namespace>,
+    ) {
+        self.r.resolve_path_with_scopes(
+            path,
+            opt_ns,
+            &self.parent_module,
+            Some(&self.scopes),
+            None,
+        )
+    }
 }
 
 
