@@ -6,6 +6,8 @@ pub struct Span {
     pub end: u32,
 }
 
+pub const DUMMY_SPAN: Span = Span { start: 0, end: 0 };
+
 impl Span {
     pub fn len(&self) -> u32 {
         self.end - self.start
