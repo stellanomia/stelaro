@@ -54,6 +54,7 @@ pub enum PathSource<'a> {
     /// パターン内で使われるパス。
     Pat,
 }
+
 impl<'a> PathSource<'a> {
     fn namespace(self) -> Namespace {
         match self {
