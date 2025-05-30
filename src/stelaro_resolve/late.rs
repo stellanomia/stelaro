@@ -340,6 +340,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         self.resolve_path_fragment_with_context(
             id,
             &Segment::from_path(path),
+            path.span,
             source,
         );
     }
@@ -348,6 +349,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         &mut self,
         id: NodeId,
         path: &[Segment],
+        path_span: Span,
         source: PathSource<'ast>,
     ) -> Res {
         todo!()
