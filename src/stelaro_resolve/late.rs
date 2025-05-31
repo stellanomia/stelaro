@@ -68,8 +68,8 @@ impl<'a> PathSource<'a> {
 /// AST に依存しない `PathSegment` の最小限の表現。
 #[derive(Clone, Copy, Debug)]
 pub struct Segment {
-    ident: Ident,
-    id: Option<NodeId>,
+    pub ident: Ident,
+    pub id: Option<NodeId>,
 }
 
 impl Segment {
@@ -211,7 +211,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 
     /// 与えられた名前空間 (`ns`) において、与えられた `kind` の新しい最も内側のスコープ内で、
     /// 何らかの `work` (処理) を実行します。
-    fn with_rib<T>(
+    fn with_scope<T>(
         &mut self,
         ns: Namespace,
         kind: ScopeKind<'ra>,
@@ -227,8 +227,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         let module = self.r.expect_local_module(self.r.local_def_id(id));
         // 現在のモジュールを f を実行する際の親モジュールに設定する
         let orig_module = mem::replace(&mut self.parent_module, module);
-        self.with_rib(ValueNS, ScopeKind::Module(module), |this| {
-            this.with_rib(TypeNS, ScopeKind::Module(module), |this| {
+        self.with_scope(ValueNS, ScopeKind::Module(module), |this| {
+            this.with_scope(TypeNS, ScopeKind::Module(module), |this| {
                 let ret = f(this);
                 this.parent_module = orig_module;
                 ret
@@ -285,7 +285,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         self.parent_module = orig_module;
         self.last_block_scope = self.scopes[ValueNS].pop();
         // if anonymous_module.is_some() {
-        //     self.ribs[TypeNS].pop();
+        //     self.scopes[TypeNS].pop();
         // }
     }
 
@@ -299,7 +299,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 }
             },
             ExprKind::If(cond, then, opt_else) => {
-                self.with_rib(ValueNS, ScopeKind::NoRestriction, |this| {
+                self.with_scope(ValueNS, ScopeKind::NoRestriction, |this| {
                     this.visit_expr(cond);
                     this.visit_block(then);
                 });
@@ -338,8 +338,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         source: PathSource<'ast>,
     ) {
         self.resolve_path_fragment_with_context(
-            id,
             &Segment::from_path(path),
+            id,
             path.span,
             source,
         );
@@ -347,8 +347,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 
     fn resolve_path_fragment_with_context(
         &mut self,
-        id: NodeId,
         path: &[Segment],
+        id: NodeId,
         path_span: Span,
         source: PathSource<'ast>,
     ) -> Res {
@@ -357,6 +357,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         let res = self.r.resolve_path_with_scopes(
             path,
              Some(ns),
+             id,
+             path_span,
             &self.parent_module,
             None,
             None,
@@ -382,21 +384,6 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 error_implied_by_parse_error
             } => todo!(),
         }
-    }
-
-
-    fn resolve_path(
-        &mut self,
-        path: &[Segment],
-        opt_ns: Option<Namespace>,
-    ) -> PathResult<'ra> {
-        self.r.resolve_path_with_scopes(
-            path,
-            opt_ns,
-            &self.parent_module,
-            Some(&self.scopes),
-            None,
-        )
     }
 }
 
