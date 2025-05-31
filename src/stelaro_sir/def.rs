@@ -75,6 +75,26 @@ pub enum Res<Id = NodeId> {
     // SelfTyAlias,
 }
 
+impl Res {
+    pub fn descr(&self) -> &'static str {
+        match *self {
+            Res::Def(kind, def_id) => kind.descr(def_id),
+            Res::PrimTy(..) => "builtin type",
+            Res::Local(..) => "local variable",
+            Res::Err => "unresolved item",
+        }
+    }
+
+    pub fn descr_ja(&self) -> &'static str {
+        match *self {
+            Res::Def(kind, def_id) => kind.descr_ja(def_id),
+            Res::PrimTy(..) => "組み込み型",
+            Res::Local(..) => "ローカル変数",
+            Res::Err => "未解決のアイテム",
+        }
+    }
+}
+
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Namespace {
