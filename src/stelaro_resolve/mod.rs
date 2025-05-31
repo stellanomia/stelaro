@@ -244,6 +244,23 @@ impl<'ra> NameResolution<'ra> {
     // pub fn set_binding(&mut self, binding: NameBinding<'ra>) { ... }
 }
 
+#[derive(Debug)]
+pub enum PathResult<'ra> {
+    Module(Module<'ra>),
+    NonModule(Res),
+    Indeterminate,
+    Failed {
+        span: Span,
+        label: String,
+        is_error_from_last_segment: bool,
+        ///  エラーが発生した際、どのモジュール内で解決しようとしていたかを示す。
+        module: Option<Module<'ra>>,
+        /// 見つからなかったセグメントの名前。
+        segment_name: Symbol,
+        error_implied_by_parse_error: bool,
+    },
+}
+
 /// ライフタイム `'ra` を持つデータ構造を格納するためのアリーナ
 #[derive(Default)]
 pub struct ResolverArenas<'ra> {
