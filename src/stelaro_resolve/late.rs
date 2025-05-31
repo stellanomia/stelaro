@@ -1,6 +1,6 @@
 use std::mem;
 
-use crate::{stelaro_ast::{ast::*, ty::Ty, visit::{self}, NodeId, Visitor, VisitorResult}, stelaro_sir::def::Namespace};
+use crate::{stelaro_ast::{ast::*, ty::Ty, visit::{self}, NodeId, Visitor, VisitorResult}, stelaro_resolve::PathResult, stelaro_sir::def::Namespace};
 use crate::{stelaro_common::{Ident, IndexMap, Span}};
 use crate::stelaro_sir::def::{DefKind, Namespace::{ValueNS, TypeNS}, PerNS, Res};
 
@@ -352,7 +352,36 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         path_span: Span,
         source: PathSource<'ast>,
     ) -> Res {
-        todo!()
+        let ns = source.namespace();
+
+        let res = self.r.resolve_path_with_scopes(
+            path,
+             Some(ns),
+            &self.parent_module,
+            None,
+            None,
+        );
+
+
+        match res {
+            PathResult::Module(module) => {
+                if let Some(res) = module.res() {
+                    res
+                } else {
+                    todo!()
+                }
+            },
+            PathResult::NonModule(res) => res,
+            PathResult::Indeterminate => todo!(),
+            PathResult::Failed {
+                span,
+                label,
+                is_error_from_last_segment,
+                module,
+                segment_name,
+                error_implied_by_parse_error
+            } => todo!(),
+        }
     }
 
 
@@ -360,7 +389,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         &mut self,
         path: &[Segment],
         opt_ns: Option<Namespace>,
-    ) {
+    ) -> PathResult<'ra> {
         self.r.resolve_path_with_scopes(
             path,
             opt_ns,
