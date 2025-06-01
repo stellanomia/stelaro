@@ -261,6 +261,27 @@ pub enum PathResult<'ra> {
     },
 }
 
+/// 中間的な解決結果。
+///
+/// これは、名前によって参照されるものを指します。
+/// Item はそれらのブロック全体で可視であるのに対し、Res はそれらが定義された場所から
+/// 前方でのみ可視であることが異なります。
+#[derive(Debug, Copy, Clone)]
+pub enum LexicalScopeBinding<'ra> {
+    Item(NameBinding<'ra>),
+    Res(Res),
+}
+
+impl<'ra> LexicalScopeBinding<'ra> {
+    fn res(self) -> Res {
+        match self {
+            LexicalScopeBinding::Item(binding) => binding.res(),
+            LexicalScopeBinding::Res(res) => res,
+        }
+    }
+}
+
+
 /// ライフタイム `'ra` を持つデータ構造を格納するためのアリーナ
 #[derive(Default)]
 pub struct ResolverArenas<'ra> {
