@@ -41,7 +41,7 @@ Stelo {
                                             kind: Ident(
                                                 Ident {
                                                     name: Symbol(
-                                                        6,
+                                                        7,
                                                     ),
                                                     span: Span {
                                                         start: 20,
@@ -74,7 +74,7 @@ Stelo {
                                                                     PathSegment {
                                                                         ident: Ident {
                                                                             name: Symbol(
-                                                                                6,
+                                                                                7,
                                                                             ),
                                                                             span: Span {
                                                                                 start: 24,
@@ -190,7 +190,7 @@ Stelo {
                                                                                                                             Lit {
                                                                                                                                 kind: Integer,
                                                                                                                                 symbol: Symbol(
-                                                                                                                                    7,
+                                                                                                                                    8,
                                                                                                                                 ),
                                                                                                                             },
                                                                                                                         ),
@@ -207,7 +207,7 @@ Stelo {
                                                                                                                             Lit {
                                                                                                                                 kind: Integer,
                                                                                                                                 symbol: Symbol(
-                                                                                                                                    8,
+                                                                                                                                    9,
                                                                                                                                 ),
                                                                                                                             },
                                                                                                                         ),
@@ -236,7 +236,7 @@ Stelo {
                                                                                                             Lit {
                                                                                                                 kind: Integer,
                                                                                                                 symbol: Symbol(
-                                                                                                                    9,
+                                                                                                                    10,
                                                                                                                 ),
                                                                                                             },
                                                                                                         ),
@@ -259,7 +259,7 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            10,
+                                                                                                            11,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -294,7 +294,7 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            11,
+                                                                                                            12,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -311,7 +311,7 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            12,
+                                                                                                            13,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -352,7 +352,7 @@ Stelo {
                                                                                             Lit {
                                                                                                 kind: Integer,
                                                                                                 symbol: Symbol(
-                                                                                                    13,
+                                                                                                    14,
                                                                                                 ),
                                                                                             },
                                                                                         ),
@@ -369,7 +369,7 @@ Stelo {
                                                                                             Lit {
                                                                                                 kind: Integer,
                                                                                                 symbol: Symbol(
-                                                                                                    14,
+                                                                                                    15,
                                                                                                 ),
                                                                                             },
                                                                                         ),
@@ -422,7 +422,7 @@ Stelo {
                                                                                             Lit {
                                                                                                 kind: Integer,
                                                                                                 symbol: Symbol(
-                                                                                                    15,
+                                                                                                    16,
                                                                                                 ),
                                                                                             },
                                                                                         ),
@@ -439,7 +439,7 @@ Stelo {
                                                                                             Lit {
                                                                                                 kind: Integer,
                                                                                                 symbol: Symbol(
-                                                                                                    16,
+                                                                                                    17,
                                                                                                 ),
                                                                                             },
                                                                                         ),
@@ -464,7 +464,7 @@ Stelo {
                                                                                             true,
                                                                                         ),
                                                                                         symbol: Symbol(
-                                                                                            3,
+                                                                                            4,
                                                                                         ),
                                                                                     },
                                                                                 ),
@@ -510,7 +510,7 @@ Stelo {
                                                                                     Lit {
                                                                                         kind: Integer,
                                                                                         symbol: Symbol(
-                                                                                            17,
+                                                                                            18,
                                                                                         ),
                                                                                     },
                                                                                 ),
@@ -527,7 +527,7 @@ Stelo {
                                                                                     Lit {
                                                                                         kind: Integer,
                                                                                         symbol: Symbol(
-                                                                                            18,
+                                                                                            19,
                                                                                         ),
                                                                                     },
                                                                                 ),
@@ -572,7 +572,7 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            19,
+                                                                                                            20,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -607,7 +607,7 @@ Stelo {
                                                                                                                     Lit {
                                                                                                                         kind: Integer,
                                                                                                                         symbol: Symbol(
-                                                                                                                            20,
+                                                                                                                            21,
                                                                                                                         ),
                                                                                                                     },
                                                                                                                 ),
@@ -630,7 +630,7 @@ Stelo {
                                                                                                             Lit {
                                                                                                                 kind: Integer,
                                                                                                                 symbol: Symbol(
-                                                                                                                    21,
+                                                                                                                    22,
                                                                                                                 ),
                                                                                                             },
                                                                                                         ),
@@ -687,7 +687,7 @@ Stelo {
                                                                                                         Lit {
                                                                                                             kind: Integer,
                                                                                                             symbol: Symbol(
-                                                                                                                22,
+                                                                                                                23,
                                                                                                             ),
                                                                                                         },
                                                                                                     ),
@@ -763,7 +763,7 @@ Stelo {
             },
             ident: Ident {
                 name: Symbol(
-                    5,
+                    6,
                 ),
                 span: Span {
                     start: 3,

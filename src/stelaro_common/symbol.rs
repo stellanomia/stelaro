@@ -188,6 +188,7 @@ macro_rules! _generate_sym_constants_impl {
 
 define_keywords_and_symbols! {
     UNDERSCORE => "_",
+    STELO => "stelo",
     LET => "let",
     FN => "fn",
     TRUE => "true",
