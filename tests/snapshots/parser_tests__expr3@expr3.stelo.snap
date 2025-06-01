@@ -45,7 +45,7 @@ Stelo {
                                                             kind: Ident(
                                                                 Ident {
                                                                     name: Symbol(
-                                                                        3,
+                                                                        7,
                                                                     ),
                                                                     span: Span {
                                                                         start: 39,
@@ -101,7 +101,7 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            4,
+                                                                                                            8,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -118,7 +118,7 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            5,
+                                                                                                            9,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -151,7 +151,7 @@ Stelo {
                                                                                                             Lit {
                                                                                                                 kind: Integer,
                                                                                                                 symbol: Symbol(
-                                                                                                                    6,
+                                                                                                                    10,
                                                                                                                 ),
                                                                                                             },
                                                                                                         ),
@@ -208,7 +208,7 @@ Stelo {
                                                                                                                                 Lit {
                                                                                                                                     kind: Integer,
                                                                                                                                     symbol: Symbol(
-                                                                                                                                        7,
+                                                                                                                                        11,
                                                                                                                                     ),
                                                                                                                                 },
                                                                                                                             ),
@@ -225,7 +225,7 @@ Stelo {
                                                                                                                                 Lit {
                                                                                                                                     kind: Integer,
                                                                                                                                     symbol: Symbol(
-                                                                                                                                        8,
+                                                                                                                                        12,
                                                                                                                                     ),
                                                                                                                                 },
                                                                                                                             ),
@@ -273,7 +273,7 @@ Stelo {
                                                                                     Lit {
                                                                                         kind: Integer,
                                                                                         symbol: Symbol(
-                                                                                            9,
+                                                                                            13,
                                                                                         ),
                                                                                     },
                                                                                 ),
@@ -309,7 +309,7 @@ Stelo {
                                                                                             kind: Ident(
                                                                                                 Ident {
                                                                                                     name: Symbol(
-                                                                                                        10,
+                                                                                                        14,
                                                                                                     ),
                                                                                                     span: Span {
                                                                                                         start: 97,
@@ -331,7 +331,7 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            12,
+                                                                                                            16,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -353,7 +353,7 @@ Stelo {
                                                                                                             PathSegment {
                                                                                                                 ident: Ident {
                                                                                                                     name: Symbol(
-                                                                                                                        11,
+                                                                                                                        15,
                                                                                                                     ),
                                                                                                                     span: Span {
                                                                                                                         start: 100,
@@ -415,7 +415,7 @@ Stelo {
                                                                                                             PathSegment {
                                                                                                                 ident: Ident {
                                                                                                                     name: Symbol(
-                                                                                                                        10,
+                                                                                                                        14,
                                                                                                                     ),
                                                                                                                     span: Span {
                                                                                                                         start: 128,
@@ -442,7 +442,7 @@ Stelo {
                                                                                                     Lit {
                                                                                                         kind: Integer,
                                                                                                         symbol: Symbol(
-                                                                                                            13,
+                                                                                                            17,
                                                                                                         ),
                                                                                                     },
                                                                                                 ),
@@ -486,7 +486,7 @@ Stelo {
                                                                                                                             PathSegment {
                                                                                                                                 ident: Ident {
                                                                                                                                     name: Symbol(
-                                                                                                                                        10,
+                                                                                                                                        14,
                                                                                                                                     ),
                                                                                                                                     span: Span {
                                                                                                                                         start: 152,
@@ -531,7 +531,7 @@ Stelo {
                                                                                                                                     PathSegment {
                                                                                                                                         ident: Ident {
                                                                                                                                             name: Symbol(
-                                                                                                                                                10,
+                                                                                                                                                14,
                                                                                                                                             ),
                                                                                                                                             span: Span {
                                                                                                                                                 start: 156,
@@ -558,7 +558,7 @@ Stelo {
                                                                                                                             Lit {
                                                                                                                                 kind: Integer,
                                                                                                                                 symbol: Symbol(
-                                                                                                                                    4,
+                                                                                                                                    8,
                                                                                                                                 ),
                                                                                                                             },
                                                                                                                         ),
@@ -616,7 +616,7 @@ Stelo {
                                                                                                     PathSegment {
                                                                                                         ident: Ident {
                                                                                                             name: Symbol(
-                                                                                                                10,
+                                                                                                                14,
                                                                                                             ),
                                                                                                             span: Span {
                                                                                                                 start: 189,
@@ -671,7 +671,7 @@ Stelo {
                                                                                                         Lit {
                                                                                                             kind: Integer,
                                                                                                             symbol: Symbol(
-                                                                                                                14,
+                                                                                                                18,
                                                                                                             ),
                                                                                                         },
                                                                                                     ),
@@ -735,7 +735,7 @@ Stelo {
                             },
                             ident: Ident {
                                 name: Symbol(
-                                    2,
+                                    6,
                                 ),
                                 span: Span {
                                     start: 18,
@@ -761,7 +761,7 @@ Stelo {
             },
             ident: Ident {
                 name: Symbol(
-                    1,
+                    5,
                 ),
                 span: Span {
                     start: 4,

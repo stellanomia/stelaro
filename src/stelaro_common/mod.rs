@@ -27,7 +27,7 @@ pub use source_map::{SourceMap, SourceMapInputs, RealFileLoader};
 pub use span::{Span, DUMMY_SPAN};
 // impl_hash_stable_trivial は stelaro_common 外部に公開されるべきではない
 pub use stable_hasher::{StableHasher, StableHasherHash, FromStableHash};
-pub use symbol::{Symbol, Ident};
+pub use symbol::{Symbol, Ident, sym};
 
 use std::rc::Rc;
 

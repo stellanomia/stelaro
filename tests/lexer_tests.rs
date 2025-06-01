@@ -33,34 +33,34 @@ fn main() {
         let tokens = lexer.lex().unwrap();
         let expected_kinds = vec![
             TokenKind::Fn,
-            TokenKind::Ident(Symbol::new(1)), // main
+            TokenKind::Ident(Symbol::intern("main")),
             TokenKind::LParen,
             TokenKind::RParen,
             TokenKind::LBrace,
             TokenKind::Let,
-            TokenKind::Ident(Symbol::new(2)), // x
+            TokenKind::Ident(Symbol::intern("x")),
             TokenKind::Equal,
             TokenKind::Literal (
                 Lit {
                     kind: LiteralKind::Float,
-                    symbol: Symbol::new(3), // 42.0
+                    symbol: Symbol::intern("42.0"),
                 }
             ),
             TokenKind::Semicolon,
             TokenKind::If,
-            TokenKind::Ident(Symbol::new(2)), // x
+            TokenKind::Ident(Symbol::intern("x")),
             TokenKind::Greater,
             TokenKind::Literal (
                 Lit {
                     kind: LiteralKind::Integer,
-                    symbol: Symbol::new(4), // 10
+                    symbol: Symbol::intern("10"),
                 }
             ),
             TokenKind::LBrace,
             TokenKind::Literal (
                 Lit {
                     kind: LiteralKind::Str,
-                    symbol: Symbol::new(5) // "Hello"
+                    symbol: Symbol::intern("\"Hello\""),
                 }
             ),
             TokenKind::Semicolon,
@@ -69,7 +69,7 @@ fn main() {
             TokenKind::Literal (
                 Lit {
                     kind: LiteralKind::Bool(true),
-                    symbol: Symbol::new(6) // true
+                    symbol: Symbol::intern("true")
                 }
             ),
             TokenKind::LBrace,
@@ -82,8 +82,5 @@ fn main() {
             tokens.map(|t| t.kind).collect::<Vec<_>>(),
             expected_kinds
         );
-
-        assert_eq!("x", Symbol::new(2).as_str());
-        assert_eq!("\"Hello\"", Symbol::new(5).as_str());
     });
 }

@@ -14,7 +14,7 @@ impl Ident {
     }
 
     pub fn is_underscore(&self) -> bool {
-        self.name.is_underscore()
+        self.name == sym::UNDERSCORE
     }
 }
 
@@ -23,8 +23,6 @@ impl Ident {
 pub struct Symbol(u32);
 
 impl Symbol {
-    pub const UNDERSCORE: Symbol = Symbol(0);
-
     pub fn new(idx: u32) -> Self {
         Symbol(idx)
     }
@@ -51,10 +49,6 @@ impl Symbol {
                 )
             }
         })
-    }
-
-    pub fn is_underscore(self) -> bool {
-        self == Symbol::UNDERSCORE
     }
 }
 
@@ -115,7 +109,11 @@ impl Default for Interner {
             next_idx: 0,
         };
 
-        inner.intern("_");
+        PREFILLED_STRINGS.iter().for_each(
+            |str| {
+                inner.intern(str);
+            }
+        );
 
         Interner(
             RefCell::new(
@@ -123,4 +121,75 @@ impl Default for Interner {
             )
         )
     }
+}
+
+
+/// 事前定義する文字列から、
+/// `sym::KEYWORD` 形式のシンボル定数と、
+/// インターナー初期化用の文字列配列 `PREFILLED_STRINGS` を自動生成します。
+macro_rules! define_keywords_and_symbols {
+    // マクロのエントリポイント
+    // 末尾のカンマも許容する `$(,)?`
+    ($($keyword_ident:ident => $keyword_str:literal),* $(,)?) => {
+        pub mod sym {
+            // 内部マクロを呼び出して、定数定義を生成する
+            // `@idx 0;`: 最初のシンボルIDは0から
+            // `@accumulated_defs ();`: 定義を一時保存する場所
+            // `$($keyword_ident => $keyword_str,)*`: 与えられたキーワードリスト
+            _generate_sym_constants_impl! {
+                @idx 0;
+                @accumulated_defs ();
+                $($keyword_ident => $keyword_str,)*
+            }
+        }
+
+        const PREFILLED_STRINGS: &[&str] = &[
+            $($keyword_str),*
+        ];
+    };
+}
+
+/// `define_keywords_and_symbols!` のための内部ヘルパーマクロ。
+/// 再帰を使ってシンボル定数を一つずつ作ります。(TT Muncher)
+#[doc(hidden)]
+macro_rules! _generate_sym_constants_impl {
+    // 入力リストが空になったら、蓄積された定義とカウントを出力
+    // `@idx $idx`: キーワードの総数 (次のID)
+    // `@accumulated_defs ($($defs:tt)*)`: 作成済みの `pub const ...` 定義すべて
+    (
+        @idx $idx:expr;
+        @accumulated_defs ($($defs:tt)*);
+        // ここに何も続かない (入力リストが空)
+    ) => {
+        $($defs)*
+        #[allow(dead_code)]
+        pub const PREFILLED_COUNT: usize = $idx;
+    };
+
+    // 入力リストから一つ取り出し、残りを再帰呼び出しに渡す
+    (
+        @idx $idx:expr;
+        @accumulated_defs ($($defs:tt)*);
+        $name:ident => $val:literal,
+        $($rest_keywords:ident => $rest_values:literal,)* // 残りの要素
+    ) => {
+        _generate_sym_constants_impl! {
+            @idx $idx + 1;
+            // 今までの定義に、新しい `pub const $name ...` を追加して保存。
+            @accumulated_defs (
+                $($defs)* // 既存の定義を展開
+                pub const $name: $crate::stelaro_common::symbol::Symbol = $crate::stelaro_common::symbol::Symbol($idx);
+            );
+            // 残りのキーワードリストを渡し、処理を継続する
+            $($rest_keywords => $rest_values,)*
+        }
+    };
+}
+
+define_keywords_and_symbols! {
+    UNDERSCORE => "_",
+    LET => "let",
+    FN => "fn",
+    TRUE => "true",
+    FALSE => "false"
 }
