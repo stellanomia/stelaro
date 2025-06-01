@@ -10,14 +10,17 @@ use crate::stelaro_common::source_map::{SourceFile, SourceFileId};
 #[test]
 fn interner_tests() {
     let interner = Interner::new();
-    assert_eq!(interner.intern("abc").as_usize(), 1);
-    assert_eq!(interner.intern("abc").as_usize(), 1);
-    assert_eq!(interner.intern("def").as_usize(), 2);
-    assert_eq!(interner.intern("ghi").as_usize(), 3);
-    assert_eq!(interner.intern("def").as_usize(), 2);
+    let abc = interner.intern("abc");
+    let def = interner.intern("def");
+    let ghi = interner.intern("ghi");
+    assert_eq!(interner.intern("abc"), abc);
+    assert_eq!(interner.intern("abc"), abc);
+    assert_eq!(interner.intern("def"), def);
+    assert_eq!(interner.intern("ghi"), ghi);
+    assert_eq!(interner.intern("def"), def);
 
-    assert_eq!("ghi", interner.get(Symbol::new(3)));
-    assert_eq!("def", interner.get(Symbol::new(2)));
+    assert_eq!("ghi", interner.get(ghi));
+    assert_eq!("def", interner.get(def));
 }
 
 #[test]
@@ -31,6 +34,9 @@ fn test_symbol() {
         assert_eq!("Hello", symbol1.as_str());
         assert_eq!(", ", symbol2.as_str());
         assert_eq!("World!", symbol3.as_str());
+
+        let symbol_let = Symbol::intern("let");
+        assert_eq!(symbol_let, sym::LET)
     });
 }
 
@@ -565,9 +571,9 @@ fn test_symbol_interning_and_properties() {
         assert_eq!(sym_hello1, sym_hello2, "同じ文字列から作られたシンボルは等しいはず");
         assert_ne!(sym_hello1, sym_world, "異なる文字列から作られたシンボルは異なるはず");
 
-        let underscore_symbol = Symbol::UNDERSCORE;
-        assert!(underscore_symbol.is_underscore());
-        assert!(!sym_hello1.is_underscore());
+        let underscore_symbol = Symbol::intern("_");
+        assert!(underscore_symbol == sym::UNDERSCORE);
+        assert!(sym_hello1 != sym::UNDERSCORE);
 
         assert_ne!(sym_hello1.as_usize(), underscore_symbol.as_usize(), "ユーザーシンボルのインデックスは UNDERSCORE と異なるはず (もし 'hello' がそれにマップされない限り)");
         assert_ne!(sym_world.as_usize(), underscore_symbol.as_usize());
@@ -588,7 +594,7 @@ fn test_ident_creation_and_properties() {
         assert_eq!(ident.name.as_str(), "test_ident");
         assert!(!ident.is_underscore());
 
-        let underscore_ident = Ident::new(Symbol::UNDERSCORE, span_data);
+        let underscore_ident = Ident::new(sym::UNDERSCORE, span_data);
         assert!(underscore_ident.is_underscore());
     });
 }
