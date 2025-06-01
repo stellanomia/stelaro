@@ -17,7 +17,7 @@ fn create_test_context() -> ParseSess {
 
 fn run_parser_test(path: &Path) {
     let source_code = fs::read_to_string(path)
-        .unwrap_or_else(|e| panic!("テストファイルを読み込むことができませんでした {:?}: {}", path, e));
+        .unwrap_or_else(|e| panic!("テストファイルを読み込むことができませんでした {path:?}: {e}"));
 
     let psess = create_test_context();
     let mut parser = new_parser_from_source_str(
@@ -31,7 +31,7 @@ fn run_parser_test(path: &Path) {
     let snapshot_name = path.file_stem() // ファイル名部分を取得 (Option<OsStr>)
         .and_then(|stem| stem.to_str())
         .map(|s| s.to_string())
-        .unwrap_or_else(|| panic!("ファイル名からスナップショット名を生成できませんでした: {:?}", path));
+        .unwrap_or_else(|| panic!("ファイル名からスナップショット名を生成できませんでした: {path:?}"));
 
     insta::assert_debug_snapshot!(snapshot_name, parse_result);
 }

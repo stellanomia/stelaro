@@ -173,7 +173,7 @@ impl TokenStream {
 
     pub fn debug_tokens(&self) -> String {
         self.0.iter()
-            .map(|t| format!("{:?}", t))
+            .map(|t| format!("{t:?}"))
             .collect::<Vec<_>>()
             .join(" ")
     }

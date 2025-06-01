@@ -468,11 +468,10 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     }
 
     pub fn set_binding_parent_module(&mut self, binding: NameBinding<'ra>, module: Module<'ra>) {
-        if let Some(old_module) = self.binding_parent_modules.insert(binding, module) {
-            if module != old_module {
+        if let Some(old_module) = self.binding_parent_modules.insert(binding, module)
+            && module != old_module {
                 panic!("bug: 同じ定義に対して親モジュールが変更されることはない")
             }
-        }
     }
 
     pub fn new(
