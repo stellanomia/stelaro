@@ -4,6 +4,7 @@
 #![allow(clippy::should_implement_trait)]
 #![allow(clippy::too_many_arguments)]
 #![allow(clippy::type_complexity)]
+#![allow(clippy::uninlined_format_args)]
 
 pub mod stelaro_ast;
 pub mod stelaro_common;
