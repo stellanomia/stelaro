@@ -318,7 +318,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             },
             ExprKind::Path(path) => {
                 self.resolve_path_with_context(
-                    expr.id,
+                    Some(expr.id),
                     path,
                     PathSource::Expr(parent)
                 );
@@ -333,14 +333,14 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 
     fn resolve_path_with_context(
         &mut self,
-        id: NodeId,
+        id: Option<NodeId>,
         path: &'ast Path,
         source: PathSource<'ast>,
     ) {
         self.resolve_path_fragment_with_context(
             &Segment::from_path(path),
             id,
-            path.span,
+            Some(path.span),
             source,
         );
     }
@@ -348,8 +348,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     fn resolve_path_fragment_with_context(
         &mut self,
         path: &[Segment],
-        id: NodeId,
-        path_span: Span,
+        id: Option<NodeId>,
+        path_span: Option<Span>,
         source: PathSource<'ast>,
     ) -> Res {
         let ns = source.namespace();
