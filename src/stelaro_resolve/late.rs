@@ -1,6 +1,6 @@
 use std::mem;
 
-use crate::{stelaro_ast::{ast::*, ty::Ty, visit::{self}, NodeId, Visitor, VisitorResult}, stelaro_resolve::PathResult, stelaro_sir::def::Namespace};
+use crate::{stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor, VisitorResult}, stelaro_resolve::PathResult, stelaro_sir::def::Namespace};
 use crate::{stelaro_common::{Ident, IndexMap, Span}};
 use crate::stelaro_sir::def::{DefKind, Namespace::{ValueNS, TypeNS}, PerNS, Res};
 
@@ -133,7 +133,6 @@ pub struct LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 }
 
 impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'ra, 'tcx> {
-
     fn visit_item(&mut self, item: &'ast Item) -> Self::Result {
         let prev_item = self.diag_metadata.current_item.replace(item);
         let prev_in_func_body = mem::replace(&mut self.in_func_body, false);
@@ -171,7 +170,12 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
     }
 
     fn visit_ty(&mut self, ty: &'ast Ty) -> Self::Result {
-        visit::walk_ty(self, ty)
+        match &ty.kind {
+            TyKind::Path(path) => {
+                self.resolve_path_with_context(ty.id, path, PathSource::Type);
+            },
+            _ => visit::walk_ty(self, ty),
+        }
     }
 
     fn visit_local(&mut self, local: &'ast Local) -> Self::Result {
@@ -184,10 +188,6 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
 
     fn visit_path_segment(&mut self, path_segment: &'ast PathSegment) -> Self::Result {
         visit::walk_path_segment(self, path_segment)
-    }
-
-    fn visit_pat(&mut self, pat: &'ast Pat) -> Self::Result {
-        visit::walk_pat(self, pat)
     }
 }
 
