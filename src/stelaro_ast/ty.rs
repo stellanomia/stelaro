@@ -1,9 +1,11 @@
-use crate::stelaro_common::span::Span;
+use crate::stelaro_ast::NodeId;
+use crate::{stelaro_common::span::Span};
 
 use super::ast::Path;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Ty {
+    pub id: NodeId,
     pub kind: TyKind,
     pub span: Span,
 }

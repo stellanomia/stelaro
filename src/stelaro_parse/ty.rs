@@ -42,6 +42,7 @@ impl Parser<'_> {
 
         Ok(
             Ty {
+                id: self.next_node_id(),
                 kind,
                 span: start.merge(&self.prev_token.span),
             }
