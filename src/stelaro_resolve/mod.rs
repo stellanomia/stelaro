@@ -10,11 +10,71 @@ use std::hash::Hash;
 use std::ops::Deref;
 use std::{fmt, ptr};
 
-use crate::stelaro_ast::{ast::Stelo, NodeId, STELO_NODE_ID};
+use crate::stelaro_ast::{ast::{Stelo, Path, PathSegment}, NodeId, STELO_NODE_ID};
 use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir::def::{DefKind, Namespace, Res};
 
+
+/// 名前解決の試行結果が、その時点で最終的なものと見なせるか、
+/// それとも後続の処理によって変化する可能性があるかを示します。
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum Determinacy {
+    /// 名前解決の試行が完了し、その結果 (成功または失敗) が
+    /// この段階において最終的であると判断されたことを示します。
+    Determined,
+
+    /// 名前解決の試行がまだ完了しておらず、現在の結果が最終決定ではないことを示します。
+    Undetermined,
+}
+
+impl Determinacy {
+    fn determined(determined: bool) -> Determinacy {
+        if determined { Determinacy::Determined } else { Determinacy::Undetermined }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
+enum Used {
+    Scope,
+    Other,
+}
+
+/// AST に依存しない `PathSegment` の最小限の表現。
+#[derive(Clone, Copy, Debug)]
+pub struct Segment {
+    pub ident: Ident,
+    pub id: Option<NodeId>,
+}
+
+impl Segment {
+    fn from_path(path: &Path) -> Vec<Segment> {
+        path.segments.iter().map(|s| s.into()).collect()
+    }
+
+    fn from_ident(ident: Ident) -> Segment {
+        Segment {
+            ident,
+            id: None,
+        }
+    }
+
+    fn from_ident_and_id(ident: Ident, id: NodeId) -> Segment {
+        Segment {
+            ident,
+            id: Some(id),
+        }
+    }
+}
+
+impl<'a> From<&'a PathSegment> for Segment {
+    fn from(seg: &'a PathSegment) -> Segment {
+        Segment {
+            ident: seg.ident,
+            id: Some(seg.id),
+        }
+    }
+}
 
 /// モジュール内の名前を識別するキー
 #[derive(Debug, Copy, Clone, Eq, PartialOrd, Ord)]
@@ -512,4 +572,25 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     // pub fn into_outputs(self) -> ResolverOutputs {
 
     // }
+}
+
+
+/// 名前解決を完了させるかどうかを決定するフラグです。
+///
+/// もし `Option<Finalize>` が存在し、かつ名前解決に失敗すると
+/// それらは決定されなければいけないため、`Finalize` のもつフィールドを
+/// 使用して診断を出すことができます。
+#[derive(Copy, Clone, Debug)]
+pub struct Finalize {
+    node_id: NodeId,
+    path_span: Span,
+
+    // TODO: Visibility 実装時に追加する
+    // report_private: bool,
+
+    // /// あるアイテムが、スコープ内で使用されたか、
+    // /// それともモジュールからの相対パスとして使用されたかを追跡します。
+    // /// この情報は主に未使用インポートの警告などで利用されます。
+    // TODO: 複数ソースファイル実装後に追加する
+    // used: Used,
 }

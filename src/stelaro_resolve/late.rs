@@ -1,7 +1,9 @@
 use std::mem;
 
-use crate::{stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor, VisitorResult}, stelaro_resolve::PathResult, stelaro_sir::def::Namespace};
-use crate::{stelaro_common::{Ident, IndexMap, Span}};
+use crate::{stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor}, stelaro_resolve::{LexicalScopeBinding, Segment}, try_visit, visit_opt};
+use crate::stelaro_sir::def::Namespace;
+use crate::stelaro_resolve::PathResult;
+use crate::stelaro_common::{Ident, IndexMap, Span};
 use crate::stelaro_sir::def::{DefKind, Namespace::{ValueNS, TypeNS}, PerNS, Res};
 
 use super::{Module, Resolver};
@@ -65,42 +67,6 @@ impl<'a> PathSource<'a> {
     }
 }
 
-/// AST に依存しない `PathSegment` の最小限の表現。
-#[derive(Clone, Copy, Debug)]
-pub struct Segment {
-    pub ident: Ident,
-    pub id: Option<NodeId>,
-}
-
-impl Segment {
-    fn from_path(path: &Path) -> Vec<Segment> {
-        path.segments.iter().map(|s| s.into()).collect()
-    }
-
-    fn from_ident(ident: Ident) -> Segment {
-        Segment {
-            ident,
-            id: None,
-        }
-    }
-
-    fn from_ident_and_id(ident: Ident, id: NodeId) -> Segment {
-        Segment {
-            ident,
-            id: Some(id),
-        }
-    }
-}
-
-impl<'a> From<&'a PathSegment> for Segment {
-    fn from(seg: &'a PathSegment) -> Segment {
-        Segment {
-            ident: seg.ident,
-            id: Some(seg.id),
-        }
-    }
-}
-
 /// 診断メッセージ生成時に使用される文脈情報を保持する構造体。
 #[derive(Debug, Default)]
 pub struct DiagMetadata<'ast> {
@@ -153,10 +119,6 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
         visit::walk_fn_decl(self, f)
     }
 
-    fn visit_ident(&mut self, _ident: &'ast Ident) -> Self::Result {
-        Self::Result::output()
-    }
-
     fn visit_param(&mut self, param: &'ast Param) -> Self::Result {
         visit::walk_param(self, param)
     }
@@ -179,7 +141,7 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
     }
 
     fn visit_local(&mut self, local: &'ast Local) -> Self::Result {
-        visit::walk_local(self, local)
+        self.resolve_local(local);
     }
 
     fn visit_path(&mut self, path: &'ast Path) -> Self::Result {
@@ -384,6 +346,60 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 error_implied_by_parse_error
             } => todo!(),
         }
+    }
+
+    fn resolve_local(&mut self, local: &'ast Local) {
+        visit_opt!(self, visit_ty, &local.ty);
+
+        if let Some((init, els)) = local.kind.init_else_opt() {
+            self.visit_expr(init);
+
+            // `else` ブロックを解決する
+            if let Some(els) = els {
+                self.visit_block(els);
+            }
+        }
+
+        self.resolve_pat(&local.pat);
+    }
+
+    fn resolve_pat(
+        &mut self,
+        pat: &'ast Pat,
+        // pat_src: PatSource,
+    ) {
+        visit::walk_pat(self, pat);
+
+        match pat.kind {
+            PatKind::WildCard => {},
+            PatKind::Ident(ident) => {
+                // FIXME: 現在、パターンはletバインディングからしか生成できず、
+                // かつ、本来 Path として生成するべき Pat を Pat::Ident として
+                // 単一の識別子に制限している。
+                // そのため、識別子をパスセグメントに変換してから解決する。
+                self.resolve_path_fragment_with_context(
+                    &[Segment{ident, id: None}],
+                    pat.id,
+                    ident.span,
+                    PathSource::Pat,
+                );
+            },
+        }
+    }
+
+    fn maybe_resolve_ident_in_lexical_scope(
+        &mut self,
+        ident: Ident,
+        ns: Namespace,
+    ) -> Option<LexicalScopeBinding<'ra>> {
+        self.r.resolve_ident_in_lexical_scope(
+            ident,
+            ns,
+            &self.parent_module,
+            None,
+            &self.scopes[ns],
+            None,
+        )
     }
 }
 

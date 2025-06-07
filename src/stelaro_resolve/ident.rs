@@ -1,27 +1,9 @@
 use crate::stelaro_ast::NodeId;
-use crate::stelaro_common::{Ident, Span, Symbol, DUMMY_SPAN};
-use crate::stelaro_resolve::{BindingKey, LexicalScopeBinding, NameBindingKind, PathResult};
+use crate::stelaro_common::{Ident, Span};
+use crate::stelaro_resolve::{Determinacy, LexicalScopeBinding, PathResult, Segment};
 use crate::stelaro_sir::def::{Namespace::{self}, PerNS};
 
-use super::{late::{Scope, Segment}, Module, NameBinding, Resolver};
-
-/// 名前解決の試行結果が、その時点で最終的なものと見なせるか、
-/// それとも後続の処理によって変化する可能性があるかを示します。
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub enum Determinacy {
-    /// 名前解決の試行が完了し、その結果 (成功または失敗) が
-    /// この段階において最終的であると判断されたことを示します。
-    Determined,
-
-    /// 名前解決の試行がまだ完了しておらず、現在の結果が最終決定ではないことを示します。
-    Undetermined,
-}
-
-impl Determinacy {
-    fn determined(determined: bool) -> Determinacy {
-        if determined { Determinacy::Determined } else { Determinacy::Undetermined }
-    }
-}
+use super::{late::Scope, Module, NameBinding, Resolver};
 
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
@@ -55,6 +37,16 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         scopes: &[Scope<'ra>],
         ignore_binding: Option<NameBinding<'ra>>,
     ) -> Option<LexicalScopeBinding<'ra>> {
+        todo!()
+    }
+
+    pub fn resolve_ident_in_ambience(
+        &mut self,
+        ident: Ident,
+        parent_module: &Module<'ra>,
+        ns: Namespace,
+        node_id: Option<NodeId>,
+    ) -> Result<NameBinding<'ra>, Determinacy> {
         todo!()
     }
 
@@ -128,7 +120,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                     _ => Err(Determinacy::determined(node_id.is_some())),
                 }
             } else {
-                self.resolve_initial_module_segment(
+                self.resolve_ident_in_ambience(
                     *ident,
                     parent_module,
                     ns_to_resolve,
@@ -144,16 +136,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
         }
 
-        todo!()
-    }
-
-    fn resolve_initial_module_segment(
-        &mut self,
-        ident: Ident,
-        parent_module: &Module<'ra>,
-        ns: Namespace,
-        node_id: Option<NodeId>,
-    ) -> Result<NameBinding<'ra>, Determinacy> {
         todo!()
     }
 }

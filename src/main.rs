@@ -7,8 +7,6 @@ fn main() {
     -x * y
 }
 
-fn main() {}
-
 mod my_mod {
     fn f(): i32 {
         let x = if 123 < 456 {
@@ -22,12 +20,6 @@ mod my_mod {
 
     fn a() {
         print("Hello");
-    }
-}
-
-mod my_mod {
-    fn a() {
-
     }
 }
 "#.trim().to_string());
