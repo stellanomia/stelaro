@@ -172,7 +172,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     }
 
     /// 与えられた名前空間 (`ns`) において、与えられた `kind` の新しい最も内側のスコープ内で、
-    /// 何らかの `work` (処理) を実行します。
+    /// `work` クロージャーを実行します。
     fn with_scope<T>(
         &mut self,
         ns: Namespace,
@@ -375,7 +375,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 // 単一の識別子に制限している。
                 // そのため、識別子をパスセグメントに変換してから解決する。
                 self.resolve_path_fragment_with_context(
-                    &[Segment{ident, id: None}],
+                    &[Segment::from_ident(ident)],
                     Finalize::new(pat.id, ident.span),
                     PathSource::Pat,
                 );

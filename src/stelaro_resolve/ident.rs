@@ -6,15 +6,6 @@ use super::{late::Scope, Module, NameBinding, Resolver};
 
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
-    pub fn visit_scopes<T>(
-        &mut self,
-        ns: Namespace,
-        parent_module: &Module<'ra>,
-        mut visitor: impl FnMut(&mut Self, Scope<'ra>) -> Option<T>,
-    ) -> Option<T> {
-        todo!()
-    }
-
     pub fn resolve_ident_in_module(
         &mut self,
         module: &Module<'ra>,
