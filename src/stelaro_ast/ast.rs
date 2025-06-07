@@ -115,6 +115,15 @@ pub enum LocalKind {
     Init(Box<Expr>),
 }
 
+impl LocalKind {
+    pub fn init_else_opt(&self) -> Option<(&Expr, Option<&Block>)> {
+        match self {
+            Self::Decl => None,
+            Self::Init(init) => Some((init, None)),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Pat {
     pub id: NodeId,
@@ -126,7 +135,9 @@ pub struct Pat {
 pub enum PatKind {
     WildCard,
     // Rustの binding @ OPT_SUBPATTERN が Option<Box<Pat>> で実装可能
-    Ident(Ident)
+    // FIXME: letバインディングによって生成される Pat は常に Path であるべきで、
+    // 将来的に PatKind::Path を作成し、一時的な実装を廃止する。
+    Ident(Ident),
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
