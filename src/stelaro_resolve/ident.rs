@@ -1,6 +1,5 @@
-use crate::stelaro_ast::NodeId;
-use crate::stelaro_common::{Ident, Span};
-use crate::stelaro_resolve::{Determinacy, LexicalScopeBinding, PathResult, Segment};
+use crate::stelaro_common::Ident;
+use crate::stelaro_resolve::{Determinacy, Finalize, LexicalScopeBinding, PathResult, Segment};
 use crate::stelaro_sir::def::{Namespace::{self}, PerNS};
 
 use super::{late::Scope, Module, NameBinding, Resolver};
@@ -22,7 +21,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         ident: Ident,
         ns: Namespace,
         parent_module: &Module<'ra>,
-        node_id: Option<NodeId>,
+        finalize: Option<Finalize>,
         ignore_binding: Option<NameBinding<'ra>>,
     ) -> Result<NameBinding<'ra>, Determinacy>{
         todo!()
@@ -33,7 +32,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         ident: Ident,
         ns: Namespace,
         parent_module: &Module<'ra>,
-        node_id: Option<NodeId>,
+        finalize: Option<Finalize>,
         scopes: &[Scope<'ra>],
         ignore_binding: Option<NameBinding<'ra>>,
     ) -> Option<LexicalScopeBinding<'ra>> {
@@ -45,7 +44,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         ident: Ident,
         parent_module: &Module<'ra>,
         ns: Namespace,
-        node_id: Option<NodeId>,
+        finalize: Option<Finalize>,
     ) -> Result<NameBinding<'ra>, Determinacy> {
         todo!()
     }
@@ -54,16 +53,14 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         &mut self,
         path: &[Segment],
         opt_ns: Option<Namespace>,
-        node_id: Option<NodeId>,
-        path_span: Option<Span>,
+        finalize: Option<Finalize>,
         parent_module: &Module<'ra>,
         ignore_binding: Option<NameBinding<'ra>>,
     ) -> PathResult<'ra> {
         self.resolve_path_with_scopes(
             path,
             opt_ns,
-            node_id,
-            path_span,
+            finalize,
             parent_module,
             None,
             ignore_binding,
@@ -74,8 +71,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         &mut self,
         path: &[Segment],
         opt_ns: Option<Namespace>,
-        node_id: Option<NodeId>,
-        path_span: Option<Span>,
+        finalize: Option<Finalize>,
         parent_module: &Module<'ra>,
         scopes: Option<&PerNS<Vec<Scope<'ra>>>>,
         ignore_binding: Option<NameBinding<'ra>>,
@@ -97,7 +93,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                     *ident,
                     ns_to_resolve,
                     parent_module,
-                    node_id,
+                    finalize,
                     ignore_binding,
                 )
             } else if let Some(scopes) = scopes
@@ -107,7 +103,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                     *ident,
                     ns_to_resolve,
                     parent_module,
-                    node_id,
+                    finalize,
                     &scopes[ns_to_resolve],
                     ignore_binding,
                 ) {
@@ -117,14 +113,14 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                     Some(LexicalScopeBinding::Res(res)) => {
                         return PathResult::NonModule(res);
                     }
-                    _ => Err(Determinacy::determined(node_id.is_some())),
+                    _ => Err(Determinacy::determined(finalize.is_some())),
                 }
             } else {
                 self.resolve_ident_in_ambience(
                     *ident,
                     parent_module,
                     ns_to_resolve,
-                    node_id,
+                    finalize,
                 )
             };
 
