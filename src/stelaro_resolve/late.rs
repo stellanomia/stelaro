@@ -1,6 +1,6 @@
 use std::mem;
 
-use crate::{stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor}, stelaro_resolve::{LexicalScopeBinding, Segment}, try_visit, visit_opt};
+use crate::{stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor}, stelaro_resolve::{Finalize, LexicalScopeBinding, Segment}, try_visit, visit_opt};
 use crate::stelaro_sir::def::Namespace;
 use crate::stelaro_resolve::PathResult;
 use crate::stelaro_common::{Ident, IndexMap, Span};
@@ -301,8 +301,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     ) {
         self.resolve_path_fragment_with_context(
             &Segment::from_path(path),
-            id,
-            path.span,
+            Finalize::new(id, path.span),
             source,
         );
     }
@@ -310,8 +309,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     fn resolve_path_fragment_with_context(
         &mut self,
         path: &[Segment],
-        id: NodeId,
-        path_span: Span,
+        finalize: Finalize,
         source: PathSource<'ast>,
     ) -> Res {
         let ns = source.namespace();
@@ -319,8 +317,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         let res = self.r.resolve_path_with_scopes(
             path,
              Some(ns),
-             Some(id),
-             Some(path_span),
+            Some(finalize),
             &self.parent_module,
             None,
             None,
@@ -379,8 +376,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 // そのため、識別子をパスセグメントに変換してから解決する。
                 self.resolve_path_fragment_with_context(
                     &[Segment{ident, id: None}],
-                    pat.id,
-                    ident.span,
+                    Finalize::new(pat.id, ident.span),
                     PathSource::Pat,
                 );
             },

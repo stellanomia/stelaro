@@ -34,11 +34,6 @@ impl Determinacy {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, PartialOrd, Debug)]
-enum Used {
-    Scope,
-    Other,
-}
 
 /// AST に依存しない `PathSegment` の最小限の表現。
 #[derive(Clone, Copy, Debug)]
@@ -593,4 +588,10 @@ pub struct Finalize {
     // /// この情報は主に未使用インポートの警告などで利用されます。
     // TODO: 複数ソースファイル実装後に追加する
     // used: Used,
+}
+
+impl Finalize {
+    fn new(node_id: NodeId, path_span: Span) -> Finalize {
+        Finalize { node_id, path_span }
+    }
 }
