@@ -1,9 +1,9 @@
-use std::ops::ControlFlow;
-
-use crate::{stelaro_ast::ast::LocalKind, stelaro_common::Ident};
+use crate::stelaro_common::Ident;
+use crate::stelaro_ast::ast::LocalKind;
 
 use super::{ast::*, ty::{Ty, TyKind}};
 
+use std::ops::ControlFlow;
 
 #[macro_export]
 macro_rules! try_visit {

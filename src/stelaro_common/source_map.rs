@@ -1,5 +1,3 @@
-// FIXME: 全体的な SourceMap の実装改善
-
 use std::cell::RefCell;
 use std::io;
 use std::rc::Rc;
