@@ -303,7 +303,6 @@ impl<'ra> NameResolution<'ra> {
 pub enum PathResult<'ra> {
     Module(Module<'ra>),
     NonModule(Res),
-    Indeterminate,
     Failed {
         span: Span,
         label: String,

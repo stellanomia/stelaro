@@ -30,6 +30,9 @@ pub enum ScopeKind<'ra> {
     /// アイテム定義の境界を表すスコープ。
     Item(DefKind),
 
+    // 関数定義の境界を表すスコープ。
+    Fn,
+
     /// `mod my_module { ... }` のようなモジュール定義を表します。
     Module(Module<'ra>),
 }
@@ -74,7 +77,7 @@ pub struct DiagMetadata<'ast> {
     current_item: Option<&'ast Item>,
 
     /// 現在処理中の関数を表す
-    current_function: Option<(&'ast Function, Span)>,
+    current_function: Option<&'ast Function>,
 }
 
 
@@ -116,19 +119,22 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
     }
 
     fn visit_fn_decl(&mut self, f: &'ast Function) -> Self::Result {
-        visit::walk_fn_decl(self, f)
-    }
+        let prev_fn = self.diag_metadata.current_function;
+        self.diag_metadata.current_function = Some(f);
 
-    fn visit_param(&mut self, param: &'ast Param) -> Self::Result {
-        visit::walk_param(self, param)
-    }
+        self.with_scope(ValueNS, ScopeKind::Fn, |this| {
+            let Function { sig, body, .. } = f;
 
-    fn visit_fn_ret_ty(&mut self, ret_ty: &'ast FnRetTy) -> Self::Result {
-        visit::walk_fn_ret_ty(self, ret_ty)
-    }
+            this.resolve_fn_sig(sig);
 
-    fn visit_stmt(&mut self, stmt: &'ast Stmt) -> Self::Result {
-        visit::walk_stmt(self, stmt)
+            let prev_state = mem::replace(&mut this.in_func_body, true);
+            // この関数内のブロックスコープだけを追跡する
+            this.last_block_scope = None;
+            visit::walk_block(this, body);
+            this.in_func_body = prev_state;
+        });
+
+        self.diag_metadata.current_function = prev_fn;
     }
 
     fn visit_ty(&mut self, ty: &'ast Ty) -> Self::Result {
@@ -142,14 +148,6 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
 
     fn visit_local(&mut self, local: &'ast Local) -> Self::Result {
         self.resolve_local(local);
-    }
-
-    fn visit_path(&mut self, path: &'ast Path) -> Self::Result {
-        visit::walk_path(self, path)
-    }
-
-    fn visit_path_segment(&mut self, path_segment: &'ast PathSegment) -> Self::Result {
-        visit::walk_path_segment(self, path_segment)
     }
 }
 
@@ -333,7 +331,6 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 }
             },
             PathResult::NonModule(res) => res,
-            PathResult::Indeterminate => todo!(),
             PathResult::Failed {
                 span,
                 label,
@@ -383,6 +380,18 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         }
     }
 
+    fn resolve_fn_sig(&mut self, sig: &'ast FnSig) {
+        self.resolve_fn_params(&sig.params);
+        visit::walk_fn_ret_ty(self, &sig.ret_ty);
+    }
+
+    fn resolve_fn_params(&mut self, params: &'ast [Param]) {
+        for (idx, Param { id, ty, ident, span }) in params.iter().enumerate() {
+            visit::walk_ty(self, ty);
+            todo!()
+        }
+    }
+
     fn maybe_resolve_ident_in_lexical_scope(
         &mut self,
         ident: Ident,
@@ -396,6 +405,15 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             &self.scopes[ns],
             None,
         )
+    }
+
+    fn innermost_scope_bindings(&mut self, ns: Namespace) -> &mut IndexMap<Ident, Res> {
+        &mut self.scopes[ns].last_mut().unwrap().bindings
+    }
+
+    fn apply_bindings(&mut self, bindings: ()) {
+        let scope_bindings = self.innermost_scope_bindings(ValueNS);
+        todo!()
     }
 }
 
