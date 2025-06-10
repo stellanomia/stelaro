@@ -68,6 +68,9 @@ impl<'a> PathSource<'a> {
     }
 }
 
+/// 引数リストのバインディングが一意であることを明示するための型。
+/// `fresh_param_binding` でパラメーターを一意性を保ちながら追加し、
+/// `apply_param_bindings` で最も外側のスコープにバインディングを適用する。
 type UniqueParamBindings = IndexMap<Ident, Res>;
 
 /// 診断メッセージ生成時に使用される文脈情報を保持する構造体。
