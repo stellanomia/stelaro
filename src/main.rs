@@ -3,7 +3,7 @@ use stelaro::temp;
 fn main() {
 
 temp(r#"
-fn main() {
+fn main(x: _, x: _) {
     -x * y
 }
 
@@ -18,7 +18,7 @@ mod my_mod {
         x
     }
 
-    fn a() {
+    fn a(x: i32) {
         print("Hello");
     }
 }

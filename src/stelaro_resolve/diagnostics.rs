@@ -68,7 +68,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     }
 }
 
-struct DiagsResolver;
+pub struct DiagsResolver;
 
 impl<'dcx> DiagsResolver {
     pub fn name_defined_multiple_time(
@@ -89,11 +89,29 @@ impl<'dcx> DiagsResolver {
 
         diag
     }
+
+    pub fn duplicate_identifier_in_parameter_list(
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+        ident: Ident,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let name = ident.name.as_str();
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(ErrorCode::DuplicateIdentifierInParameterList.into());
+        diag.set_message(format!("パラメーター `{name}` の重複した定義"));
+        diag.set_label(
+            span,
+            format!("`{name}` は引数リストの中で重複して定義されています")
+        );
+
+        diag
+    }
 }
 
 #[repr(i32)]
 enum ErrorCode {
     NameDefinedMultipleTime = 300,
+    DuplicateIdentifierInParameterList = 301,
 }
 
 impl From<ErrorCode> for i32 {
