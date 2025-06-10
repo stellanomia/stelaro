@@ -1,8 +1,8 @@
-use std::{cell::RefCell, collections::HashMap, hash::Hash};
+use std::{cell::RefCell, collections::HashMap, hash::{Hash, Hasher}};
 
 use super::{span::Span, SESSION_GLOBALS};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialOrd, Ord)]
 pub struct Ident {
     pub name: Symbol,
     pub span: Span,
@@ -15,6 +15,19 @@ impl Ident {
 
     pub fn is_underscore(&self) -> bool {
         self.name == sym::UNDERSCORE
+    }
+}
+
+impl PartialEq for Ident {
+    #[inline]
+    fn eq(&self, rhs: &Self) -> bool {
+        self.name == rhs.name
+    }
+}
+
+impl Hash for Ident {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
     }
 }
 
