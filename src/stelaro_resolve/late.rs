@@ -1,12 +1,10 @@
 use std::mem;
 
-use crate::{stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor}, stelaro_resolve::{Finalize, LexicalScopeBinding, Segment}, try_visit, visit_opt};
-use crate::stelaro_sir::def::Namespace;
-use crate::stelaro_resolve::PathResult;
-use crate::stelaro_common::{Ident, IndexMap, Span};
-use crate::stelaro_sir::def::{DefKind, Namespace::{ValueNS, TypeNS}, PerNS, Res};
+use crate::{stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor}, try_visit, visit_opt};
+use crate::stelaro_common::{Ident, IndexMap};
+use crate::stelaro_sir::def::{DefKind, Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
 
-use super::{Module, Resolver};
+use super::{Module, Resolver, Finalize, Segment, PathResult, diagnostics::DiagsResolver};
 
 /// 単一のローカルスコープを表します。
 ///
@@ -69,6 +67,8 @@ impl<'a> PathSource<'a> {
         }
     }
 }
+
+type UniqueParamBindings = IndexMap<Ident, Res>;
 
 /// 診断メッセージ生成時に使用される文脈情報を保持する構造体。
 #[derive(Debug, Default)]
@@ -386,34 +386,71 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     }
 
     fn resolve_fn_params(&mut self, params: &'ast [Param]) {
-        for (idx, Param { id, ty, ident, span }) in params.iter().enumerate() {
-            visit::walk_ty(self, ty);
-            todo!()
+        let mut bindings = UniqueParamBindings::new();
+
+        for Param {ident, id, .. } in params {
+            // TODO: 定数や構造体が実装されたとき、
+            // バインディングとして扱えるかどうかを確かめるために
+            // self.maybe_resolve_ident_in_lexical_scope(ident, ValueNS)
+            // を投機的に呼び出し、None でない場合問題のあるバインディングとして
+            // 扱う必要がある。
+            // try_resolve_as_non_binding としてメソッドに切り出してもよい。
+
+            self.fresh_param_binding(*ident, *id, &mut bindings);
+        }
+        self.apply_param_bindings(bindings);
+
+        for Param { ty, .. } in params {
+            self.visit_ty(ty);
         }
     }
 
-    fn maybe_resolve_ident_in_lexical_scope(
-        &mut self,
-        ident: Ident,
-        ns: Namespace,
-    ) -> Option<LexicalScopeBinding<'ra>> {
-        self.r.resolve_ident_in_lexical_scope(
-            ident,
-            ns,
-            &self.parent_module,
-            None,
-            &self.scopes[ns],
-            None,
-        )
-    }
+    // fn maybe_resolve_ident_in_lexical_scope(
+    //     &mut self,
+    //     ident: Ident,
+    //     ns: Namespace,
+    // ) -> Option<LexicalScopeBinding<'ra>> {
+    //     self.r.resolve_ident_in_lexical_scope(
+    //         ident,
+    //         ns,
+    //         &self.parent_module,
+    //         None,
+    //         &self.scopes[ns],
+    //         None,
+    //     )
+    // }
 
     fn innermost_scope_bindings(&mut self, ns: Namespace) -> &mut IndexMap<Ident, Res> {
         &mut self.scopes[ns].last_mut().unwrap().bindings
     }
 
-    fn apply_bindings(&mut self, bindings: ()) {
+    fn apply_param_bindings(&mut self, bindings: UniqueParamBindings) {
         let scope_bindings = self.innermost_scope_bindings(ValueNS);
-        todo!()
+
+        if !bindings.is_empty() {
+            scope_bindings.extend(bindings);
+        }
+    }
+
+    fn fresh_param_binding(
+        &mut self,
+        ident: Ident,
+        node_id: NodeId,
+        bindings: &mut UniqueParamBindings,
+    ) -> Res {
+        let already_exists = bindings.contains_key(&ident);
+
+        if already_exists {
+            DiagsResolver::duplicate_identifier_in_parameter_list(
+                self.r.dcx(),
+                ident.span,
+                ident,
+            ).emit();
+        }
+
+        let res = Res::Local(node_id);
+        bindings.insert(ident, res);
+        res
     }
 }
 
