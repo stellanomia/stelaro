@@ -1,6 +1,6 @@
 use crate::stelaro_common::Ident;
 use crate::stelaro_resolve::{Determinacy, Finalize, LexicalScopeBinding, PathResult, Segment};
-use crate::stelaro_sir::def::{Namespace::{self}, PerNS};
+use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS};
 
 use super::{late::Scope, Module, NameBinding, Resolver};
 
@@ -72,7 +72,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
         for (segment_idx, Segment { ident, id, .. }) in path.iter().enumerate() {
             let is_last = segment_idx + 1 == path.len();
-            let ns_to_resolve = if is_last {
+            let ns = if is_last {
                 opt_ns.unwrap_or(Namespace::TypeNS)
             } else {
                 Namespace::TypeNS
@@ -82,20 +82,20 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                 self.resolve_ident_in_module(
                     module,
                     *ident,
-                    ns_to_resolve,
+                    ns,
                     parent_module,
                     finalize,
                     ignore_binding,
                 )
             } else if let Some(scopes) = scopes
-                && let Some(_) = opt_ns
+                && let Some(ValueNS | TypeNS) = opt_ns
             {
                 match self.resolve_ident_in_lexical_scope(
                     *ident,
-                    ns_to_resolve,
+                    ns,
                     parent_module,
                     finalize,
-                    &scopes[ns_to_resolve],
+                    &scopes[ns],
                     ignore_binding,
                 ) {
                     // 現在のスコープで利用可能なアイテムやモジュールが見つかった
@@ -110,7 +110,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                 self.resolve_ident_in_ambience(
                     *ident,
                     parent_module,
-                    ns_to_resolve,
+                    ns,
                     finalize,
                 )
             };

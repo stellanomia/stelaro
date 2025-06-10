@@ -294,9 +294,6 @@ impl<'ra> NameResolution<'ra> {
         // })
         self.binding
     }
-
-    // pub fn add_single_import(&mut self, import: Import<'ra>) { ... }
-    // pub fn set_binding(&mut self, binding: NameBinding<'ra>) { ... }
 }
 
 #[derive(Debug)]
