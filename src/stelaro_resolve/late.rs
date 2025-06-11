@@ -133,7 +133,7 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
             let prev_state = mem::replace(&mut this.in_func_body, true);
             // この関数内のブロックスコープだけを追跡する
             this.last_block_scope = None;
-            visit::walk_block(this, body);
+            this.visit_block(body);
             this.in_func_body = prev_state;
         });
 
@@ -455,6 +455,5 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let mut late_resolution_visitor = LateResolutionVisitor::new(self);
 
         visit::walk_stelo(&mut late_resolution_visitor, stelo);
-        dbg!(late_resolution_visitor.scopes);
     }
 }
