@@ -348,13 +348,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     fn resolve_local(&mut self, local: &'ast Local) {
         visit_opt!(self, visit_ty, &local.ty);
 
-        if let Some((init, els)) = local.kind.init_else_opt() {
+        if let LocalKind::Init(ref init) = local.kind {
             self.visit_expr(init);
-
-            // `else` ブロックを解決する
-            if let Some(els) = els {
-                self.visit_block(els);
-            }
         }
 
         self.resolve_pat(&local.pat);

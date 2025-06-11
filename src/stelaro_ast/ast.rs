@@ -115,15 +115,6 @@ pub enum LocalKind {
     Init(Box<Expr>),
 }
 
-impl LocalKind {
-    pub fn init_else_opt(&self) -> Option<(&Expr, Option<&Block>)> {
-        match self {
-            Self::Decl => None,
-            Self::Init(init) => Some((init, None)),
-        }
-    }
-}
-
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Pat {
     pub id: NodeId,
