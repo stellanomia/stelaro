@@ -368,12 +368,9 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 // FIXME: 現在、パターンはletバインディングからしか生成できず、
                 // かつ、本来 Path として生成するべき Pat を Pat::Ident として
                 // 単一の識別子に制限している。
-                // そのため、識別子をパスセグメントに変換してから解決する。
-                self.resolve_path_fragment_with_context(
-                    &[Segment::from_ident(ident)],
-                    Finalize::new(pat.id, ident.span),
-                    PathSource::Pat,
-                );
+                let scope_bindings = self.innermost_scope_bindings(ValueNS);
+                let res = Res::Local(pat.id);
+                scope_bindings.insert(ident, res);
             },
         }
     }
@@ -458,5 +455,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let mut late_resolution_visitor = LateResolutionVisitor::new(self);
 
         visit::walk_stelo(&mut late_resolution_visitor, stelo);
+        dbg!(late_resolution_visitor.scopes);
     }
 }
