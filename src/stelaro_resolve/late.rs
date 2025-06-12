@@ -242,7 +242,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         self.scopes[ValueNS].push(Scope::new(ScopeKind::NoRestriction));
 
         for stmt in &block.stmts {
-            visit::walk_stmt(self, stmt)
+            self.visit_stmt(stmt)
         }
 
         self.parent_module = orig_module;
@@ -314,6 +314,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         source: PathSource<'ast>,
     ) -> Res {
         let ns = source.namespace();
+        let Finalize { node_id, path_span, .. } = finalize;
 
         let res = self.r.resolve_path_with_scopes(
             path,
@@ -377,7 +378,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 
     fn resolve_fn_sig(&mut self, sig: &'ast FnSig) {
         self.resolve_fn_params(&sig.params);
-        visit::walk_fn_ret_ty(self, &sig.ret_ty);
+        self.visit_fn_ret_ty(&sig.ret_ty);
     }
 
     fn resolve_fn_params(&mut self, params: &'ast [Param]) {
@@ -415,10 +416,12 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     //     )
     // }
 
+    /// 現在の最も外側のスコープのバインディングを得る
     fn innermost_scope_bindings(&mut self, ns: Namespace) -> &mut IndexMap<Ident, Res> {
         &mut self.scopes[ns].last_mut().unwrap().bindings
     }
 
+    /// 現在最も外側のスコープにバインディングを適用する
     fn apply_param_bindings(&mut self, bindings: UniqueParamBindings) {
         let scope_bindings = self.innermost_scope_bindings(ValueNS);
 
@@ -427,6 +430,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         }
     }
 
+    /// `UniqueParamBindings` の各 Ident が重複していないことを保証し、
+    /// バインディングを追加しつつ、ローカル変数への解決をする。
     fn fresh_param_binding(
         &mut self,
         ident: Ident,
