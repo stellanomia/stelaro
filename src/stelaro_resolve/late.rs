@@ -4,7 +4,7 @@ use crate::{stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visit
 use crate::stelaro_common::{Ident, IndexMap};
 use crate::stelaro_sir::def::{DefKind, Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
 
-use super::{Module, Resolver, Finalize, Segment, PathResult, diagnostics::DiagsResolver};
+use super::{Module, Resolver, Finalize, Segment, diagnostics::DiagsResolver};
 
 /// 単一のローカルスコープを表します。
 ///
@@ -44,29 +44,29 @@ impl<'ra, R> Scope<'ra, R> {
     }
 }
 
-/// パス (`Path`) が出現する構文上の文脈。
-#[derive(Copy, Clone, Debug)]
-pub enum PathSource<'a> {
-    /// 型注釈などで使われるパス。
-    Type,
+// /// パス (`Path`) が出現する構文上の文脈。
+// #[derive(Copy, Clone, Debug)]
+// pub enum PathSource<'a> {
+//     /// 型注釈などで使われるパス。
+//     Type,
 
-    /// 式の中で使われるパス。
-    /// `Option<&'a Expr>` は親の式への参照で、文脈依存の解決に役立つ。
-    Expr(Option<&'a Expr>),
+//     /// 式の中で使われるパス。
+//     /// `Option<&'a Expr>` は親の式への参照で、文脈依存の解決に役立つ。
+//     Expr(Option<&'a Expr>),
 
-    /// パターン内で使われるパス。
-    Pat,
-}
+//     /// パターン内で使われるパス。
+//     Pat,
+// }
 
-impl<'a> PathSource<'a> {
-    fn namespace(self) -> Namespace {
-        match self {
-            PathSource::Type => TypeNS,
-            PathSource::Expr(..)
-            | PathSource::Pat => ValueNS,
-        }
-    }
-}
+// impl<'a> PathSource<'a> {
+//     fn namespace(self) -> Namespace {
+//         match self {
+//             PathSource::Type => TypeNS,
+//             PathSource::Expr(..)
+//             | PathSource::Pat => ValueNS,
+//         }
+//     }
+// }
 
 /// 引数リストのバインディングが一意であることを明示するための型。
 /// `fresh_param_binding` でパラメーターを一意性を保ちながら追加し、
@@ -141,9 +141,18 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
     }
 
     fn visit_ty(&mut self, ty: &'ast Ty) -> Self::Result {
+        let node_id = ty.id;
+
         match &ty.kind {
             TyKind::Path(path) => {
-                self.resolve_path_with_context(ty.id, path, PathSource::Type);
+                self.r.resolve_path_with_scopes(
+                    &Segment::from_path(path),
+                    Some(Namespace::TypeNS),
+                    Some(Finalize::new(node_id, path.span)),
+                    &self.parent_module,
+                    Some(&self.scopes),
+                    None,
+                );
             },
             _ => visit::walk_ty(self, ty),
         }
@@ -252,7 +261,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         // }
     }
 
-    fn resolve_expr(&mut self, expr: &'ast Expr, parent: Option<&'ast Expr>) {
+    fn resolve_expr(&mut self, expr: &'ast Expr, _parent: Option<&'ast Expr>) {
         match &expr.kind {
             ExprKind::Call(callee, args) => {
                 self.resolve_expr(callee, Some(expr));
@@ -280,10 +289,13 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 }
             },
             ExprKind::Path(path) => {
-                self.resolve_path_with_context(
-                    expr.id,
-                    path,
-                    PathSource::Expr(parent)
+                self.r.resolve_path_with_scopes(
+                    &Segment::from_path(path),
+                    Some(ValueNS),
+                    Some(Finalize::new(expr.id, path.span)),
+                    &self.parent_module,
+                    Some(&self.scopes),
+                    None,
                 );
 
                 visit::walk_expr(self, expr);
@@ -294,57 +306,28 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         }
     }
 
-    fn resolve_path_with_context(
-        &mut self,
-        id: NodeId,
-        path: &'ast Path,
-        source: PathSource<'ast>,
-    ) {
-        self.resolve_path_fragment_with_context(
-            &Segment::from_path(path),
-            Finalize::new(id, path.span),
-            source,
-        );
-    }
+    // fn resolve_path_with_context(
+    //     &mut self,
+    //     id: NodeId,
+    //     path: &'ast Path,
+    //     source: PathSource<'ast>,
+    // ) {
+    //     self.resolve_path_fragment_with_context(
+    //         &Segment::from_path(path),
+    //         Finalize::new(id, path.span),
+    //         source,
+    //     );
+    // }
 
-    fn resolve_path_fragment_with_context(
-        &mut self,
-        path: &[Segment],
-        finalize: Finalize,
-        source: PathSource<'ast>,
-    ) -> Res {
-        let ns = source.namespace();
-        let Finalize { node_id, path_span, .. } = finalize;
-
-        let res = self.r.resolve_path_with_scopes(
-            path,
-             Some(ns),
-            Some(finalize),
-            &self.parent_module,
-            None,
-            None,
-        );
-
-
-        match res {
-            PathResult::Module(module) => {
-                if let Some(res) = module.res() {
-                    res
-                } else {
-                    todo!()
-                }
-            },
-            PathResult::NonModule(res) => res,
-            PathResult::Failed {
-                span,
-                label,
-                is_error_from_last_segment,
-                module,
-                segment_name,
-                error_implied_by_parse_error
-            } => todo!(),
-        }
-    }
+    // fn resolve_path_fragment_with_context(
+    //     &mut self,
+    //     path: &[Segment],
+    //     finalize: Finalize,
+    //     source: PathSource<'ast>,
+    // ) -> Res {
+    //     let ns = source.namespace();
+    //     let Finalize { node_id, path_span, .. } = finalize;
+    // }
 
     fn resolve_local(&mut self, local: &'ast Local) {
         visit_opt!(self, visit_ty, &local.ty);
