@@ -1,4 +1,4 @@
-use crate::stelaro_common::Symbol;
+use crate::stelaro_common::{sym, Symbol};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum PrimTy {
@@ -7,6 +7,19 @@ pub enum PrimTy {
     Int(IntTy),
     Uint(UintTy),
     Float(FloatTy),
+}
+
+impl PrimTy {
+    pub fn from_name(name: Symbol) -> Option<PrimTy> {
+        let ty = match name {
+            sym::BOOL => PrimTy::Bool,
+            sym::I32 => PrimTy::Int(IntTy::I32),
+            sym::I64 => PrimTy::Int(IntTy::I64),
+            _ => return None,
+        };
+
+        Some(ty)
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -34,7 +47,6 @@ pub enum FloatTy {
     F32,
     F64,
 }
-
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ParamTy {
