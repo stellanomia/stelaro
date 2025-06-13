@@ -203,7 +203,7 @@ define_keywords_and_symbols! {
     UNDERSCORE => "_",
     STELO => "stelo",
     LET => "let",
-    FN => "fn",
-    TRUE => "true",
-    FALSE => "false"
+    I32 => "i32",
+    I64 => "i64",
+    BOOL => "bool",
 }
