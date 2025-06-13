@@ -314,14 +314,13 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         source: PathSource<'ast>,
     ) -> Res {
         let ns = source.namespace();
-        let Finalize { node_id, path_span, .. } = finalize;
 
         let res = self.r.resolve_path_with_scopes(
             path,
              Some(ns),
             Some(finalize),
             &self.parent_module,
-            None,
+            Some(&self.scopes),
             None,
         );
 
