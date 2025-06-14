@@ -40,9 +40,7 @@ Stelo {
                                             ),
                                             kind: Ident(
                                                 Ident {
-                                                    name: Symbol(
-                                                        7,
-                                                    ),
+                                                    name: Symbol([ID]),
                                                     span: Span {
                                                         start: 20,
                                                         end: 21,
@@ -73,9 +71,7 @@ Stelo {
                                                                 segments: [
                                                                     PathSegment {
                                                                         ident: Ident {
-                                                                            name: Symbol(
-                                                                                7,
-                                                                            ),
+                                                                            name: Symbol([ID]),
                                                                             span: Span {
                                                                                 start: 24,
                                                                                 end: 25,
@@ -189,9 +185,7 @@ Stelo {
                                                                                                                         kind: Lit(
                                                                                                                             Lit {
                                                                                                                                 kind: Integer,
-                                                                                                                                symbol: Symbol(
-                                                                                                                                    8,
-                                                                                                                                ),
+                                                                                                                                symbol: Symbol([ID]),
                                                                                                                             },
                                                                                                                         ),
                                                                                                                         span: Span {
@@ -206,9 +200,7 @@ Stelo {
                                                                                                                         kind: Lit(
                                                                                                                             Lit {
                                                                                                                                 kind: Integer,
-                                                                                                                                symbol: Symbol(
-                                                                                                                                    9,
-                                                                                                                                ),
+                                                                                                                                symbol: Symbol([ID]),
                                                                                                                             },
                                                                                                                         ),
                                                                                                                         span: Span {
@@ -235,9 +227,7 @@ Stelo {
                                                                                                         kind: Lit(
                                                                                                             Lit {
                                                                                                                 kind: Integer,
-                                                                                                                symbol: Symbol(
-                                                                                                                    10,
-                                                                                                                ),
+                                                                                                                symbol: Symbol([ID]),
                                                                                                             },
                                                                                                         ),
                                                                                                         span: Span {
@@ -258,9 +248,7 @@ Stelo {
                                                                                                 kind: Lit(
                                                                                                     Lit {
                                                                                                         kind: Integer,
-                                                                                                        symbol: Symbol(
-                                                                                                            11,
-                                                                                                        ),
+                                                                                                        symbol: Symbol([ID]),
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
@@ -293,9 +281,7 @@ Stelo {
                                                                                                 kind: Lit(
                                                                                                     Lit {
                                                                                                         kind: Integer,
-                                                                                                        symbol: Symbol(
-                                                                                                            12,
-                                                                                                        ),
+                                                                                                        symbol: Symbol([ID]),
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
@@ -310,9 +296,7 @@ Stelo {
                                                                                                 kind: Lit(
                                                                                                     Lit {
                                                                                                         kind: Integer,
-                                                                                                        symbol: Symbol(
-                                                                                                            13,
-                                                                                                        ),
+                                                                                                        symbol: Symbol([ID]),
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
@@ -351,9 +335,7 @@ Stelo {
                                                                                         kind: Lit(
                                                                                             Lit {
                                                                                                 kind: Integer,
-                                                                                                symbol: Symbol(
-                                                                                                    14,
-                                                                                                ),
+                                                                                                symbol: Symbol([ID]),
                                                                                             },
                                                                                         ),
                                                                                         span: Span {
@@ -368,9 +350,7 @@ Stelo {
                                                                                         kind: Lit(
                                                                                             Lit {
                                                                                                 kind: Integer,
-                                                                                                symbol: Symbol(
-                                                                                                    15,
-                                                                                                ),
+                                                                                                symbol: Symbol([ID]),
                                                                                             },
                                                                                         ),
                                                                                         span: Span {
@@ -421,9 +401,7 @@ Stelo {
                                                                                         kind: Lit(
                                                                                             Lit {
                                                                                                 kind: Integer,
-                                                                                                symbol: Symbol(
-                                                                                                    16,
-                                                                                                ),
+                                                                                                symbol: Symbol([ID]),
                                                                                             },
                                                                                         ),
                                                                                         span: Span {
@@ -438,9 +416,7 @@ Stelo {
                                                                                         kind: Lit(
                                                                                             Lit {
                                                                                                 kind: Integer,
-                                                                                                symbol: Symbol(
-                                                                                                    17,
-                                                                                                ),
+                                                                                                symbol: Symbol([ID]),
                                                                                             },
                                                                                         ),
                                                                                         span: Span {
@@ -463,9 +439,7 @@ Stelo {
                                                                                         kind: Bool(
                                                                                             true,
                                                                                         ),
-                                                                                        symbol: Symbol(
-                                                                                            4,
-                                                                                        ),
+                                                                                        symbol: Symbol([ID]),
                                                                                     },
                                                                                 ),
                                                                                 span: Span {
@@ -509,9 +483,7 @@ Stelo {
                                                                                 kind: Lit(
                                                                                     Lit {
                                                                                         kind: Integer,
-                                                                                        symbol: Symbol(
-                                                                                            18,
-                                                                                        ),
+                                                                                        symbol: Symbol([ID]),
                                                                                     },
                                                                                 ),
                                                                                 span: Span {
@@ -526,9 +498,7 @@ Stelo {
                                                                                 kind: Lit(
                                                                                     Lit {
                                                                                         kind: Integer,
-                                                                                        symbol: Symbol(
-                                                                                            19,
-                                                                                        ),
+                                                                                        symbol: Symbol([ID]),
                                                                                     },
                                                                                 ),
                                                                                 span: Span {
@@ -571,9 +541,7 @@ Stelo {
                                                                                                 kind: Lit(
                                                                                                     Lit {
                                                                                                         kind: Integer,
-                                                                                                        symbol: Symbol(
-                                                                                                            20,
-                                                                                                        ),
+                                                                                                        symbol: Symbol([ID]),
                                                                                                     },
                                                                                                 ),
                                                                                                 span: Span {
@@ -606,9 +574,7 @@ Stelo {
                                                                                                                 kind: Lit(
                                                                                                                     Lit {
                                                                                                                         kind: Integer,
-                                                                                                                        symbol: Symbol(
-                                                                                                                            21,
-                                                                                                                        ),
+                                                                                                                        symbol: Symbol([ID]),
                                                                                                                     },
                                                                                                                 ),
                                                                                                                 span: Span {
@@ -629,9 +595,7 @@ Stelo {
                                                                                                         kind: Lit(
                                                                                                             Lit {
                                                                                                                 kind: Integer,
-                                                                                                                symbol: Symbol(
-                                                                                                                    22,
-                                                                                                                ),
+                                                                                                                symbol: Symbol([ID]),
                                                                                                             },
                                                                                                         ),
                                                                                                         span: Span {
@@ -686,9 +650,7 @@ Stelo {
                                                                                                     kind: Lit(
                                                                                                         Lit {
                                                                                                             kind: Integer,
-                                                                                                            symbol: Symbol(
-                                                                                                                23,
-                                                                                                            ),
+                                                                                                            symbol: Symbol([ID]),
                                                                                                         },
                                                                                                     ),
                                                                                                     span: Span {
@@ -762,9 +724,7 @@ Stelo {
                 end: 132,
             },
             ident: Ident {
-                name: Symbol(
-                    6,
-                ),
+                name: Symbol([ID]),
                 span: Span {
                     start: 3,
                     end: 7,
