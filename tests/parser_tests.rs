@@ -2,6 +2,7 @@ use std::fs;
 use std::path::Path;
 use std::rc::Rc;
 
+use insta::{assert_debug_snapshot, with_settings};
 use stelaro::stelaro_common::create_default_session_globals_then;
 use stelaro::stelaro_session::ParseSess;
 use stelaro::stelaro_parse::new_parser_from_source_str;
@@ -33,7 +34,16 @@ fn run_parser_test(path: &Path) {
         .map(|s| s.to_string())
         .unwrap_or_else(|| panic!("ファイル名からスナップショット名を生成できませんでした: {path:?}"));
 
-    insta::assert_debug_snapshot!(snapshot_name, parse_result);
+    with_settings!(
+        {
+            filters => vec![
+                (r"Symbol\(\s*\d+,\s*\)", "Symbol([ID])"),
+            ]
+        },
+        {
+            assert_debug_snapshot!(snapshot_name, parse_result);
+        }
+    );
 }
 
 #[test]
