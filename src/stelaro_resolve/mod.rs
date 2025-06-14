@@ -71,6 +71,7 @@ impl<'a> From<&'a PathSegment> for Segment {
     }
 }
 
+
 /// モジュール内の名前を識別するキー
 #[derive(Debug, Copy, Clone, Eq, PartialOrd, Ord)]
 pub struct BindingKey {
@@ -98,7 +99,9 @@ impl std::hash::Hash for BindingKey {
     }
 }
 
+
 type Resolutions<'ra> = RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>;
+
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Module<'tcx>(&'tcx ModuleData<'tcx>);
@@ -193,11 +196,13 @@ pub enum ModuleKind {
     Def(DefKind, DefId, Option<Symbol>),
 }
 
+
 #[derive(Clone, Copy, Debug)]
 pub struct MainDefinition {
     pub res: Res<NodeId>,
     pub span: Span,
 }
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NameBinding<'ra>(&'ra NameBindingData<'ra>);
@@ -222,6 +227,7 @@ impl Hash for NameBindingData<'_> {
         unreachable!()
     }
 }
+
 
 pub trait ToNameBinding<'ra> {
     fn to_name_binding(self, arenas: &'ra ResolverArenas<'ra>) -> NameBinding<'ra>;
@@ -296,6 +302,7 @@ impl<'ra> NameResolution<'ra> {
     }
 }
 
+
 #[derive(Debug)]
 pub enum PathResult<'ra> {
     Module(Module<'ra>),
@@ -311,6 +318,7 @@ pub enum PathResult<'ra> {
         error_implied_by_parse_error: bool,
     },
 }
+
 
 /// 中間的な解決結果。
 ///
@@ -397,6 +405,7 @@ impl<'ra> ResolverArenas<'ra> {
         NameBinding(self.name_bindings.alloc(name_binding))
     }
 }
+
 
 pub struct Resolver<'ra, 'tcx> {
     tcx: TyCtxt<'tcx>,

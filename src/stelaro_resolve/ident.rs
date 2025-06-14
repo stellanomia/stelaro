@@ -2,23 +2,12 @@ use crate::stelaro_common::Ident;
 use crate::stelaro_resolve::{
     Determinacy, Finalize, LexicalScopeBinding, ModuleKind,
     PathResult, Segment, late::{Scope, ScopeKind}, Module,
-    NameBinding, Resolver
+    NameBinding, BindingKey, Resolver
 };
 use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS};
 
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
-    pub fn resolve_ident_in_module(
-        &mut self,
-        module: &Module<'ra>,
-        ident: Ident,
-        ns: Namespace,
-        parent_module: &Module<'ra>,
-        finalize: Option<Finalize>,
-        ignore_binding: Option<NameBinding<'ra>>,
-    ) -> Result<NameBinding<'ra>, Determinacy>{
-        todo!()
-    }
 
     /// これは、現在のレキシカルスコープ内で、名前空間 `ns` の識別子 `ident` を解決します。
     /// より具体的には、スコープの階層を上にたどり、`ident` を定義している最初のスコープでの
@@ -26,13 +15,12 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     ///
     /// ブロックのアイテムは、そのアイテムがブロック内のどこで定義されているかに関わらず、
     /// スコープ階層において、そのローカル変数よりも上にあります。例えば、
-    /// ```
+    ///
     /// fn f() {
     ///    g(); // スコープ内にまだローカル変数がないため、これはアイテムを参照するように解決されます。
     ///    let g = 1;
     ///    g + g; // これはアイテムをシャドーイングするため、ローカル変数 `g` に解決されます。
     /// }
-    /// ```
     pub fn resolve_ident_in_lexical_scope(
         &mut self,
         ident: Ident,
@@ -44,7 +32,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     ) -> Option<LexicalScopeBinding<'ra>> {
 
         // スコープスタックを逆順に辿る
-        let mut module = self.graph_root;
+        let mut module;
         for scope in scopes.iter().rev() {
             if let Some(res) = scope.bindings.get(&ident) {
                 // 識別子は型パラメータまたはローカル変数に解決される。
@@ -83,10 +71,44 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             ident,
             parent_module,
             ns,
-            finalize
+            finalize,
+            finalize.is_some(),
+            ignore_binding,
         )
         .ok()
         .map(LexicalScopeBinding::Item)
+    }
+
+    pub fn resolve_ident_in_module(
+        &mut self,
+        module: &Module<'ra>,
+        ident: Ident,
+        ns: Namespace,
+        _parent_module: &Module<'ra>,
+        finalize: Option<Finalize>,
+        ignore_binding: Option<NameBinding<'ra>>,
+    ) -> Result<NameBinding<'ra>, Determinacy> {
+        let key = BindingKey::new(ident, ns);
+        let res = self.resolution(*module, key)
+            .try_borrow_mut()
+            .map_err(|_| Determinacy::Determined)?;
+
+        // プライマリな束縛が使えない場合を探す
+        let binding = if res.binding == ignore_binding {
+            None
+        } else {
+            res.binding
+        };
+
+        if finalize.is_some() {
+            let Some(binding) = binding else {
+                return Err(Determinacy::Determined);
+            };
+
+            return Ok(binding);
+        }
+
+        Err(Determinacy::Determined)
     }
 
     pub fn resolve_ident_in_ambience(
@@ -95,8 +117,42 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         parent_module: &Module<'ra>,
         ns: Namespace,
         finalize: Option<Finalize>,
+        force: bool,
+        ignore_binding: Option<NameBinding<'ra>>,
     ) -> Result<NameBinding<'ra>, Determinacy> {
-        todo!()
+        assert!(force || finalize.is_none()); // `finalize` は `force` を意味する
+
+        let mut current_module = Some(*parent_module);
+
+        while let Some(module_to_search) = current_module {
+            let result = self.resolve_ident_in_module(
+                &module_to_search,
+                ident,
+                ns,
+                parent_module, // 可視性チェック用だが、この言語では不要
+                finalize,          // finalize はここでは使わない
+                ignore_binding,
+            );
+
+            match result {
+                Ok(binding) => {
+                    return Ok(binding);
+                }
+                Err(Determinacy::Determined) => {
+                    // このモジュールには無かったので、ループを継続して親モジュールを探索する。
+                    // `current_module` を親に更新する。
+                }
+                Err(Determinacy::Undetermined) => {
+                    return Err(Determinacy::Undetermined);
+                }
+            }
+
+            // 親モジュールへ移動
+            current_module = module_to_search.parent;
+        }
+
+        // クレートのルートまで遡っても見つからなかった
+        Err(Determinacy::Determined)
     }
 
     pub fn resolve_path(
@@ -171,9 +227,10 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                     parent_module,
                     ns,
                     finalize,
+                    finalize.is_some(),
+                    ignore_binding,
                 )
             };
-
 
             match binding {
                 Ok(_) => todo!(),
