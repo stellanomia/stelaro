@@ -1,4 +1,4 @@
-use std::{cell::RefCell, collections::HashMap, hash::{Hash, Hasher}};
+use std::{cell::RefCell, collections::HashMap, fmt, hash::{Hash, Hasher}};
 
 use super::{span::Span, SESSION_GLOBALS};
 
@@ -28,6 +28,12 @@ impl PartialEq for Ident {
 impl Hash for Ident {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.name.hash(state);
+    }
+}
+
+impl fmt::Display for Ident {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name.as_str())
     }
 }
 

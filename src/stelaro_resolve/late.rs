@@ -325,7 +325,6 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             None,
         );
 
-
         match res {
             PathResult::Module(module) => {
                 if let Some(res) = module.res() {
@@ -335,13 +334,13 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 }
             },
             PathResult::NonModule(res) => res,
+            PathResult::Indeterminate => todo!(),
             PathResult::Failed {
                 span,
                 label,
                 is_error_from_last_segment,
                 module,
                 segment_name,
-                error_implied_by_parse_error
             } => todo!(),
         }
     }

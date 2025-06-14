@@ -307,6 +307,7 @@ impl<'ra> NameResolution<'ra> {
 pub enum PathResult<'ra> {
     Module(Module<'ra>),
     NonModule(Res),
+    Indeterminate,
     Failed {
         span: Span,
         label: String,
@@ -315,7 +316,6 @@ pub enum PathResult<'ra> {
         module: Option<Module<'ra>>,
         /// 見つからなかったセグメントの名前。
         segment_name: Symbol,
-        error_implied_by_parse_error: bool,
     },
 }
 

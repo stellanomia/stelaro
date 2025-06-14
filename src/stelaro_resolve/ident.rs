@@ -4,6 +4,7 @@ use crate::stelaro_resolve::{
     PathResult, Segment, late::{Scope, ScopeKind}, Module,
     NameBinding, BindingKey, Resolver
 };
+use crate::stelaro_sir::def::Res;
 use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS};
 
 
@@ -183,9 +184,8 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         ignore_binding: Option<NameBinding<'ra>>,
     ) -> PathResult<'ra> {
         let mut module = None;
-        let mut second_binding: Option<NameBinding> = None;
 
-        for (segment_idx, Segment { ident, id, .. }) in path.iter().enumerate() {
+        for (segment_idx, Segment { ident, .. }) in path.iter().enumerate() {
             let is_last = segment_idx + 1 == path.len();
             let ns = if is_last {
                 opt_ns.unwrap_or(Namespace::TypeNS)
@@ -193,7 +193,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                 Namespace::TypeNS
             };
 
-            let binding = if let Some(module) = module {
+            let binding = if let Some(ref module) = module {
                 self.resolve_ident_in_module(
                     module,
                     *ident,
@@ -233,12 +233,57 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             };
 
             match binding {
-                Ok(_) => todo!(),
-                Err(_) => todo!(),
+                Ok(binding) => {
+                    let res = binding.res();
+
+                    if is_last {
+                        return PathResult::NonModule(res);
+                    }
+
+
+                    if let Some(next_module) = binding.module() {
+                        module = Some(next_module);
+                    } else if res == Res::Err {
+                        return PathResult::NonModule(Res::Err);
+                    } else {
+                        return PathResult::Failed {
+                            span: ident.span,
+                            is_error_from_last_segment: is_last,
+                            segment_name: ident.name,
+                            module,
+                            label: format!(
+                                    "`{ident}` は{}で、モジュールではありません",
+                                    res.descr_ja()
+                            )
+                        };
+                    }
+                },
+                Err(Determinacy::Undetermined) => return PathResult::Indeterminate,
+                Err(Determinacy::Determined) => {
+                    return PathResult::Failed {
+                        span: ident.span,
+                        is_error_from_last_segment: is_last,
+                        module,
+                        segment_name: ident.name,
+                        label: self.report_path_resolution_error(
+                            path,
+                            opt_ns,
+                            parent_module,
+                            scopes,
+                            ignore_binding,
+                            module,
+                            segment_idx,
+                            *ident,
+                        ),
+                    };
+                },
             }
 
         }
 
-        todo!()
+        PathResult::Module(match module {
+            Some(module) => module,
+            _ => panic!("resolve_path: 空でないパス `{:?}` にはモジュールがありません", path),
+        })
     }
 }
