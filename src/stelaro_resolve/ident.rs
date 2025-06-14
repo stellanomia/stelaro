@@ -4,8 +4,7 @@ use crate::stelaro_resolve::{
     PathResult, Segment, late::{Scope, ScopeKind}, Module,
     NameBinding, BindingKey, Resolver
 };
-use crate::stelaro_sir::def::Res;
-use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS};
+use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
 
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
@@ -240,7 +239,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                         return PathResult::NonModule(res);
                     }
 
-
                     if let Some(next_module) = binding.module() {
                         module = Some(next_module);
                     } else if res == Res::Err {
@@ -252,8 +250,8 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                             segment_name: ident.name,
                             module,
                             label: format!(
-                                    "`{ident}` は{}で、モジュールではありません",
-                                    res.descr_ja()
+                                "`{ident}` は{}で、モジュールではありません",
+                                res.descr_ja()
                             )
                         };
                     }
