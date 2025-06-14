@@ -1,5 +1,3 @@
-use std::array::IntoIter;
-
 use crate::stelaro_ast::NodeId;
 use crate::stelaro_common::{DefId, Symbol};
 use crate::stelaro_ty::ty::PrimTy;
@@ -124,19 +122,19 @@ pub struct PerNS<T> {
     pub type_ns: T,
 }
 
-impl<T> PerNS<T> {
-    fn map<U, F: FnMut(T) -> U>(self, mut f: F) -> PerNS<U> {
-        PerNS { value_ns: f(self.value_ns), type_ns: f(self.type_ns) }
-    }
+// impl<T> PerNS<T> {
+//     fn map<U, F: FnMut(T) -> U>(self, mut f: F) -> PerNS<U> {
+//         PerNS { value_ns: f(self.value_ns), type_ns: f(self.type_ns) }
+//     }
 
-    fn into_iter(self) -> IntoIter<T, 2> {
-        [self.value_ns, self.type_ns].into_iter()
-    }
+//     fn into_iter(self) -> IntoIter<T, 2> {
+//         [self.value_ns, self.type_ns].into_iter()
+//     }
 
-    fn iter(&self) -> IntoIter<&T, 2> {
-        [&self.value_ns, &self.type_ns].into_iter()
-    }
-}
+//     fn iter(&self) -> IntoIter<&T, 2> {
+//         [&self.value_ns, &self.type_ns].into_iter()
+//     }
+// }
 
 impl<T> ::std::ops::Index<Namespace> for PerNS<T> {
     type Output = T;

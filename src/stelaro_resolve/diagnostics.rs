@@ -1,6 +1,8 @@
 use crate::stelaro_common::{Ident, Span};
 use crate::stelaro_diagnostic::diag::{Diag, DiagCtxtHandle, ErrorEmitted};
-use crate::stelaro_sir::def::Namespace;
+use crate::stelaro_resolve::late::Scope;
+use crate::stelaro_resolve::Segment;
+use crate::stelaro_sir::def::{Namespace, PerNS};
 
 use super::{Module, ModuleKind, NameBinding, Resolver};
 
@@ -65,6 +67,20 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
         diag.emit();
         self.name_already_seen.insert(name, span);
+    }
+
+    pub fn report_path_resolution_error(
+        &mut self,
+        path: &[Segment],
+        opt_ns: Option<Namespace>,
+        parent_module: &Module<'ra>,
+        scopes: Option<&PerNS<Vec<Scope<'ra>>>>,
+        ignore_binding: Option<NameBinding<'ra>>,
+        module: Option<Module<'ra>>,
+        failed_segment_idx: usize,
+        ident: Ident,
+    ) -> String {
+        todo!()
     }
 }
 
