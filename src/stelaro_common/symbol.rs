@@ -206,4 +206,5 @@ define_keywords_and_symbols! {
     I32 => "i32",
     I64 => "i64",
     BOOL => "bool",
+    CHAR => "char",
 }
