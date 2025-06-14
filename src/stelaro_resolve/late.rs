@@ -55,8 +55,8 @@ pub enum PathSource<'a> {
     /// `Option<&'a Expr>` は親の式への参照で、文脈依存の解決に役立つ。
     Expr(Option<&'a Expr>),
 
-    /// パターン内で使われるパス。
-    Pat,
+    // /// パターン内で使われるパス。
+    // Pat,
 }
 
 impl<'a> PathSource<'a> {
@@ -64,7 +64,7 @@ impl<'a> PathSource<'a> {
         match self {
             PathSource::Type => TypeNS,
             PathSource::Expr(..)
-            | PathSource::Pat => ValueNS,
+            /*| PathSource::Pat*/ => ValueNS,
         }
     }
 }
@@ -325,22 +325,16 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             None,
         );
 
+        dbg!(&res);
+
         match res {
             PathResult::Module(module) => {
-                if let Some(res) = module.res() {
-                    res
-                } else {
-                    todo!()
-                }
+                Res::Def(DefKind::Mod, module.def_id())
             },
             PathResult::NonModule(res) => res,
-            PathResult::Indeterminate => todo!(),
+            PathResult::Indeterminate => unreachable!(),
             PathResult::Failed {
-                span,
-                label,
-                is_error_from_last_segment,
-                module,
-                segment_name,
+                ..
             } => todo!(),
         }
     }
