@@ -46,20 +46,6 @@ impl Segment {
     fn from_path(path: &Path) -> Vec<Segment> {
         path.segments.iter().map(|s| s.into()).collect()
     }
-
-    fn from_ident(ident: Ident) -> Segment {
-        Segment {
-            ident,
-            id: None,
-        }
-    }
-
-    fn from_ident_and_id(ident: Ident, id: NodeId) -> Segment {
-        Segment {
-            ident,
-            id: Some(id),
-        }
-    }
 }
 
 impl<'a> From<&'a PathSegment> for Segment {
