@@ -13,6 +13,7 @@ impl PrimTy {
     pub fn from_name(name: Symbol) -> Option<PrimTy> {
         let ty = match name {
             sym::BOOL => PrimTy::Bool,
+            sym::CHAR => PrimTy::Char,
             sym::I32 => PrimTy::Int(IntTy::I32),
             sym::I64 => PrimTy::Int(IntTy::I64),
             _ => return None,

@@ -3,6 +3,7 @@ use std::mem;
 use crate::stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor};
 use crate::stelaro_common::{Ident, IndexMap};
 use crate::stelaro_sir::def::{DefKind, Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
+use crate::stelaro_ty::ty::PrimTy;
 
 use crate::{try_visit, visit_opt};
 use super::{Module, Resolver, Finalize, Segment, PathResult, diagnostics::DiagsResolver};
@@ -316,6 +317,13 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     ) -> Res {
         let ns = source.namespace();
 
+        if ns == TypeNS &&
+            path.len() == 1 &&
+            let Some(ty) = PrimTy::from_name(path[0].ident.name)
+        {
+            return Res::PrimTy(ty);
+        }
+
         let res = self.r.resolve_path_with_scopes(
             path,
              Some(ns),
@@ -325,8 +333,6 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             None,
         );
 
-        dbg!(&res);
-
         match res {
             PathResult::Module(module) => {
                 Res::Def(DefKind::Mod, module.def_id())
@@ -335,7 +341,9 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             PathResult::Indeterminate => unreachable!(),
             PathResult::Failed {
                 ..
-            } => todo!(),
+            } => {
+                todo!()
+            },
         }
     }
 
