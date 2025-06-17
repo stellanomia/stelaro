@@ -1,7 +1,9 @@
 use crate::stelaro_common::{Ident, Span};
 use crate::stelaro_diagnostic::diag::{Diag, DiagCtxtHandle, ErrorEmitted};
+use crate::stelaro_resolve::LexicalScopeBinding;
 use crate::stelaro_resolve::{Segment, late::Scope};
-use crate::stelaro_sir::def::{Namespace, PerNS};
+use crate::stelaro_sir::def::Res;
+use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS};
 
 use super::{Module, ModuleKind, NameBinding, Resolver};
 
@@ -40,9 +42,9 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let name_str = name.as_str();
 
         let old_kind_dscr = match (ns, old_binding.module()) {
-            (Namespace::ValueNS, _) => "値",
-            (Namespace::TypeNS, Some(module)) if module.is_normal() => "モジュール",
-            (Namespace::TypeNS, _) => "型",
+            (ValueNS, _) => "値",
+            (TypeNS, Some(module)) if module.is_normal() => "モジュール",
+            (TypeNS, _) => "型",
         };
 
         let mut diag = DiagsResolver::name_defined_multiple_time(
@@ -68,7 +70,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         self.name_already_seen.insert(name, span);
     }
 
-    #[allow(unused)]
     pub fn report_path_resolution_error(
         &mut self,
         path: &[Segment],
@@ -80,7 +81,82 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         failed_segment_idx: usize,
         ident: Ident,
     ) -> String {
-        todo!()
+        let is_last = failed_segment_idx == path.len() - 1;
+        let ns = if is_last { opt_ns.unwrap_or(TypeNS) } else { TypeNS };
+        if failed_segment_idx > 0 {
+            let parent = path[failed_segment_idx - 1].ident.name;
+            let parent = format!("`{parent}`");
+
+            let mut msg = format!("`{ident}` は {parent} の中で見つかりませんでした");
+            let ns_to_try = if ns == ValueNS { TypeNS } else { ValueNS };
+            let binding = if let Some(module) = module {
+                self.resolve_ident_in_module(
+                    &module,
+                    ident,
+                    ns_to_try,
+                    parent_module,
+                    None,
+                    ignore_binding,
+                )
+                .ok()
+            } else if let Some(scopes) = scopes
+                && let Some(TypeNS | ValueNS) = opt_ns
+            {
+                match self.resolve_ident_in_lexical_scope(
+                    ident,
+                    ns_to_try,
+                    parent_module,
+                    None,
+                    &scopes[ns_to_try],
+                    ignore_binding,
+                ) {
+                    Some(LexicalScopeBinding::Item(binding)) => Some(binding),
+                    _ => None,
+                }
+            } else {
+                self.resolve_ident_in_ambience(
+                    ident,
+                    parent_module,
+                    ns_to_try,
+                    None,
+                    false,
+                    ignore_binding,
+                )
+                .ok()
+            };
+            if let Some(binding) = binding {
+                let mut found = |what| {
+                    msg = format!(
+                        "{}を期待していましたが、{} `{}` が {} で見つかりました",
+                        ns.descr_ja(),
+                        what,
+                        ident,
+                        parent
+                    )
+                };
+                if binding.module().is_some() {
+                    found("モジュール")
+                } else {
+                    match binding.res() {
+                        Res::Def(kind, id) => found(kind.descr_ja(id)),
+                        _ => found(ns_to_try.descr_ja()),
+                    }
+                }
+            };
+
+            msg
+        } else if let Ok(binding) = self.resolve_ident_in_ambience(
+            ident,
+            parent_module,
+            ns, None,
+            false,
+            ignore_binding
+        ) {
+            let descr = binding.res().descr_ja();
+            format!("{descr} `{ident}` はモジュール名ではありません")
+        } else {
+            format!("`{ident}` を解決することができませんでした")
+        }
     }
 }
 
