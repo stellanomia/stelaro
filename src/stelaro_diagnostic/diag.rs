@@ -166,7 +166,7 @@ impl<'a> DiagCtxtHandle<'a> {
     }
 }
 
-pub struct Diag<'dcx, G:EmissionGuarantee> {
+pub struct Diag<'dcx, G: EmissionGuarantee = ErrorEmitted> {
     dcx: DiagCtxtHandle<'dcx>,
     diag: Option<Box<DiagInner>>,
     _marker: PhantomData<G>
