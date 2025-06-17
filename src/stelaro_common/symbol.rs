@@ -71,6 +71,11 @@ impl Symbol {
     }
 }
 
+impl fmt::Display for Symbol {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
 
 pub struct Interner(RefCell<InternerInner>);
 
