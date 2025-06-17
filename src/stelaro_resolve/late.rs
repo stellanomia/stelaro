@@ -316,6 +316,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         source: PathSource<'ast>,
     ) -> Res {
         let ns = source.namespace();
+        let Finalize { path_span, .. } = finalize;
 
         if ns == TypeNS &&
             path.len() == 1 &&
@@ -340,9 +341,20 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             PathResult::NonModule(res) => res,
             PathResult::Indeterminate => unreachable!(),
             PathResult::Failed {
-                ..
+                span,
+                label,
+                is_error_from_last_segment,
+                module,
+                segment_name,
             } => {
-                todo!()
+                let err = self.r.report_errors_with_context(
+                    path,
+                    path_span,
+                    source,
+                );
+
+                err.emit();
+                Res::Err
             },
         }
     }
