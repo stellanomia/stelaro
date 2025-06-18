@@ -555,7 +555,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let ident = Ident::new(sym::MAIN, DUMMY_SPAN);
 
         let Ok(name_binding) = self.maybe_resolve_ident_in_module(
-            module,
+            &module,
             ident,
             Namespace::ValueNS,
             &module,
