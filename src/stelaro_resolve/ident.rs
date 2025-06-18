@@ -129,8 +129,8 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                 &module_to_search,
                 ident,
                 ns,
-                parent_module, // 可視性チェック用だが、この言語では不要
-                finalize,          // finalize はここでは使わない
+                parent_module,
+                finalize,
                 ignore_binding,
             );
 
@@ -140,7 +140,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                 }
                 Err(Determinacy::Determined) => {
                     // このモジュールには無かったので、ループを継続して親モジュールを探索する。
-                    // `current_module` を親に更新する。
                 }
                 Err(Determinacy::Undetermined) => {
                     return Err(Determinacy::Undetermined);
