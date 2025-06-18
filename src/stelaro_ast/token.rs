@@ -1,6 +1,6 @@
-use std::{collections::{vec_deque::Iter, VecDeque}, fmt};
+use crate::stelaro_common::{span::Span, Symbol};
 
-use crate::stelaro_common::{span::Span, symbol::Symbol};
+use std::{collections::{vec_deque::Iter, VecDeque}, fmt};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Token {

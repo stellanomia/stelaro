@@ -1,7 +1,11 @@
 use crate::stelaro_common::{Span, Hash128, StableHasher};
 use super::{emitter::DynEmitter, DiagCtxt};
 
-use std::{collections::HashSet, hash::{Hasher, Hash}, marker::PhantomData, ops::Deref, process};
+use std::collections::HashSet;
+use std::process;
+use std::ops::Deref;
+use std::marker::PhantomData;
+use std::hash::{Hasher, Hash};
 
 
 /// 診断メッセージの出力保証を表すトレイト

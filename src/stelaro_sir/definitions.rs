@@ -1,6 +1,9 @@
 use std::{collections::HashMap, hash::Hash};
 
-use crate::stelaro_common::{DefIndex, DefPathHash, Hash64, IndexVec, LocalDefId, StableHasher, StableSteloId, SteloNum, Symbol, LOCAL_STELO, STELO_ROOT_INDEX};
+use crate::stelaro_common::{
+    DefIndex, DefPathHash, Hash64, IndexVec, LocalDefId,
+    StableHasher, StableSteloId, SteloNum, Symbol, LOCAL_STELO, STELO_ROOT_INDEX,
+};
 
 
 /// `DefPathTable` は、`DefIndex` と `DefKey` を相互に対応付けます。

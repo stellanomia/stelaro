@@ -12,7 +12,7 @@ use std::rc::Rc;
 
 use crate::stelaro_ast::token::TokenStream;
 use crate::stelaro_common::source_map::SourceFile;
-use crate::stelaro_diagnostic::diag::ErrorEmitted;
+use crate::stelaro_diagnostic::ErrorEmitted;
 use crate::stelaro_lexer::Lexer;
 use crate::stelaro_session::ParseSess;
 

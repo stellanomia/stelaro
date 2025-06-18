@@ -1,5 +1,5 @@
 use crate::stelaro_ast::NodeId;
-use crate::{stelaro_common::span::Span};
+use crate::stelaro_common::Span;
 
 use super::ast::Path;
 

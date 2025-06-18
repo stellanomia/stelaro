@@ -1,6 +1,5 @@
 //! rustc の `rustc_data_structures/stable_hasher.rs` に基づいて設計されています。
 
-
 use std::{hash::{Hash, Hasher}, marker::PhantomData, mem};
 use super::{Hash128, Hash64, Idx, IndexVec};
 

@@ -1,4 +1,4 @@
-use crate::stelaro_common::{span::Span, symbol::Ident};
+use crate::stelaro_common::{Span, Ident};
 
 use super::{token::{Lit, Token, TokenKind}, ty::Ty, NodeId};
 

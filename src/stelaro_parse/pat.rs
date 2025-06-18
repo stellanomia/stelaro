@@ -3,7 +3,6 @@ use crate::stelaro_ast::ast::{Pat, PatKind};
 use super::{parser::Parser, PResult};
 
 
-
 impl<'sess> Parser<'sess> {
     pub fn parse_pat_before_ty(&mut self) -> PResult<Pat> {
         let ident = self.parse_ident()?;
