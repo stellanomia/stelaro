@@ -169,7 +169,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             current_module = module_to_search.parent;
         }
 
-        // クレートのルートまで遡っても見つからなかった
+        // ステロのルートまで遡っても見つからなかった
         Err(Determinacy::Determined)
     }
 
