@@ -11,7 +11,7 @@ use std::ops::Deref;
 use std::{fmt, ptr};
 
 use crate::stelaro_ast::{ast::{Stelo, Path, PathSegment}, NodeId, STELO_NODE_ID};
-use crate::stelaro_common::{DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, STELO_DEF_ID};
+use crate::stelaro_common::{sym, DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, DUMMY_SPAN, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir::def::{DefKind, Namespace, Res};
 
@@ -481,6 +481,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         }
 
         self.late_resolve_stelo(stelo);
+        self.resolve_main();
     }
 
     pub fn new_binding_key(&self, ident: Ident, ns: Namespace) -> BindingKey {
@@ -548,6 +549,24 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     // pub fn into_outputs(self) -> ResolverOutputs {
 
     // }
+
+    fn resolve_main(&mut self) {
+        let module = self.graph_root;
+        let ident = Ident::new(sym::MAIN, DUMMY_SPAN);
+
+        let Ok(name_binding) = self.maybe_resolve_ident_in_module(
+            module,
+            ident,
+            Namespace::ValueNS,
+            &module,
+        ) else {
+            return;
+        };
+
+        let res = name_binding.res();
+        let span = name_binding.span;
+        self.main_def = Some(MainDefinition { res, span });
+    }
 }
 
 

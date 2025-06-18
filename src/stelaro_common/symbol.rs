@@ -213,6 +213,7 @@ macro_rules! _generate_sym_constants_impl {
 define_keywords_and_symbols! {
     UNDERSCORE => "_",
     STELO => "stelo",
+    MAIN => "main",
     LET => "let",
     I32 => "i32",
     I64 => "i64",
