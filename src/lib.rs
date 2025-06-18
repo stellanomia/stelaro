@@ -7,6 +7,7 @@
 #![allow(clippy::uninlined_format_args)]
 
 pub mod stelaro_ast;
+pub mod stelaro_ast_lowering;
 pub mod stelaro_common;
 pub mod stelaro_context;
 pub mod stelaro_diagnostic;
