@@ -38,6 +38,7 @@ fn run_parser_test(path: &Path) {
         {
             filters => vec![
                 (r"Symbol\(\s*\d+,\s*\)", "Symbol([ID])"),
+                (r"Span \{\s*start: \d+,\s*end: \d+,?\s*\}", "Span {[SPAN]}"),
             ]
         },
         {
