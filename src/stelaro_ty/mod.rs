@@ -1,40 +1,23 @@
 pub mod ty;
 
-use ty::{FloatTy, IntTy, UintTy};
+pub use ty::{Ty, TyKind};
 
-use crate::stelaro_common::DefId;
+use crate::stelaro_ast::NodeId;
+use crate::stelaro_sir::def::Res;
+use crate::stelaro_common::Span;
 
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub struct Ty<'tcx>(&'tcx TyKind<'tcx>);
-
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub enum TyKind<'tcx> {
-    Bool,
-    Char,
-    Int(IntTy),
-    Uint(UintTy),
-    Float(FloatTy),
-
-    // 特定の関数定義を指す型
-    FnDef(DefId),
-
-    // 関数ポインタ
-    // FnPtr(...),
-
-    // 型パラメータ
-    // Param(ParamTy),
-
-    // 参照型
-    // Ref(Ty<'tcx>),
-
-    // Struct(AdtDef<'tcx>),
-
-    // NOTE: タプルは未実装
-    // 将来的なTyKindがもつべき'tcxのプレースホルダとして宣言
-    Tuple(&'tcx [Ty<'tcx>]),
-
-    // () 型。ボトム型として機能する
-    // タプルが実装できた際に、これを削除し空のTupleがUnitを表すように変更する
-    Unit,
+pub struct ResolverOutputs {
+    pub ast_lowering: ResolverAstLowering,
 }
+
+#[derive(Debug)]
+pub struct ResolverAstLowering {
+
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct MainDefinition {
+    pub res: Res<NodeId>,
+    pub span: Span,
+}
+
