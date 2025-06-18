@@ -1,5 +1,5 @@
-use crate::stelaro_common::{Ident, Span};
-use crate::stelaro_diagnostic::diag::{Diag, DiagCtxtHandle, ErrorEmitted};
+use crate::stelaro_common::{Ident, Span, Symbol};
+use crate::stelaro_diagnostic::diag::{Diag, DiagCtxtHandle};
 use crate::stelaro_resolve::{Segment, LexicalScopeBinding, late::Scope};
 use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
 
@@ -172,14 +172,14 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
 pub struct DiagsResolver;
 
-impl<'dcx> DiagsResolver {
+impl<'dcx, 'ra> DiagsResolver {
     pub fn name_defined_multiple_time(
         dcx: DiagCtxtHandle<'dcx>,
         name: &str,
         ns: &str,
         container: &str,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::NameDefinedMultipleTime.into());
         diag.set_message(format!("名前 `{name}` の重複した定義"));
@@ -196,7 +196,7 @@ impl<'dcx> DiagsResolver {
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
         ident: Ident,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let name = ident.name.as_str();
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::DuplicateIdentifierInParameterList.into());
@@ -208,12 +208,41 @@ impl<'dcx> DiagsResolver {
 
         diag
     }
+
+    pub fn undefined_identifier_with_context(
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span,
+        segment_name: Symbol,
+        module: Option<Module<'ra>>,
+        msg: String,
+    ) -> Diag<'dcx> {
+        let mut diag = dcx.struct_err(span);
+        diag.set_code(ErrorCode::UndefinedIdentifier.into());
+        let descr = module
+        .and_then(|m| m.res())
+        .map(|m| m.descr_ja());
+
+        if let Some(descr) = descr {
+            diag.set_message(
+                format!("定義されていない{descr} `{}`", segment_name.as_str())
+            );
+        } else {
+            diag.set_message(
+                format!("定義されていない `{}`", segment_name.as_str())
+            );
+        }
+
+        diag.set_label(span, msg);
+
+        diag
+    }
 }
 
 #[repr(i32)]
 enum ErrorCode {
     NameDefinedMultipleTime = 300,
     DuplicateIdentifierInParameterList = 301,
+    UndefinedIdentifier = 302,
 }
 
 impl From<ErrorCode> for i32 {
