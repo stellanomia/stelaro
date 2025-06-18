@@ -186,7 +186,6 @@ macro_rules! _generate_sym_constants_impl {
         // ここに何も続かない (入力リストが空)
     ) => {
         $($defs)*
-        #[allow(dead_code)]
         pub const PREFILLED_COUNT: usize = $idx;
     };
 
