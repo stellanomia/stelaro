@@ -12,17 +12,11 @@ Stelo {
                         Item {
                             kind: Fn(
                                 Function {
-                                    span: Span {
-                                        start: 15,
-                                        end: 238,
-                                    },
+                                    span: Span {[SPAN]},
                                     sig: FnSig {
                                         params: [],
                                         ret_ty: Default,
-                                        span: Span {
-                                            start: 18,
-                                            end: 24,
-                                        },
+                                        span: Span {[SPAN]},
                                     },
                                     body: Block {
                                         id: NodeId(
@@ -45,16 +39,10 @@ Stelo {
                                                             kind: Ident(
                                                                 Ident {
                                                                     name: Symbol([ID]),
-                                                                    span: Span {
-                                                                        start: 39,
-                                                                        end: 40,
-                                                                    },
+                                                                    span: Span {[SPAN]},
                                                                 },
                                                             ),
-                                                            span: Span {
-                                                                start: 39,
-                                                                end: 40,
-                                                            },
+                                                            span: Span {[SPAN]},
                                                         },
                                                         kind: Init(
                                                             Expr {
@@ -69,10 +57,7 @@ Stelo {
                                                                         kind: Binary(
                                                                             BinOp {
                                                                                 kind: Eq,
-                                                                                span: Span {
-                                                                                    start: 74,
-                                                                                    end: 76,
-                                                                                },
+                                                                                span: Span {[SPAN]},
                                                                             },
                                                                             Expr {
                                                                                 id: NodeId(
@@ -86,10 +71,7 @@ Stelo {
                                                                                         kind: Binary(
                                                                                             BinOp {
                                                                                                 kind: Lt,
-                                                                                                span: Span {
-                                                                                                    start: 51,
-                                                                                                    end: 52,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
                                                                                                 id: NodeId(
@@ -101,10 +83,7 @@ Stelo {
                                                                                                         symbol: Symbol([ID]),
                                                                                                     },
                                                                                                 ),
-                                                                                                span: Span {
-                                                                                                    start: 49,
-                                                                                                    end: 50,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
                                                                                                 id: NodeId(
@@ -116,16 +95,10 @@ Stelo {
                                                                                                         symbol: Symbol([ID]),
                                                                                                     },
                                                                                                 ),
-                                                                                                span: Span {
-                                                                                                    start: 53,
-                                                                                                    end: 54,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                         ),
-                                                                                        span: Span {
-                                                                                            start: 49,
-                                                                                            end: 54,
-                                                                                        },
+                                                                                        span: Span {[SPAN]},
                                                                                     },
                                                                                     Block {
                                                                                         id: NodeId(
@@ -147,22 +120,13 @@ Stelo {
                                                                                                                 symbol: Symbol([ID]),
                                                                                                             },
                                                                                                         ),
-                                                                                                        span: Span {
-                                                                                                            start: 57,
-                                                                                                            end: 58,
-                                                                                                        },
+                                                                                                        span: Span {[SPAN]},
                                                                                                     },
                                                                                                 ),
-                                                                                                span: Span {
-                                                                                                    start: 57,
-                                                                                                    end: 58,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                         ],
-                                                                                        span: Span {
-                                                                                            start: 55,
-                                                                                            end: 60,
-                                                                                        },
+                                                                                        span: Span {[SPAN]},
                                                                                     },
                                                                                     Some(
                                                                                         Expr {
@@ -187,10 +151,7 @@ Stelo {
                                                                                                                     kind: Binary(
                                                                                                                         BinOp {
                                                                                                                             kind: Add,
-                                                                                                                            span: Span {
-                                                                                                                                start: 69,
-                                                                                                                                end: 70,
-                                                                                                                            },
+                                                                                                                            span: Span {[SPAN]},
                                                                                                                         },
                                                                                                                         Expr {
                                                                                                                             id: NodeId(
@@ -202,10 +163,7 @@ Stelo {
                                                                                                                                     symbol: Symbol([ID]),
                                                                                                                                 },
                                                                                                                             ),
-                                                                                                                            span: Span {
-                                                                                                                                start: 67,
-                                                                                                                                end: 68,
-                                                                                                                            },
+                                                                                                                            span: Span {[SPAN]},
                                                                                                                         },
                                                                                                                         Expr {
                                                                                                                             id: NodeId(
@@ -217,41 +175,23 @@ Stelo {
                                                                                                                                     symbol: Symbol([ID]),
                                                                                                                                 },
                                                                                                                             ),
-                                                                                                                            span: Span {
-                                                                                                                                start: 71,
-                                                                                                                                end: 72,
-                                                                                                                            },
+                                                                                                                            span: Span {[SPAN]},
                                                                                                                         },
                                                                                                                     ),
-                                                                                                                    span: Span {
-                                                                                                                        start: 67,
-                                                                                                                        end: 72,
-                                                                                                                    },
+                                                                                                                    span: Span {[SPAN]},
                                                                                                                 },
                                                                                                             ),
-                                                                                                            span: Span {
-                                                                                                                start: 67,
-                                                                                                                end: 72,
-                                                                                                            },
+                                                                                                            span: Span {[SPAN]},
                                                                                                         },
                                                                                                     ],
-                                                                                                    span: Span {
-                                                                                                        start: 66,
-                                                                                                        end: 73,
-                                                                                                    },
+                                                                                                    span: Span {[SPAN]},
                                                                                                 },
                                                                                             ),
-                                                                                            span: Span {
-                                                                                                start: 66,
-                                                                                                end: 73,
-                                                                                            },
+                                                                                            span: Span {[SPAN]},
                                                                                         },
                                                                                     ),
                                                                                 ),
-                                                                                span: Span {
-                                                                                    start: 46,
-                                                                                    end: 73,
-                                                                                },
+                                                                                span: Span {[SPAN]},
                                                                             },
                                                                             Expr {
                                                                                 id: NodeId(
@@ -263,16 +203,10 @@ Stelo {
                                                                                         symbol: Symbol([ID]),
                                                                                     },
                                                                                 ),
-                                                                                span: Span {
-                                                                                    start: 77,
-                                                                                    end: 78,
-                                                                                },
+                                                                                span: Span {[SPAN]},
                                                                             },
                                                                         ),
-                                                                        span: Span {
-                                                                            start: 46,
-                                                                            end: 78,
-                                                                        },
+                                                                        span: Span {[SPAN]},
                                                                     },
                                                                     Block {
                                                                         id: NodeId(
@@ -295,16 +229,10 @@ Stelo {
                                                                                             kind: Ident(
                                                                                                 Ident {
                                                                                                     name: Symbol([ID]),
-                                                                                                    span: Span {
-                                                                                                        start: 97,
-                                                                                                        end: 98,
-                                                                                                    },
+                                                                                                    span: Span {[SPAN]},
                                                                                                 },
                                                                                             ),
-                                                                                            span: Span {
-                                                                                                start: 97,
-                                                                                                end: 98,
-                                                                                            },
+                                                                                            span: Span {[SPAN]},
                                                                                         },
                                                                                         kind: Init(
                                                                                             Expr {
@@ -317,10 +245,7 @@ Stelo {
                                                                                                         symbol: Symbol([ID]),
                                                                                                     },
                                                                                                 ),
-                                                                                                span: Span {
-                                                                                                    start: 106,
-                                                                                                    end: 107,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                         ),
                                                                                         ty: Some(
@@ -330,18 +255,12 @@ Stelo {
                                                                                                 ),
                                                                                                 kind: Path(
                                                                                                     Path {
-                                                                                                        span: Span {
-                                                                                                            start: 100,
-                                                                                                            end: 103,
-                                                                                                        },
+                                                                                                        span: Span {[SPAN]},
                                                                                                         segments: [
                                                                                                             PathSegment {
                                                                                                                 ident: Ident {
                                                                                                                     name: Symbol([ID]),
-                                                                                                                    span: Span {
-                                                                                                                        start: 100,
-                                                                                                                        end: 103,
-                                                                                                                    },
+                                                                                                                    span: Span {[SPAN]},
                                                                                                                 },
                                                                                                                 id: NodeId(
                                                                                                                     18,
@@ -350,22 +269,13 @@ Stelo {
                                                                                                         ],
                                                                                                     },
                                                                                                 ),
-                                                                                                span: Span {
-                                                                                                    start: 100,
-                                                                                                    end: 103,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                         ),
-                                                                                        span: Span {
-                                                                                            start: 93,
-                                                                                            end: 108,
-                                                                                        },
+                                                                                        span: Span {[SPAN]},
                                                                                     },
                                                                                 ),
-                                                                                span: Span {
-                                                                                    start: 93,
-                                                                                    end: 108,
-                                                                                },
+                                                                                span: Span {[SPAN]},
                                                                             },
                                                                             Stmt {
                                                                                 id: NodeId(
@@ -379,10 +289,7 @@ Stelo {
                                                                                         kind: Binary(
                                                                                             BinOp {
                                                                                                 kind: Lt,
-                                                                                                span: Span {
-                                                                                                    start: 130,
-                                                                                                    end: 131,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
                                                                                                 id: NodeId(
@@ -390,18 +297,12 @@ Stelo {
                                                                                                 ),
                                                                                                 kind: Path(
                                                                                                     Path {
-                                                                                                        span: Span {
-                                                                                                            start: 128,
-                                                                                                            end: 129,
-                                                                                                        },
+                                                                                                        span: Span {[SPAN]},
                                                                                                         segments: [
                                                                                                             PathSegment {
                                                                                                                 ident: Ident {
                                                                                                                     name: Symbol([ID]),
-                                                                                                                    span: Span {
-                                                                                                                        start: 128,
-                                                                                                                        end: 129,
-                                                                                                                    },
+                                                                                                                    span: Span {[SPAN]},
                                                                                                                 },
                                                                                                                 id: NodeId(
                                                                                                                     23,
@@ -410,10 +311,7 @@ Stelo {
                                                                                                         ],
                                                                                                     },
                                                                                                 ),
-                                                                                                span: Span {
-                                                                                                    start: 128,
-                                                                                                    end: 129,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
                                                                                                 id: NodeId(
@@ -425,16 +323,10 @@ Stelo {
                                                                                                         symbol: Symbol([ID]),
                                                                                                     },
                                                                                                 ),
-                                                                                                span: Span {
-                                                                                                    start: 132,
-                                                                                                    end: 133,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                         ),
-                                                                                        span: Span {
-                                                                                            start: 128,
-                                                                                            end: 133,
-                                                                                        },
+                                                                                        span: Span {[SPAN]},
                                                                                     },
                                                                                     Block {
                                                                                         id: NodeId(
@@ -457,18 +349,12 @@ Stelo {
                                                                                                                 ),
                                                                                                                 kind: Path(
                                                                                                                     Path {
-                                                                                                                        span: Span {
-                                                                                                                            start: 152,
-                                                                                                                            end: 153,
-                                                                                                                        },
+                                                                                                                        span: Span {[SPAN]},
                                                                                                                         segments: [
                                                                                                                             PathSegment {
                                                                                                                                 ident: Ident {
                                                                                                                                     name: Symbol([ID]),
-                                                                                                                                    span: Span {
-                                                                                                                                        start: 152,
-                                                                                                                                        end: 153,
-                                                                                                                                    },
+                                                                                                                                    span: Span {[SPAN]},
                                                                                                                                 },
                                                                                                                                 id: NodeId(
                                                                                                                                     27,
@@ -477,10 +363,7 @@ Stelo {
                                                                                                                         ],
                                                                                                                     },
                                                                                                                 ),
-                                                                                                                span: Span {
-                                                                                                                    start: 152,
-                                                                                                                    end: 153,
-                                                                                                                },
+                                                                                                                span: Span {[SPAN]},
                                                                                                             },
                                                                                                             Expr {
                                                                                                                 id: NodeId(
@@ -489,10 +372,7 @@ Stelo {
                                                                                                                 kind: Binary(
                                                                                                                     BinOp {
                                                                                                                         kind: Add,
-                                                                                                                        span: Span {
-                                                                                                                            start: 158,
-                                                                                                                            end: 159,
-                                                                                                                        },
+                                                                                                                        span: Span {[SPAN]},
                                                                                                                     },
                                                                                                                     Expr {
                                                                                                                         id: NodeId(
@@ -500,18 +380,12 @@ Stelo {
                                                                                                                         ),
                                                                                                                         kind: Path(
                                                                                                                             Path {
-                                                                                                                                span: Span {
-                                                                                                                                    start: 156,
-                                                                                                                                    end: 157,
-                                                                                                                                },
+                                                                                                                                span: Span {[SPAN]},
                                                                                                                                 segments: [
                                                                                                                                     PathSegment {
                                                                                                                                         ident: Ident {
                                                                                                                                             name: Symbol([ID]),
-                                                                                                                                            span: Span {
-                                                                                                                                                start: 156,
-                                                                                                                                                end: 157,
-                                                                                                                                            },
+                                                                                                                                            span: Span {[SPAN]},
                                                                                                                                         },
                                                                                                                                         id: NodeId(
                                                                                                                                             29,
@@ -520,10 +394,7 @@ Stelo {
                                                                                                                                 ],
                                                                                                                             },
                                                                                                                         ),
-                                                                                                                        span: Span {
-                                                                                                                            start: 156,
-                                                                                                                            end: 157,
-                                                                                                                        },
+                                                                                                                        span: Span {[SPAN]},
                                                                                                                     },
                                                                                                                     Expr {
                                                                                                                         id: NodeId(
@@ -535,40 +406,22 @@ Stelo {
                                                                                                                                 symbol: Symbol([ID]),
                                                                                                                             },
                                                                                                                         ),
-                                                                                                                        span: Span {
-                                                                                                                            start: 160,
-                                                                                                                            end: 161,
-                                                                                                                        },
+                                                                                                                        span: Span {[SPAN]},
                                                                                                                     },
                                                                                                                 ),
-                                                                                                                span: Span {
-                                                                                                                    start: 156,
-                                                                                                                    end: 161,
-                                                                                                                },
+                                                                                                                span: Span {[SPAN]},
                                                                                                             },
                                                                                                         ),
-                                                                                                        span: Span {
-                                                                                                            start: 152,
-                                                                                                            end: 161,
-                                                                                                        },
+                                                                                                        span: Span {[SPAN]},
                                                                                                     },
                                                                                                 ),
-                                                                                                span: Span {
-                                                                                                    start: 152,
-                                                                                                    end: 162,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                             },
                                                                                         ],
-                                                                                        span: Span {
-                                                                                            start: 134,
-                                                                                            end: 176,
-                                                                                        },
+                                                                                        span: Span {[SPAN]},
                                                                                     },
                                                                                 ),
-                                                                                span: Span {
-                                                                                    start: 122,
-                                                                                    end: 176,
-                                                                                },
+                                                                                span: Span {[SPAN]},
                                                                             },
                                                                             Stmt {
                                                                                 id: NodeId(
@@ -581,18 +434,12 @@ Stelo {
                                                                                         ),
                                                                                         kind: Path(
                                                                                             Path {
-                                                                                                span: Span {
-                                                                                                    start: 189,
-                                                                                                    end: 190,
-                                                                                                },
+                                                                                                span: Span {[SPAN]},
                                                                                                 segments: [
                                                                                                     PathSegment {
                                                                                                         ident: Ident {
                                                                                                             name: Symbol([ID]),
-                                                                                                            span: Span {
-                                                                                                                start: 189,
-                                                                                                                end: 190,
-                                                                                                            },
+                                                                                                            span: Span {[SPAN]},
                                                                                                         },
                                                                                                         id: NodeId(
                                                                                                             37,
@@ -601,22 +448,13 @@ Stelo {
                                                                                                 ],
                                                                                             },
                                                                                         ),
-                                                                                        span: Span {
-                                                                                            start: 189,
-                                                                                            end: 190,
-                                                                                        },
+                                                                                        span: Span {[SPAN]},
                                                                                     },
                                                                                 ),
-                                                                                span: Span {
-                                                                                    start: 189,
-                                                                                    end: 190,
-                                                                                },
+                                                                                span: Span {[SPAN]},
                                                                             },
                                                                         ],
-                                                                        span: Span {
-                                                                            start: 79,
-                                                                            end: 200,
-                                                                        },
+                                                                        span: Span {[SPAN]},
                                                                     },
                                                                     Some(
                                                                         Expr {
@@ -644,102 +482,60 @@ Stelo {
                                                                                                             symbol: Symbol([ID]),
                                                                                                         },
                                                                                                     ),
-                                                                                                    span: Span {
-                                                                                                        start: 220,
-                                                                                                        end: 221,
-                                                                                                    },
+                                                                                                    span: Span {[SPAN]},
                                                                                                 },
                                                                                             ),
-                                                                                            span: Span {
-                                                                                                start: 220,
-                                                                                                end: 221,
-                                                                                            },
+                                                                                            span: Span {[SPAN]},
                                                                                         },
                                                                                     ],
-                                                                                    span: Span {
-                                                                                        start: 206,
-                                                                                        end: 231,
-                                                                                    },
+                                                                                    span: Span {[SPAN]},
                                                                                 },
                                                                             ),
-                                                                            span: Span {
-                                                                                start: 206,
-                                                                                end: 231,
-                                                                            },
+                                                                            span: Span {[SPAN]},
                                                                         },
                                                                     ),
                                                                 ),
-                                                                span: Span {
-                                                                    start: 43,
-                                                                    end: 231,
-                                                                },
+                                                                span: Span {[SPAN]},
                                                             },
                                                         ),
                                                         ty: None,
-                                                        span: Span {
-                                                            start: 35,
-                                                            end: 232,
-                                                        },
+                                                        span: Span {[SPAN]},
                                                     },
                                                 ),
-                                                span: Span {
-                                                    start: 35,
-                                                    end: 232,
-                                                },
+                                                span: Span {[SPAN]},
                                             },
                                         ],
-                                        span: Span {
-                                            start: 25,
-                                            end: 238,
-                                        },
+                                        span: Span {[SPAN]},
                                     },
                                 },
                             ),
                             id: NodeId(
                                 49,
                             ),
-                            span: Span {
-                                start: 15,
-                                end: 238,
-                            },
+                            span: Span {[SPAN]},
                             ident: Ident {
                                 name: Symbol([ID]),
-                                span: Span {
-                                    start: 18,
-                                    end: 22,
-                                },
+                                span: Span {[SPAN]},
                             },
                         },
                     ],
                     ModSpan {
-                        inner_span: Span {
-                            start: 9,
-                            end: 240,
-                        },
+                        inner_span: Span {[SPAN]},
                     },
                 ),
             ),
             id: NodeId(
                 50,
             ),
-            span: Span {
-                start: 0,
-                end: 240,
-            },
+            span: Span {[SPAN]},
             ident: Ident {
                 name: Symbol([ID]),
-                span: Span {
-                    start: 4,
-                    end: 8,
-                },
+                span: Span {[SPAN]},
             },
         },
     ],
     span: ModSpan {
-        inner_span: Span {
-            start: 0,
-            end: 240,
-        },
+        inner_span: Span {[SPAN]},
     },
     id: NodeId(
         0,
