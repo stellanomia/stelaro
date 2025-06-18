@@ -79,6 +79,23 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         .map(LexicalScopeBinding::Item)
     }
 
+    pub(crate) fn maybe_resolve_ident_in_module(
+        &mut self,
+        module: Module<'ra>,
+        ident: Ident,
+        ns: Namespace,
+        parent_scope: &Module<'ra>,
+    ) -> Result<NameBinding<'ra>, Determinacy> {
+        self.resolve_ident_in_module(
+            &module,
+            ident,
+            ns,
+            parent_scope,
+            None,
+            None
+        )
+    }
+
     pub fn resolve_ident_in_module(
         &mut self,
         module: &Module<'ra>,
