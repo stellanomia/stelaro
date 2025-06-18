@@ -20,4 +20,3 @@ pub struct MainDefinition {
     pub res: Res<NodeId>,
     pub span: Span,
 }
-

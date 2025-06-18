@@ -1,4 +1,4 @@
-use crate::stelaro_ast::{ast::{Local, LocalKind, Stmt, StmtKind}, token::TokenKind};
+use crate::stelaro_ast::{ast::*, token::TokenKind};
 
 use super::{parser::Parser, PResult};
 

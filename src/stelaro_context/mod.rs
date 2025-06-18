@@ -1,8 +1,8 @@
 use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap};
 
-use crate::stelaro_common::{def_id::DefId, Arena, IndexVec, LocalDefId, Span, StableSteloId, Symbol, STELO_DEF_ID};
-use crate::stelaro_diagnostic::diag::DiagCtxtHandle;
+use crate::stelaro_common::{DefId, Arena, IndexVec, LocalDefId, Span, StableSteloId, Symbol, STELO_DEF_ID};
+use crate::stelaro_diagnostic::DiagCtxtHandle;
 use crate::stelaro_sir::{def::DefKind, definitions::Definitions};
 use crate::stelaro_ty::{Ty, TyKind};
 

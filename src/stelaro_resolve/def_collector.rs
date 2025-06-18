@@ -1,7 +1,7 @@
 use std::mem;
 
-use crate::{stelaro_ast::{ast::*, visit::{walk_item, Visitor}, NodeId}, stelaro_common::{Span, STELO_DEF_ID}};
-use crate::stelaro_common::{LocalDefId, Symbol};
+use crate::stelaro_ast::{ast::*, visit::{walk_item, Visitor}, NodeId};
+use crate::stelaro_common::{LocalDefId, Symbol, Span, STELO_DEF_ID};
 use crate::stelaro_sir::def::DefKind;
 
 use super::Resolver;
