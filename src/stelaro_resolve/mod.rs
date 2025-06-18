@@ -317,16 +317,6 @@ pub enum LexicalScopeBinding<'ra> {
     Res(Res),
 }
 
-impl<'ra> LexicalScopeBinding<'ra> {
-    fn res(self) -> Res {
-        match self {
-            LexicalScopeBinding::Item(binding) => binding.res(),
-            LexicalScopeBinding::Res(res) => res,
-        }
-    }
-}
-
-
 /// ライフタイム `'ra` を持つデータ構造を格納するためのアリーナ
 #[derive(Default)]
 pub struct ResolverArenas<'ra> {
@@ -383,9 +373,9 @@ impl<'ra> ResolverArenas<'ra> {
         self.name_resolutions.alloc(Default::default())
     }
 
-    fn local_modules(&'ra self) -> std::cell::Ref<'ra, Vec<Module<'ra>>> {
-        self.local_modules.borrow()
-    }
+    // fn local_modules(&'ra self) -> std::cell::Ref<'ra, Vec<Module<'ra>>> {
+    //     self.local_modules.borrow()
+    // }
 
     fn alloc_name_binding(&'ra self, name_binding: NameBindingData<'ra>) -> NameBinding<'ra> {
         NameBinding(self.name_bindings.alloc(name_binding))
@@ -566,6 +556,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 /// もし `Option<Finalize>` が存在し、かつ名前解決に失敗すると
 /// それらは決定されなければいけないため、`Finalize` のもつフィールドを
 /// 使用して診断を出すことができます。
+#[allow(unused)]
 #[derive(Copy, Clone, Debug)]
 pub struct Finalize {
     node_id: NodeId,

@@ -1,6 +1,6 @@
 use crate::stelaro_common::{Ident, Span};
 use crate::stelaro_diagnostic::diag::{Diag, DiagCtxtHandle, ErrorEmitted};
-use crate::stelaro_resolve::{Segment, LexicalScopeBinding, late::{Scope, PathSource}};
+use crate::stelaro_resolve::{Segment, LexicalScopeBinding, late::Scope};
 use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
 
 use super::{Module, ModuleKind, NameBinding, Resolver};
@@ -157,27 +157,18 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             format!("`{ident}` を解決することができませんでした")
         }
     }
-
-    pub fn report_errors_with_context(
-        &mut self,
-        path: &[Segment],
-        span: Span,
-        source: PathSource<'_>,
-    ) -> Diag<'tcx> {
-        todo!()
-    }
 }
 
-impl<'a> PathSource<'a> {
-    fn error_code(self, has_unexpected_resolution: bool) -> ErrorCode {
-        match (self, has_unexpected_resolution) {
-            (PathSource::Type, true) => todo!(),
-            (PathSource::Type, false) => todo!(),
-            (PathSource::Expr(..), true) => todo!(),
-            (PathSource::Expr(..), false) => todo!(),
-        }
-    }
-}
+// impl<'a> PathSource<'a> {
+//     fn error_code(self, has_unexpected_resolution: bool) -> ErrorCode {
+//         match (self, has_unexpected_resolution) {
+//             (PathSource::Type, true) => todo!(),
+//             (PathSource::Type, false) => todo!(),
+//             (PathSource::Expr(..), true) => todo!(),
+//             (PathSource::Expr(..), false) => todo!(),
+//         }
+//     }
+// }
 
 pub struct DiagsResolver;
 

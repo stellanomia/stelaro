@@ -47,7 +47,8 @@ impl<'ra, R> Scope<'ra, R> {
 }
 
 /// パス (`Path`) が出現する構文上の文脈。
-#[derive(Copy, Clone, Debug)]
+#[allow(unused)]
+#[derive(Debug, Copy, Clone,)]
 pub enum PathSource<'a> {
     /// 型注釈などで使われるパス。
     Type,
@@ -316,7 +317,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         source: PathSource<'ast>,
     ) -> Res {
         let ns = source.namespace();
-        let Finalize { path_span, .. } = finalize;
+        // let Finalize { path_span, .. } = finalize;
 
         if ns == TypeNS &&
             path.len() == 1 &&
@@ -343,15 +344,31 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             PathResult::Failed {
                 span,
                 label,
-                is_error_from_last_segment,
                 module,
                 segment_name,
+                ..
             } => {
-                let err = self.r.report_errors_with_context(
-                    path,
-                    path_span,
-                    source,
-                );
+                // let err = self.r.report_errors_with_context(
+                //     path,
+                //     path_span,
+                //     source,
+                // );
+
+                let mut err = self.r.dcx().struct_err(span);
+                err.set_label(span, label);
+                err.set_code(302);
+                let descr = module
+                    .and_then(|m| m.res())
+                    .map(|m| m.descr_ja());
+                if let Some(descr) = descr {
+                    err.set_message(
+                        format!("定義されていない{descr} `{}`", segment_name.as_str())
+                    );
+                } else {
+                    err.set_message(
+                        format!("定義されていない `{}`", segment_name.as_str())
+                    );
+                }
 
                 err.emit();
                 Res::Err
