@@ -160,7 +160,12 @@ impl DefIndex {
     #[inline]
     pub fn new(index: u32) -> Self { DefIndex(index) }
     #[inline]
+    pub fn from_usize(index: usize) -> Self {
+        DefIndex(index.try_into().expect("bug: u32 の最大値を超えた DefIndex 変換"))
+    }
+    #[inline]
     pub fn as_u32(self) -> u32 { self.0 }
+    pub fn as_usize(self) -> usize { self.0 as usize }
 }
 
 impl Idx for DefIndex {
