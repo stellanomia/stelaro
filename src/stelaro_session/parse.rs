@@ -1,7 +1,7 @@
 use std::rc::Rc;
 
 use crate::stelaro_common::SourceMap;
-use crate::stelaro_diagnostic::{DiagCtxt, DiagCtxtHandle};
+use crate::stelaro_diagnostics::{DiagCtxt, DiagCtxtHandle};
 
 
 pub struct ParseSess {

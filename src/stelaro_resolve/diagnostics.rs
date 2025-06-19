@@ -1,5 +1,5 @@
 use crate::stelaro_common::{Ident, Span, Symbol};
-use crate::stelaro_diagnostic::diag::{Diag, DiagCtxtHandle};
+use crate::stelaro_diagnostics::diag::{Diag, DiagCtxtHandle};
 use crate::stelaro_resolve::{Segment, LexicalScopeBinding, late::Scope};
 use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
 

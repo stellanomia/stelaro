@@ -6,7 +6,7 @@ use insta::{assert_debug_snapshot, with_settings};
 use stelaro::stelaro_common::create_default_session_globals_then;
 use stelaro::stelaro_session::ParseSess;
 use stelaro::stelaro_parse::new_parser_from_source_str;
-use stelaro::stelaro_diagnostic::{DiagCtxt, SilentEmitter};
+use stelaro::stelaro_diagnostics::{DiagCtxt, SilentEmitter};
 use stelaro::stelaro_common::source_map::SourceMap;
 
 fn create_test_context() -> ParseSess {

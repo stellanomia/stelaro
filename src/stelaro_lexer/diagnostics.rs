@@ -1,5 +1,5 @@
 use crate::stelaro_common::Span;
-use crate::stelaro_diagnostic::{Diag, DiagCtxtHandle, ErrorEmitted};
+use crate::stelaro_diagnostics::{Diag, DiagCtxtHandle, ErrorEmitted};
 
 pub struct DiagsLexer;
 
@@ -130,8 +130,8 @@ mod tests {
     use std::rc::Rc;
 
     use crate::stelaro_common::create_default_session_globals_then;
-    use crate::stelaro_diagnostic::emitter::SilentEmitter;
-    use crate::stelaro_diagnostic::DiagCtxt;
+    use crate::stelaro_diagnostics::emitter::SilentEmitter;
+    use crate::stelaro_diagnostics::DiagCtxt;
     use crate::stelaro_lexer::{diagnostics::ErrorCode, Lexer};
     use crate::stelaro_session::ParseSess;
     use crate::stelaro_common::source_map::SourceMap;

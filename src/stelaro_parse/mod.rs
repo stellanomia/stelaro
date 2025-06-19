@@ -12,7 +12,7 @@ use std::rc::Rc;
 
 use crate::stelaro_ast::token::TokenStream;
 use crate::stelaro_common::source_map::SourceFile;
-use crate::stelaro_diagnostic::ErrorEmitted;
+use crate::stelaro_diagnostics::ErrorEmitted;
 use crate::stelaro_lexer::Lexer;
 use crate::stelaro_session::ParseSess;
 
@@ -32,7 +32,7 @@ pub fn new_parser_from_source_str(
 
 pub fn new_parser_from_file<'sess>(psess: &'sess ParseSess, path: &std::path::Path) -> Result<Parser<'sess>, ErrorEmitted> {
     let file = psess.source_map().load_file(path).unwrap_or_else(|e| {
-        psess.dcx().emit_fatal(format!("{e}"));
+        psess.dcx().emit_fatal(format!("{e}"))
     });
 
     let mut lexer = Lexer::new(psess, file.src.as_ref());
