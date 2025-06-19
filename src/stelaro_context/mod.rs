@@ -15,6 +15,7 @@ pub struct TyCtxt<'tcx> {
 
 pub struct GlobalCtxt<'tcx> {
     pub arena: &'tcx Arena,
+    pub sir_arena: &'tcx Arena,
     pub sess: &'tcx Session,
 
     /// DefId から実際の定義へのマップ
@@ -98,9 +99,11 @@ impl<'tcx> TyCtxt<'tcx> {
         sess: &'tcx Session,
         stable_stelo_id: StableSteloId,
         arena: &'tcx Arena,
+        sir_arena: &'tcx Arena,
     ) -> GlobalCtxt<'tcx> {
         GlobalCtxt {
             arena,
+            sir_arena,
             sess,
             definitions: RefCell::new(Definitions::new(stable_stelo_id)),
             types_interner: RefCell::new(HashMap::new()),

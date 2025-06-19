@@ -16,7 +16,7 @@ impl fmt::Debug for OwnerId {
 
 impl From<OwnerId> for SirId {
     fn from(owner: OwnerId) -> SirId {
-        SirId { owner, local_id: ItemLocalId(0) }
+        SirId { owner, local_id: ItemLocalId::ZERO }
     }
 }
 
@@ -86,7 +86,7 @@ impl SirId {
 
     #[inline]
     pub fn make_owner(owner: LocalDefId) -> Self {
-        Self { owner: OwnerId { def_id: owner }, local_id: ItemLocalId::new(0) }
+        Self { owner: OwnerId { def_id: owner }, local_id: ItemLocalId::ZERO }
     }
 }
 
@@ -117,6 +117,7 @@ impl Idx for ItemLocalId {
 }
 
 impl ItemLocalId {
+    pub const ZERO: ItemLocalId = ItemLocalId(0);
     /// 使用すべきでないローカル ID を示す。
     pub const INVALID: ItemLocalId = ItemLocalId(u32::MAX);
 }
