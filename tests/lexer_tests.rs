@@ -4,7 +4,7 @@ use stelaro::stelaro_ast::token::{Lit, LiteralKind, TokenKind};
 use stelaro::stelaro_common::{SourceMap, Symbol, create_default_session_globals_then};
 use stelaro::stelaro_session::ParseSess;
 use stelaro::stelaro_lexer::Lexer;
-use stelaro::stelaro_diagnostic::{DiagCtxt, SilentEmitter};
+use stelaro::stelaro_diagnostics::{DiagCtxt, SilentEmitter};
 
 fn create_test_context() -> ParseSess {
     let source_map = Rc::new(SourceMap::new());

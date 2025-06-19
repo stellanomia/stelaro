@@ -1,6 +1,6 @@
 use crate::stelaro_ast::token::{Lit, Token, TokenKind};
 use crate::stelaro_common::Span;
-use crate::stelaro_diagnostic::{Diag, DiagCtxtHandle, ErrorEmitted};
+use crate::stelaro_diagnostics::{Diag, DiagCtxtHandle, ErrorEmitted};
 
 pub struct DiagsParser;
 
@@ -280,10 +280,10 @@ mod tests {
     use std::rc::Rc;
 
     use crate::stelaro_common::create_default_session_globals_then;
-    use crate::stelaro_diagnostic::emitter::SilentEmitter;
+    use crate::stelaro_diagnostics::emitter::SilentEmitter;
     use crate::stelaro_session::ParseSess;
     use crate::stelaro_parse::{diagnostics::ErrorCode, new_parser_from_source_str, parser::Parser};
-    use crate::stelaro_diagnostic::DiagCtxt;
+    use crate::stelaro_diagnostics::DiagCtxt;
     use crate::stelaro_common::source_map::SourceMap;
 
     fn create_test_context() -> ParseSess {

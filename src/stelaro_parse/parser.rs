@@ -3,7 +3,7 @@ use crate::stelaro_ast::{
     NodeId, STELO_NODE_ID,
 };
 use crate::stelaro_common::{Span, Ident};
-use crate::stelaro_diagnostic::{DiagCtxtHandle, ErrorEmitted};
+use crate::stelaro_diagnostics::{DiagCtxtHandle, ErrorEmitted};
 use crate::stelaro_session::ParseSess;
 
 use super::diagnostics::DiagsParser;

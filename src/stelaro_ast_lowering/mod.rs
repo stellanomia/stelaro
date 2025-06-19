@@ -1,4 +1,5 @@
-use crate::{stelaro_context::TyCtxt, stelaro_ty::ResolverAstLowering};
+use crate::stelaro_context::TyCtxt;
+use crate::stelaro_ty::ResolverAstLowering;
 
 
 struct LoweringContext<'a, 'sir> {

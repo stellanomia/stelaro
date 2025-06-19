@@ -2,8 +2,8 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::stelaro_common::{SourceMap, source_map::get_source_map};
-use crate::stelaro_diagnostic::emitter::{AriadneEmitter, DynEmitter};
-use crate::stelaro_diagnostic::{DiagCtxtHandle, DiagCtxt};
+use crate::stelaro_diagnostics::emitter::{AriadneEmitter, DynEmitter};
+use crate::stelaro_diagnostics::{DiagCtxtHandle, DiagCtxt};
 
 use super::config::{Input, OutFileName};
 use super::parse::ParseSess;

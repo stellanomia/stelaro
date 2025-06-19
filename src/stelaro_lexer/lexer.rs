@@ -1,6 +1,6 @@
 use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
 use crate::stelaro_common::Symbol;
-use crate::stelaro_diagnostic::ErrorEmitted;
+use crate::stelaro_diagnostics::ErrorEmitted;
 use crate::stelaro_session::ParseSess;
 
 use super::cursor::{Cursor, EOF_CHAR};
