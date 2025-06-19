@@ -1,4 +1,5 @@
 #![feature(associated_type_defaults)]
+#![feature(debug_closure_helpers)]
 #![feature(never_type)]
 #![feature(min_specialization)]
 #![allow(clippy::should_implement_trait)]
@@ -51,12 +52,14 @@ pub fn temp(src: String) {
 
         let stelo = parser.parse_stelo().unwrap();
         let arena = Arena::new();
+        let sir_arena = Arena::new();
         let stable_stelo_id = StableSteloId::new(Symbol::intern(name));
 
         let gcx = &TyCtxt::create_global_ctxt(
             &sess,
             stable_stelo_id,
             &arena,
+            &sir_arena,
         );
 
         let tcx = TyCtxt::new(gcx);
