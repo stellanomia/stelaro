@@ -14,7 +14,7 @@ use crate::stelaro_ast::{ast::{Stelo, Path, PathSegment}, NodeId, STELO_NODE_ID}
 use crate::stelaro_common::{sym, DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, DUMMY_SPAN, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir::def::{DefKind, Namespace, Res};
-use crate::stelaro_ty::{MainDefinition, ResolverOutputs};
+use crate::stelaro_ty::{MainDefinition, ResolverAstLowering, ResolverOutputs};
 
 
 /// 名前解決の試行結果が、その時点で最終的なものと見なせるか、
@@ -467,10 +467,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         def_id
     }
 
-    pub fn into_outputs(self) -> ResolverOutputs {
-        todo!()
-    }
-
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
         self.build_module_graph(stelo, self.graph_root);
 
@@ -560,6 +556,17 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let res = name_binding.res();
         let span = name_binding.span;
         self.main_def = Some(MainDefinition { res, span });
+    }
+
+    pub fn into_outputs(self) -> ResolverOutputs {
+        let main_def = self.main_def;
+
+        let ast_lowering = ResolverAstLowering {
+            node_id_to_def_id: self.node_id_to_def_id,
+            main_def,
+        };
+
+        ResolverOutputs { ast_lowering }
     }
 }
 
