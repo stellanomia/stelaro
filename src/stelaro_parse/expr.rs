@@ -209,7 +209,7 @@ impl Parser<'_> {
     fn check_non_associative_chain(&self, lhs: &Expr, next: AssocOp) -> PResult<()> {
         match &lhs.kind {
             ExprKind::Binary(bin_op, _, _) => {
-                if AssocOp::from_binop(bin_op.kind).is_comparison() && next.is_comparison() {
+                if AssocOp::from_binop(bin_op.node).is_comparison() && next.is_comparison() {
                     Err(
                         DiagsParser::chained_comparison(
                             self.dcx(), bin_op.span, self.prev_token.span

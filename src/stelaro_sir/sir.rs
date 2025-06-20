@@ -1,6 +1,6 @@
 use std::{collections::{BTreeMap, HashMap}, fmt};
 
-use crate::stelaro_common::{IndexVec, LocalDefId, Span};
+use crate::{stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind}, stelaro_common::{Ident, IndexVec, LocalDefId, Span, Spanned}, stelaro_diagnostics::ErrorEmitted, stelaro_sir::{def::Res, sir_id::OwnerId}};
 use crate::stelaro_sir::sir_id::{ItemLocalId, SirId};
 
 
@@ -20,7 +20,7 @@ pub struct ParentedNode<'tcx> {
 }
 
 /// 現在のオーナーの内部にあるすべてのSIRノードのマップ。
-/// これらのノードは `ItemLocalId`` をキーに、親ノードのインデックスとともにマッピングされる。
+/// これらのノードは `ItemLocalId` をキーに、親ノードのインデックスとともにマッピングされる。
 pub struct OwnerNodes<'tcx> {
     /// 「現在のオーナーに対応する完全なSIR。
     // 0番目のノードの親は `ItemLocalId::INVALID` に設定されており、アクセスできない
@@ -93,6 +93,121 @@ pub struct Crate<'sir> {
     pub owners: IndexVec<LocalDefId, MaybeOwner<'sir>>,
 }
 
+
+#[derive(Debug, Clone, Copy)]
+pub struct Path<'sir, R = Res<SirId>> {
+    pub span: Span,
+    /// パスの解決結果。
+    pub res: R,
+    /// パス内のセグメント。`::` によって区切られたものです。
+    pub segments: &'sir [PathSegment],
+}
+
+
+/// パスのセグメント。識別子や型の集合から構成されます。
+#[derive(Debug, Clone, Copy)]
+pub struct PathSegment {
+    /// このパスセグメントの識別子部分。
+    pub ident: Ident,
+    pub sir_id: SirId,
+    pub res: Res,
+}
+
+/// `{ .. }` で表される文のブロック。
+#[derive(Debug, Clone, Copy)]
+pub struct Block<'sir> {
+    /// ブロック内の文。
+    pub stmts: &'sir [Stmt<'sir>],
+    /// ブロックの末尾にある、セミコロンが付かない式（存在する場合）。
+    pub expr: Option<&'sir Expr<'sir>>,
+    pub sir_id: SirId,
+    /// スパンには、ブロックを囲む波括弧 `{` と `}` が含まれます。
+    pub span: Span,
+}
+
+impl<'sir> Block<'sir> {
+    pub fn innermost_block(&self) -> &Block<'sir> {
+        let mut block = self;
+        while let Some(Expr { kind: ExprKind::Block(inner_block), .. }) = block.expr {
+            block = inner_block;
+        }
+        block
+    }
+}
+
+
+#[derive(Debug, Clone, Copy)]
+pub struct Pat<'sir> {
+    pub sir_id: SirId,
+    pub kind: PatKind<'sir>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum PatKind<'sir> {
+    /// `_` のような、ワイルドカードのパターンを表す。
+    WildCard,
+
+    /// 新しい束縛を表します。
+    /// `SirId` は、束縛される変数の正規のIDです。
+    Binding(SirId, Ident, Option<&'sir Pat<'sir>>),
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Stmt<'sir> {
+    pub sir_id: SirId,
+    pub kind: StmtKind<'sir>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum StmtKind<'sir> {
+    /// let バインディング
+    Let(&'sir LetStmt<'sir>),
+
+    /// An item binding.
+    Item(ItemId),
+
+    /// 末尾にセミコロンが付かない式
+    Expr(&'sir Expr<'sir>),
+
+    /// 末尾にセミコロンが付く式
+    Semi(&'sir Expr<'sir>),
+}
+
+/// `let` 文を表す (i.e., `let <pat>:<ty> = <init>;`).
+#[derive(Debug, Clone, Copy)]
+pub struct LetStmt<'sir> {
+    pub pat: &'sir Pat<'sir>,
+    /// 型アテノーション
+    pub ty: Option<&'sir Ty<'sir>>,
+    /// 値を設定するための初期化式（存在する場合）。
+    pub init: Option<&'sir Expr<'sir>>,
+    pub sir_id: SirId,
+    pub span: Span,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub struct BodyId {
+    pub sir_id: SirId,
+}
+
+
+/// 関数の本体。
+/// 本体には、関数本体(という式)そのものだけでなく、引数のパターンも含まれます。
+/// なぜなら、それらは呼び出し元が実際には関知しないものであるためです。
+///
+/// fn foo(x: i32, y: i32) -> i32 {
+///     x + y
+/// }
+///
+/// ここで、`foo()` に関連付けられた `Body` は以下のものを含みます:
+///
+/// - `x`, 'y' パターンを含む `params` 配列
+/// - `x + y` 式を含む `value`
+///
+/// すべての本体は **owner** (所有者) を持ちます。これは
+/// `body_owner_def_id()` を使って SIR マップ経由でアクセスできます。
 #[derive(Debug, Clone, Copy)]
 pub struct Body<'sir> {
     pub params: &'sir [Param<'sir>],
@@ -105,6 +220,117 @@ impl<'sir> Body<'sir> {
     }
 }
 
+pub type Lit = Spanned<LiteralKind>;
+
+#[derive(Debug, Clone, Copy)]
+pub struct Expr<'sir> {
+    pub sir_id: SirId,
+    pub kind: ExprKind<'sir>,
+    pub span: Span,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ExprKind<'sir> {
+    /// 関数呼び出し。
+    ///
+    /// 最初のフィールドは関数自身 (通常は `ExprKind::Path`) に解決され、
+    /// 2番目のフィールドは引数のリストです。
+    Call(&'sir Expr<'sir>, &'sir [Expr<'sir>]),
+
+    /// 二項演算 (e.g., `a + b`, `a * b`).
+    Binary(BinOp, &'sir Expr<'sir>, &'sir Expr<'sir>),
+
+    /// 一項演算 (e.g., `!x`, `-x`).
+    Unary(UnOp, &'sir Expr<'sir>),
+
+    /// リテラル (e.g., `1`, `"foo"`).
+    Lit(&'sir Lit),
+
+    /// `if` ブロック。 else ブロックを持つことがあります。
+    ///
+    /// すなわち、`if <expr> { <expr> } else { <expr> }`。
+    ///
+    /// "then" 節の式は常に `ExprKind::Block` です。
+    /// "else" 節の式が存在する場合、常に `ExprKind::Block` (`else` の場合)
+    /// または `ExprKind::If` (`else if` の場合) になります。
+    If(&'sir Expr<'sir>, &'sir Expr<'sir>, Option<&'sir Expr<'sir>>),
+
+    Path(Path<'sir>),
+
+    /// ブロック式
+    Block(&'sir Block<'sir>),
+
+    /// 代入 (e.g., `a = foo()`)
+    Assign(&'sir Expr<'sir>, &'sir Expr<'sir>, Span),
+
+    /// `return expr;` を表す
+    Ret(Option<&'sir Expr<'sir>>),
+
+    Err(ErrorEmitted),
+}
+
+// アイテムの本体は、`Stelo` 内の別の
+// ハッシュマップに格納されます。ここでは、後で取得できるように
+// アイテムの sir-id を記録するだけです。
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ItemId {
+    pub owner_id: OwnerId,
+}
+
+impl ItemId {
+    #[inline]
+    pub fn sir_id(&self) -> SirId {
+        // アイテムは常に SIR の owner です。
+        SirId::make_owner(self.owner_id.def_id)
+    }
+}
+
+/// アイテム
+#[derive(Debug, Clone, Copy)]
+pub struct Item<'sir> {
+    pub owner_id: OwnerId,
+    pub kind: ItemKind<'sir>,
+    pub span: Span,
+}
+
+
+impl<'sir> Item<'sir> {
+    #[inline]
+    pub fn sir_id(&self) -> SirId {
+        // アイテムは常に sir の owner です。
+        SirId::make_owner(self.owner_id.def_id)
+    }
+
+    pub fn item_id(&self) -> ItemId {
+        ItemId { owner_id: self.owner_id }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ItemKind<'sir> {
+    /// 関数定義
+    Fn {
+        sig: FnSig<'sir>,
+        ident: Ident,
+        body: BodyId,
+    },
+
+    /// モジュール
+    Mod(Ident, &'sir Mod<'sir>),
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Mod<'hir> {
+    pub spans: ModSpans,
+    pub item_ids: &'hir [ItemId],
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct ModSpans {
+    /// `{` の直後の最初のトークンから、`}` の直前の最後のトークンまでのスパン。
+    pub inner_span: Span,
+}
+
 
 #[derive(Copy, Clone, Debug)]
 pub enum Node<'sir> {
@@ -112,7 +338,7 @@ pub enum Node<'sir> {
     Item(&'sir Item<'sir>),
     Expr(&'sir Expr<'sir>),
     Stmt(&'sir Stmt<'sir>),
-    PathSegment(&'sir PathSegment<'sir>),
+    PathSegment(&'sir PathSegment),
     Ty(&'sir Ty<'sir>),
     Pat(&'sir Pat<'sir>),
     Block(&'sir Block<'sir>),

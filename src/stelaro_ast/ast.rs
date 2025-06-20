@@ -1,4 +1,4 @@
-use crate::stelaro_common::{Span, Ident};
+use crate::stelaro_common::{Ident, Span, Spanned};
 
 use super::{token::{Lit, Token, TokenKind}, ty::Ty, NodeId};
 
@@ -9,7 +9,7 @@ pub struct Stelo {
     pub id: NodeId,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct Item {
     pub kind: ItemKind,
     pub id: NodeId,
@@ -18,7 +18,7 @@ pub struct Item {
     pub ident: Ident,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub enum ItemKind {
     Fn(Function),
     Mod(Mod),
@@ -27,27 +27,27 @@ pub enum ItemKind {
     // Const(Const),
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct Function {
     pub span: Span,
     pub sig: FnSig,
     pub body: Box<Block>,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct FnSig {
     pub params: Vec<Param>,
     pub ret_ty: FnRetTy,
     pub span: Span,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub enum FnRetTy {
     Default,
     Ty(Box<Ty>),
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct Param {
     pub id: NodeId,
     pub ty: Box<Ty>,
@@ -55,7 +55,7 @@ pub struct Param {
     pub span: Span,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub enum Mod {
     /// `mod my_module { ... }` を表す
     Inline(Vec<Box<Item>>, ModSpan)
@@ -63,27 +63,27 @@ pub enum Mod {
     // Outline,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct ModSpan {
     /// モジュールの括弧 `{ ... }` を除いた位置を指す
     pub inner_span: Span,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct Block {
     pub id: NodeId,
     pub stmts: Vec<Stmt>,
     pub span: Span,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct Stmt {
     pub id: NodeId,
     pub kind: StmtKind,
     pub span: Span,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub enum StmtKind {
     Let(Box<Local>),
 
@@ -100,7 +100,7 @@ pub enum StmtKind {
     Return(Box<Expr>),
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct Local {
     pub id: NodeId,
     pub pat: Box<Pat>,
@@ -109,36 +109,36 @@ pub struct Local {
     pub span: Span,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub enum LocalKind {
     Decl,
     Init(Box<Expr>),
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct Pat {
     pub id: NodeId,
     pub kind: PatKind,
     pub span: Span,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub enum PatKind {
     WildCard,
     // Rustの binding @ OPT_SUBPATTERN が Option<Box<Pat>> で実装可能
-    // FIXME: letバインディングによって生成される Pat は常に Path であるべきで、
-    // 将来的に PatKind::Path を作成し、一時的な実装を廃止する。
+    // FIXME: letバインディングによって生成される Pat は 様々な種類をとれるべきで、
+    // 将来的に PatKind::Path やデストラクトを作成し、一時的な実装を廃止する。
     Ident(Ident),
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub struct Expr {
     pub id: NodeId,
     pub kind: ExprKind,
     pub span: Span,
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone)]
 pub enum ExprKind {
     /// 関数呼び出し
     Call(Box<Expr>, Vec<Expr>),
@@ -167,11 +167,7 @@ pub struct PathSegment {
     pub id: NodeId,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct BinOp {
-    pub kind: BinOpKind,
-    pub span: Span,
-}
+pub type BinOp = Spanned<BinOpKind>;
 
 impl BinOp {
     pub fn from_token(token: Token) -> Self {
@@ -195,11 +191,11 @@ impl BinOp {
             _ => panic!("bug: 二項演算子でないトークン"),
         };
 
-        BinOp { kind, span: token.span }
+        BinOp { node: kind, span: token.span }
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum BinOpKind {
     /// `+` 演算子 (addition)
     Add,
@@ -229,7 +225,7 @@ pub enum BinOpKind {
     Gt
 }
 
-#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum UnOp {
     ///  `!` 演算子: 論理反転
     Not,
