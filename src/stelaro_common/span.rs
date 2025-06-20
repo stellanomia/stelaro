@@ -6,6 +6,13 @@ pub struct Span {
     pub end: u32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Hash)]
+pub struct Spanned<T> {
+    pub node: T,
+    pub span: Span,
+}
+
+
 pub const DUMMY_SPAN: Span = Span { start: 0, end: 0 };
 
 impl Span {
