@@ -97,7 +97,7 @@ pub struct Lit {
     pub symbol: Symbol,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum LiteralKind {
     Bool(bool),
     Char,
