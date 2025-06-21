@@ -2,8 +2,7 @@ use std::mem;
 
 use crate::stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor};
 use crate::stelaro_common::{Ident, IndexMap};
-use crate::stelaro_sir::def::{DefKind, Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
-use crate::stelaro_ty::ty::PrimTy;
+use crate::stelaro_sir::{sir::PrimTy, def::{DefKind, Namespace::{self, ValueNS, TypeNS}, PerNS, Res}};
 
 use crate::{try_visit, visit_opt};
 use super::{Module, Resolver, Finalize, Segment, PathResult, diagnostics::DiagsResolver};

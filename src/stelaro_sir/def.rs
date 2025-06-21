@@ -1,6 +1,6 @@
 use crate::stelaro_ast::NodeId;
 use crate::stelaro_common::{DefId, Symbol};
-use crate::stelaro_ty::ty::PrimTy;
+use crate::stelaro_sir::sir::PrimTy;
 
 use super::definitions::DefPathData;
 

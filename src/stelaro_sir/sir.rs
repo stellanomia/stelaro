@@ -1,7 +1,10 @@
 use std::{collections::{BTreeMap, HashMap}, fmt};
 
-use crate::{stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind}, stelaro_common::{Ident, IndexVec, LocalDefId, Span, Spanned}, stelaro_diagnostics::ErrorEmitted, stelaro_sir::{def::Res, sir_id::OwnerId}};
-use crate::stelaro_sir::sir_id::{ItemLocalId, SirId};
+use crate::stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind};
+use crate::stelaro_diagnostics::ErrorEmitted;
+use crate::stelaro_common::{sym, Ident, IndexVec, LocalDefId, Span, Spanned, Symbol};
+use crate::stelaro_sir::{def::Res, sir_id::{OwnerId, ItemLocalId, SirId}};
+use crate::stelaro_ty::ty::{FloatTy, IntTy, UintTy};
 
 
 #[derive(Copy, Clone, Debug)]
@@ -319,10 +322,102 @@ pub enum ItemKind<'sir> {
     Mod(Ident, &'sir Mod<'sir>),
 }
 
+/// SIR での型を表す。
 #[derive(Debug, Clone, Copy)]
-pub struct Mod<'hir> {
+pub struct Ty<'sir> {
+    pub sir_id: SirId,
+    pub span: Span,
+    pub kind: TyKind<'sir>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum TyKind<'sir> {
+    Path(Path<'sir>),
+
+    // () 型。ボトム型として機能する
+    // タプルが実装できた際に、これを削除し空のTupleがUnitを表すように変更する
+    Unit,
+
+    Infer,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub enum PrimTy {
+    Bool,
+    Char,
+    Int(IntTy),
+    Uint(UintTy),
+    Float(FloatTy),
+}
+
+impl PrimTy {
+    pub fn from_name(name: Symbol) -> Option<PrimTy> {
+        let ty = match name {
+            sym::BOOL => PrimTy::Bool,
+            sym::CHAR => PrimTy::Char,
+            sym::I32 => PrimTy::Int(IntTy::I32),
+            sym::I64 => PrimTy::Int(IntTy::I64),
+            _ => return None,
+        };
+
+        Some(ty)
+    }
+}
+
+/// 関数のシグネチャを表します。
+#[derive(Debug, Clone, Copy)]
+pub struct FnSig<'sir> {
+    // pub header: FnHeader,
+    pub decl: &'sir FnDecl<'sir>,
+    pub span: Span,
+}
+
+/// 関数のヘッダーにおけるパラメーターを表します。
+#[derive(Debug, Clone, Copy)]
+pub struct Param<'sir> {
+    pub sir_id: SirId,
+    pub ident: &'sir Ident,
+    pub ty_span: Span,
+    pub span: Span,
+}
+
+/// 関数宣言のヘッダー（本体ではない）を表します。
+#[derive(Debug, Clone, Copy)]
+pub struct FnDecl<'sir> {
+    /// 関数の仮引数の型。
+    ///
+    /// 追加の引数データは、関数の[本体](Body::params)に格納されます。
+    pub inputs: &'sir [Ty<'sir>],
+    pub output: FnRetTy<'sir>,
+    pub c_variadic: bool,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum FnRetTy<'sir> {
+    /// 戻り値の型が指定されていない。
+    ///
+    /// 関数の場合は `()` がデフォルトとなり、
+    /// クロージャの場合は型推論がデフォルトとなる。Spanは、戻り値の型が
+    /// 挿入されるであろう場所を指す。
+    DefaultReturn(Span),
+    /// それ以外すべて。
+    Return(&'sir Ty<'sir>),
+}
+
+impl<'sir> FnRetTy<'sir> {
+    #[inline]
+    pub fn span(&self) -> Span {
+        match *self {
+            Self::DefaultReturn(span) => span,
+            Self::Return(ty) => ty.span,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Mod<'sir> {
     pub spans: ModSpans,
-    pub item_ids: &'hir [ItemId],
+    pub item_ids: &'sir [ItemId],
 }
 
 #[derive(Debug, Clone, Copy)]
