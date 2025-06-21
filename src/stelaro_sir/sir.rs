@@ -92,7 +92,7 @@ impl<'tcx> MaybeOwner<'tcx> {
 }
 
 #[derive(Debug)]
-pub struct Crate<'sir> {
+pub struct Stelo<'sir> {
     pub owners: IndexVec<LocalDefId, MaybeOwner<'sir>>,
 }
 
@@ -416,12 +416,12 @@ impl<'sir> FnRetTy<'sir> {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Mod<'sir> {
-    pub spans: ModSpans,
+    pub spans: ModSpan,
     pub item_ids: &'sir [ItemId],
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct ModSpans {
+pub struct ModSpan {
     /// `{` の直後の最初のトークンから、`}` の直前の最後のトークンまでのスパン。
     pub inner_span: Span,
 }
