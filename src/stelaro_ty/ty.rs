@@ -1,4 +1,4 @@
-use crate::stelaro_common::{sym, DefId, Symbol};
+use crate::stelaro_common::{DefId, Symbol};
 
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -33,30 +33,6 @@ pub enum TyKind<'tcx> {
     // () 型。ボトム型として機能する
     // タプルが実装できた際に、これを削除し空のTupleがUnitを表すように変更する
     Unit,
-}
-
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum PrimTy {
-    Bool,
-    Char,
-    Int(IntTy),
-    Uint(UintTy),
-    Float(FloatTy),
-}
-
-impl PrimTy {
-    pub fn from_name(name: Symbol) -> Option<PrimTy> {
-        let ty = match name {
-            sym::BOOL => PrimTy::Bool,
-            sym::CHAR => PrimTy::Char,
-            sym::I32 => PrimTy::Int(IntTy::I32),
-            sym::I64 => PrimTy::Int(IntTy::I64),
-            _ => return None,
-        };
-
-        Some(ty)
-    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

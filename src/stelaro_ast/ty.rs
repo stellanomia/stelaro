@@ -15,7 +15,9 @@ pub enum TyKind {
     Path(Path),
     Infer,
 
-    // NOTE: タプル実装後、削除する
+    // () 型。ボトム型として機能する
+    // NOTE: タプルの実装後、これを削除し
+    // 空の Tuple が Unit を表すように変更する
     Unit,
     // Tuple,
     // Ref,
