@@ -6,7 +6,7 @@ use crate::stelaro_ast::{ast, visit, NodeId};
 use crate::stelaro_common::{Arena, IndexVec, LocalDefId, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
-use crate::stelaro_sir::sir;
+use crate::stelaro_sir::{sir, sir_id::{ItemLocalId, OwnerId, STELO_OWNER_ID}};
 use crate::stelaro_ty::ResolverAstLowering;
 
 
@@ -15,8 +15,21 @@ struct LoweringContext<'a, 'sir> {
     pub resolver: &'a mut ResolverAstLowering,
     pub arena: &'sir Arena,
 
+    /// ローワリング対象の所有ノードの中にあるボディ（関数本体など）。
+    pub bodies: Vec<(ItemLocalId, &'sir sir::Body<'sir>)>,
     /// 現在の `owner` を Lowering することで生成されたアイテムを収集する。
     pub children: Vec<(LocalDefId, sir::MaybeOwner<'sir>)>,
+
+    current_sir_id_owner: OwnerId,
+    item_local_id_counter: ItemLocalId,
+
+    /// 現在の SIR 所有ノード内でローワリングされるNodeId。
+    /// 重複ローワリングの検査にのみ使用される。
+    #[cfg(debug_assertions)]
+    node_id_to_local_id: HashMap<NodeId, ItemLocalId>,
+
+    /// 現在の SIR 所有ノード内でローワリングされる、パターン識別子の NodeId。
+    ident_to_local_id: HashMap<NodeId, ItemLocalId>,
 }
 
 impl<'a, 'sir> LoweringContext<'a, 'sir> {
@@ -26,6 +39,11 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
             resolver,
             arena: tcx.sir_arena,
             children: Vec::new(),
+            bodies: Vec::new(),
+            current_sir_id_owner: STELO_OWNER_ID,
+            item_local_id_counter: ItemLocalId::ZERO,
+            node_id_to_local_id: HashMap::new(),
+            ident_to_local_id: HashMap::new(),
         }
     }
 
@@ -94,6 +112,20 @@ pub fn lower_to_sir(
 }
 
 impl<'a, 'sir> LoweringContext<'a, 'sir> {
+    /// AST内のあるノードのIDが与えられたときに、それに対応する `LocalDefId` を名前解決器から (存在すれば) 取得する。
+    fn opt_local_def_id(&self, node: NodeId) -> Option<LocalDefId> {
+        self.resolver.node_id_to_def_id.get(&node).copied()
+    }
+
+    fn local_def_id(&self, node: NodeId) -> LocalDefId {
+        self.opt_local_def_id(node).unwrap_or_else(|| panic!("ノードID `{node:?}` に対応するエントリが存在しません"))
+    }
+
+    /// AST内の所有ノードのIDが与えられたときに、それに対応する `OwnerId` を返す。
+    fn owner_id(&self, node: NodeId) -> OwnerId {
+        OwnerId { def_id: self.local_def_id(node) }
+    }
+
     /// `LoweringContext` をリフレッシュし、ネストしたアイテムを `lower` 化する準備を整えます。
     /// `lower` 化されたアイテムは `self.children` に登録されます。
     ///
