@@ -101,7 +101,7 @@ impl fmt::Display for SirId {
 /// 何らかの形で対応するという保証はありません。
 /// しかし、一つの `owner` 内にある `ItemLocalId` 群は、
 /// 0から始まる隙間のない整数の範囲を占めるという保証があります。
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ItemLocalId(u32);
 
 impl Idx for ItemLocalId {
@@ -120,4 +120,18 @@ impl ItemLocalId {
     pub const ZERO: ItemLocalId = ItemLocalId(0);
     /// 使用すべきでないローカル ID を示す。
     pub const INVALID: ItemLocalId = ItemLocalId(u32::MAX);
+
+    pub fn new(idx: usize) -> Self {
+        Self(Idx::new(idx))
+    }
+
+    pub fn as_usize(&self) -> usize {
+        self.0 as usize
+    }
 }
+
+/// `STELO_NODE_ID` と `STELO_DEF_ID` に対応する `SirId`。
+pub const STELO_SIR_ID: SirId =
+    SirId { owner: OwnerId { def_id: STELO_DEF_ID }, local_id: ItemLocalId::ZERO };
+
+pub const STELO_OWNER_ID: OwnerId = OwnerId { def_id: STELO_DEF_ID };
