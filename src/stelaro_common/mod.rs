@@ -6,6 +6,7 @@ pub mod idx;
 pub mod index_vec;
 pub mod map;
 pub mod slice;
+pub mod sorted_map;
 pub mod source_map;
 pub mod span;
 pub mod stable_hasher;
@@ -23,6 +24,7 @@ pub use idx::{Idx, IntoSliceIdx};
 pub use index_vec::IndexVec;
 pub use map::IndexMap;
 pub use slice::IndexSlice;
+pub use sorted_map::SortedMap;
 pub use source_map::{SourceMap, SourceMapInputs, RealFileLoader};
 pub use span::{Span, Spanned, DUMMY_SPAN};
 // impl_hash_stable_trivial は stelaro_common 外部に公開されるべきではない
