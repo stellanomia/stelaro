@@ -1,5 +1,4 @@
-use crate::stelaro_ast::ast::{self, ModSpan};
-use crate::stelaro_ast::{NodeId, STELO_NODE_ID};
+use crate::stelaro_ast::{NodeId, STELO_NODE_ID, ast::{self, ModSpan}};
 use crate::stelaro_ast_lowering::{AstOwner, LoweringContext};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_common::{IndexSlice, IndexVec, LocalDefId, STELO_DEF_ID};
@@ -75,7 +74,13 @@ impl<'sir> LoweringContext<'_, 'sir> {
         todo!()
     }
 
-    pub fn lower_item_ref(&mut self, item: &ast::Item) -> Vec<sir::ItemId>{
-        todo!()
+    pub fn lower_item_ref(&mut self, item: &ast::Item) -> Vec<sir::ItemId> {
+        let node_ids = vec![
+            sir::ItemId { owner_id: self.owner_id(item.id) }
+        ];
+        // if let ItemKind::Use(use_tree) = &item.kind {
+        //     self.lower_item_id_use_tree(use_tree, &mut node_ids);
+        // }
+        node_ids
     }
 }

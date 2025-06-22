@@ -1,6 +1,6 @@
 use std::{collections::{BTreeMap, HashMap}, fmt};
 
-use crate::stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind};
+use crate::{stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind}, stelaro_sir::sir_id::STELO_SIR_ID};
 use crate::stelaro_diagnostics::ErrorEmitted;
 use crate::stelaro_common::{sym, Ident, IndexVec, LocalDefId, Span, Spanned, Symbol};
 use crate::stelaro_sir::{def::Res, sir_id::{OwnerId, ItemLocalId, SirId}};
@@ -11,6 +11,22 @@ use crate::stelaro_ty::ty::{FloatTy, IntTy, UintTy};
 pub enum OwnerNode<'sir> {
     Item(&'sir Item<'sir>),
     Stelo(&'sir Mod<'sir>),
+}
+
+impl<'sir> OwnerNode<'sir> {
+    pub fn span(&self) -> Span {
+        match self {
+            OwnerNode::Item(Item { span, .. }) => *span,
+            OwnerNode::Stelo(Mod { spans: ModSpan { inner_span, .. }, .. }) => *inner_span,
+        }
+    }
+
+    pub fn def_id(self) -> OwnerId {
+        match self {
+            OwnerNode::Item(Item { owner_id, .. }) => *owner_id,
+            OwnerNode::Stelo(..) => STELO_SIR_ID.owner,
+        }
+    }
 }
 
 /// SIRノードと、同じSIRオーナー内におけるその親のIDを結びつけたもの。
