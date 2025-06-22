@@ -1,3 +1,4 @@
+#![feature(array_windows)]
 #![feature(associated_type_defaults)]
 #![feature(debug_closure_helpers)]
 #![feature(never_type)]
