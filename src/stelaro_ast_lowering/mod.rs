@@ -1,9 +1,11 @@
+mod index;
 mod item;
 
 use std::collections::HashMap;
 
 use crate::stelaro_ast::{ast, visit, NodeId};
-use crate::stelaro_common::{Arena, IndexVec, LocalDefId, STELO_DEF_ID};
+use crate::stelaro_ast_lowering::index::index_sir;
+use crate::stelaro_common::{Arena, IndexVec, LocalDefId, SortedMap, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
 use crate::stelaro_sir::{sir, sir_id::{ItemLocalId, OwnerId, STELO_OWNER_ID}};
@@ -136,6 +138,57 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         owner: NodeId,
         f: impl FnOnce(&mut Self) -> sir::OwnerNode<'sir>,
     ) {
-        todo!()
+        let owner_id = self.owner_id(owner);
+
+        let current_bodies = std::mem::take(&mut self.bodies);
+        let current_ident_to_local_id =
+            std::mem::take(&mut self.ident_to_local_id);
+
+        let current_node_id_to_local_id = std::mem::take(&mut self.node_id_to_local_id);
+        let current_owner = std::mem::replace(&mut self.current_sir_id_owner, owner_id);
+        let current_local_counter =
+            std::mem::replace(&mut self.item_local_id_counter, ItemLocalId::new(1));
+
+
+        // `next_node_id` と `node_id_to_def_id` はリセットしない：
+        // 呼び出し側が作成した `LocalDefId` を `f` が参照できるようにするため。
+        // また、呼び出し側が一部のサブ定義ノードの `LocalDefId` を参照できるようにするため。
+
+        // オーナー自身に対して、最初の `SirId` は常に割り当てる。
+        #[cfg(debug_assertions)]
+        {
+            let _old = self.node_id_to_local_id.insert(owner, ItemLocalId::ZERO);
+            debug_assert_eq!(_old, None);
+        }
+
+        let item = f(self);
+        assert_eq!(owner_id, item.def_id());
+        let info = self.make_owner_info(item);
+
+        self.bodies = current_bodies;
+        self.ident_to_local_id = current_ident_to_local_id;
+
+        #[cfg(debug_assertions)]
+        {
+            self.node_id_to_local_id = current_node_id_to_local_id;
+        }
+        self.current_sir_id_owner = current_owner;
+        self.item_local_id_counter = current_local_counter;
+
+        debug_assert!(!self.children.iter().any(|(id, _)| id == &owner_id.def_id));
+        self.children.push((owner_id.def_id, sir::MaybeOwner::Owner(info)));
+    }
+
+    fn make_owner_info(&mut self, node: sir::OwnerNode<'sir>) -> &'sir sir::OwnerInfo<'sir> {
+        let mut bodies = std::mem::take(&mut self.bodies);
+
+        bodies.sort_by_key(|(k, _)| *k);
+        let bodies = SortedMap::from_presorted_elements(bodies);
+
+        let num_nodes = self.item_local_id_counter.as_usize();
+        let (nodes, parenting) = index_sir(self.tcx, node, &bodies, num_nodes);
+        let nodes = sir::OwnerNodes { nodes, bodies };
+
+        self.arena.alloc(sir::OwnerInfo { nodes, parenting })
     }
 }

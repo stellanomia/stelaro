@@ -1,6 +1,6 @@
-use std::{collections::{BTreeMap, HashMap}, fmt};
+use std::{collections::HashMap, fmt};
 
-use crate::{stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind}, stelaro_sir::sir_id::STELO_SIR_ID};
+use crate::{stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind}, stelaro_common::SortedMap, stelaro_sir::sir_id::STELO_SIR_ID};
 use crate::stelaro_diagnostics::ErrorEmitted;
 use crate::stelaro_common::{sym, Ident, IndexVec, LocalDefId, Span, Spanned, Symbol};
 use crate::stelaro_sir::{def::Res, sir_id::{OwnerId, ItemLocalId, SirId}};
@@ -45,7 +45,7 @@ pub struct OwnerNodes<'tcx> {
     // 0番目のノードの親は `ItemLocalId::INVALID` に設定されており、アクセスできない
     pub nodes: IndexVec<ItemLocalId, ParentedNode<'tcx>>,
     /// ローカルな Body の内容
-    pub bodies: BTreeMap<ItemLocalId, &'tcx Body<'tcx>>,
+    pub bodies: SortedMap<ItemLocalId, &'tcx Body<'tcx>>,
 }
 
 impl<'tcx> OwnerNodes<'tcx> {
