@@ -226,7 +226,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                     visit::walk_item(this, item)
                 })
             },
-            ItemKind::Mod(_) => {
+            ItemKind::Mod(..) => {
                 self.with_mod_scope(item.id, |this| {
                     visit::walk_item(this, item)
                 })

@@ -26,7 +26,8 @@ impl<'sess> Parser<'sess> {
                 Ok(Some(
                     Item {
                         kind: ItemKind::Mod(
-                            Mod::Inline(
+                            ident,
+                            ModKind::Inline(
                                 items,
                                 mod_span
                             )
@@ -85,6 +86,7 @@ impl<'sess> Parser<'sess> {
             ident,
             Function {
                 span: start.merge(&self.prev_token.span),
+                ident,
                 sig,
                 body: Box::new(body),
             },

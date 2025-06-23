@@ -205,9 +205,9 @@ where
 
     match kind {
         super::ast::ItemKind::Fn(function) => try_visit!(visitor.visit_fn_decl(function)),
-        super::ast::ItemKind::Mod(module) => {
+        super::ast::ItemKind::Mod(_, module) => {
             match module {
-                Mod::Inline(items, ..) => walk_list!(visitor, visit_item, items),
+                ModKind::Inline(items, ..) => walk_list!(visitor, visit_item, items),
             }
         },
     }
