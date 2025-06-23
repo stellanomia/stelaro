@@ -7,6 +7,10 @@ Stelo {
     items: [
         Item {
             kind: Mod(
+                Ident {
+                    name: Symbol([ID]),
+                    span: Span {[SPAN]},
+                },
                 Inline(
                     [
                         Item {
@@ -55,8 +59,8 @@ Stelo {
                                                                             16,
                                                                         ),
                                                                         kind: Binary(
-                                                                            BinOp {
-                                                                                kind: Eq,
+                                                                            Spanned {
+                                                                                node: Eq,
                                                                                 span: Span {[SPAN]},
                                                                             },
                                                                             Expr {
@@ -69,8 +73,8 @@ Stelo {
                                                                                             4,
                                                                                         ),
                                                                                         kind: Binary(
-                                                                                            BinOp {
-                                                                                                kind: Lt,
+                                                                                            Spanned {
+                                                                                                node: Lt,
                                                                                                 span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
@@ -149,8 +153,8 @@ Stelo {
                                                                                                                         10,
                                                                                                                     ),
                                                                                                                     kind: Binary(
-                                                                                                                        BinOp {
-                                                                                                                            kind: Add,
+                                                                                                                        Spanned {
+                                                                                                                            node: Add,
                                                                                                                             span: Span {[SPAN]},
                                                                                                                         },
                                                                                                                         Expr {
@@ -287,8 +291,8 @@ Stelo {
                                                                                             26,
                                                                                         ),
                                                                                         kind: Binary(
-                                                                                            BinOp {
-                                                                                                kind: Lt,
+                                                                                            Spanned {
+                                                                                                node: Lt,
                                                                                                 span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
@@ -370,8 +374,8 @@ Stelo {
                                                                                                                     32,
                                                                                                                 ),
                                                                                                                 kind: Binary(
-                                                                                                                    BinOp {
-                                                                                                                        kind: Add,
+                                                                                                                    Spanned {
+                                                                                                                        node: Add,
                                                                                                                         span: Span {[SPAN]},
                                                                                                                     },
                                                                                                                     Expr {

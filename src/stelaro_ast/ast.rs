@@ -21,7 +21,7 @@ pub struct Item {
 #[derive(Debug, Clone)]
 pub enum ItemKind {
     Fn(Function),
-    Mod(Mod),
+    Mod(Ident, ModKind),
     // Struct(Struct),
     // Enum(Enum),
     // Const(Const),
@@ -30,6 +30,7 @@ pub enum ItemKind {
 #[derive(Debug, Clone)]
 pub struct Function {
     pub span: Span,
+    pub ident: Ident,
     pub sig: FnSig,
     pub body: Box<Block>,
 }
@@ -56,7 +57,7 @@ pub struct Param {
 }
 
 #[derive(Debug, Clone)]
-pub enum Mod {
+pub enum ModKind {
     /// `mod my_module { ... }` を表す
     Inline(Vec<Box<Item>>, ModSpan)
     // /// `mod my_module;` を表す
