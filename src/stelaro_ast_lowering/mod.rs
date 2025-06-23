@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use crate::stelaro_ast::{ast, visit, NodeId};
 use crate::stelaro_ast_lowering::index::index_sir;
-use crate::stelaro_common::{Arena, IndexVec, LocalDefId, SortedMap, STELO_DEF_ID};
+use crate::stelaro_common::{Arena, IndexVec, LocalDefId, SortedMap, Span, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
 use crate::stelaro_sir::{sir, sir_id::{ItemLocalId, OwnerId, STELO_OWNER_ID}};
@@ -29,6 +29,7 @@ struct LoweringContext<'a, 'sir> {
     /// 重複ローワリングの検査にのみ使用される。
     #[cfg(debug_assertions)]
     node_id_to_local_id: HashMap<NodeId, ItemLocalId>,
+    current_item: Option<Span>,
 
     /// 現在の SIR 所有ノード内でローワリングされる、パターン識別子の NodeId。
     ident_to_local_id: HashMap<NodeId, ItemLocalId>,
@@ -43,6 +44,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
             children: Vec::new(),
             bodies: Vec::new(),
             current_sir_id_owner: STELO_OWNER_ID,
+            current_item: None,
             item_local_id_counter: ItemLocalId::ZERO,
             node_id_to_local_id: HashMap::new(),
             ident_to_local_id: HashMap::new(),
@@ -190,5 +192,16 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         let nodes = sir::OwnerNodes { nodes, bodies };
 
         self.arena.alloc(sir::OwnerInfo { nodes, parenting })
+    }
+
+    fn with_new_scopes<T>(&mut self, scope_span: Span, f: impl FnOnce(&mut Self) -> T) -> T {
+        let current_item = self.current_item;
+        self.current_item = Some(scope_span);
+
+        let ret = f(self);
+
+        self.current_item = current_item;
+
+        ret
     }
 }

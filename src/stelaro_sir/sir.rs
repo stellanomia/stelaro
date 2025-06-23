@@ -29,6 +29,15 @@ impl<'sir> OwnerNode<'sir> {
     }
 }
 
+impl<'hir> From<OwnerNode<'hir>> for Node<'hir> {
+    fn from(val: OwnerNode<'hir>) -> Self {
+        match val {
+            OwnerNode::Item(n) => Node::Item(n),
+            OwnerNode::Stelo(n) => Node::Stelo(n),
+        }
+    }
+}
+
 /// SIRノードと、同じSIRオーナー内におけるその親のIDを結びつけたもの。
 ///
 /// ノード自体がSIRオーナーである場合、親のIDは無意味である。
