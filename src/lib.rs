@@ -1,5 +1,6 @@
 #![feature(array_windows)]
 #![feature(associated_type_defaults)]
+#![feature(box_patterns)]
 #![feature(debug_closure_helpers)]
 #![feature(never_type)]
 #![feature(min_specialization)]
