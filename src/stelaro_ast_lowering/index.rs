@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::stelaro_common::{IndexVec, LocalDefId, SortedMap};
 use crate::stelaro_sir::{
     sir::{self, Body, ParentedNode, Node},
-    sir_id::{ItemLocalId, OwnerId, SirId}
+    sir_id::{ItemLocalId, OwnerId, SirId},
 };
 use crate::stelaro_context::TyCtxt;
 
