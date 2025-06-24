@@ -17,9 +17,15 @@ Stelo {
                             kind: Fn(
                                 Function {
                                     span: Span {[SPAN]},
+                                    ident: Ident {
+                                        name: Symbol([ID]),
+                                        span: Span {[SPAN]},
+                                    },
                                     sig: FnSig {
-                                        params: [],
-                                        ret_ty: Default,
+                                        decl: FnDecl {
+                                            inputs: [],
+                                            output: Default,
+                                        },
                                         span: Span {[SPAN]},
                                     },
                                     body: Block {

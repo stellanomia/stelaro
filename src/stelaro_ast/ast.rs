@@ -37,9 +37,14 @@ pub struct Function {
 
 #[derive(Debug, Clone)]
 pub struct FnSig {
-    pub params: Vec<Param>,
-    pub ret_ty: FnRetTy,
+    pub decl: FnDecl,
     pub span: Span,
+}
+
+#[derive(Debug, Clone)]
+pub struct FnDecl {
+    pub inputs: Vec<Param>,
+    pub output: FnRetTy,
 }
 
 #[derive(Debug, Clone)]

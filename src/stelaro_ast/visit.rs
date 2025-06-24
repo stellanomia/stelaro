@@ -129,8 +129,12 @@ pub trait Visitor<'ast> {
         walk_item(self, item)
     }
 
-    fn visit_fn_decl(&mut self, f: &'ast Function) -> Self::Result {
-        walk_fn_decl(self, f)
+    fn visit_fn(&mut self, f: &'ast Function) -> Self::Result {
+        walk_fn(self, f)
+    }
+
+    fn visit_fn_decl(&mut self, decl: &'ast FnDecl) -> Self::Result {
+        walk_fn_decl(self, decl)
     }
 
     fn visit_ident(&mut self, _ident: &'ast Ident) -> Self::Result {
@@ -204,7 +208,7 @@ where
     try_visit!(visitor.visit_ident(ident));
 
     match kind {
-        super::ast::ItemKind::Fn(function) => try_visit!(visitor.visit_fn_decl(function)),
+        super::ast::ItemKind::Fn(function) => try_visit!(visitor.visit_fn(function)),
         super::ast::ItemKind::Mod(_, module) => {
             match module {
                 ModKind::Inline(items, ..) => walk_list!(visitor, visit_item, items),
@@ -214,7 +218,7 @@ where
     V::Result::output()
 }
 
-pub fn walk_fn_decl<'ast, V>(
+pub fn walk_fn<'ast, V>(
     visitor: &mut V,
     f: &'ast Function,
 ) -> V::Result
@@ -222,11 +226,25 @@ where
     V: Visitor<'ast> + ?Sized,
 {
     let Function { sig, body, .. } = f;
-    let FnSig { params, ret_ty, ..} = sig;
+    let FnSig { decl, ..} = sig;
 
-    walk_list!(visitor, visit_param, params);
-    try_visit!(visitor.visit_fn_ret_ty(ret_ty));
+    try_visit!(visitor.visit_fn_decl(decl));
     try_visit!(visitor.visit_block(body));
+
+    V::Result::output()
+}
+
+pub fn walk_fn_decl<'ast, V>(
+    visitor: &mut V,
+    decl: &'ast FnDecl,
+) -> V::Result
+where
+    V: Visitor<'ast> + ?Sized,
+{
+    let FnDecl { inputs, output, .. } = decl;
+
+    walk_list!(visitor, visit_param, inputs);
+    try_visit!(visitor.visit_fn_ret_ty(output));
 
     V::Result::output()
 }

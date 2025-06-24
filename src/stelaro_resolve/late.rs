@@ -123,7 +123,7 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
         self.resolve_expr(expr, None);
     }
 
-    fn visit_fn_decl(&mut self, f: &'ast Function) -> Self::Result {
+    fn visit_fn(&mut self, f: &'ast Function) -> Self::Result {
         let prev_fn = self.diag_metadata.current_function;
         self.diag_metadata.current_function = Some(f);
 
@@ -399,8 +399,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     }
 
     fn resolve_fn_sig(&mut self, sig: &'ast FnSig) {
-        self.resolve_fn_params(&sig.params);
-        self.visit_fn_ret_ty(&sig.ret_ty);
+        self.resolve_fn_params(&sig.decl.inputs);
+        self.visit_fn_ret_ty(&sig.decl.output);
     }
 
     fn resolve_fn_params(&mut self, params: &'ast [Param]) {

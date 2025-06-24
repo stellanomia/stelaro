@@ -105,8 +105,7 @@ impl<'sir> LoweringContext<'_, 'sir> {
                 span,
                 ident,
                 sig: ast::FnSig {
-                    params,
-                    ret_ty,
+                    decl,
                     span: fn_sig_span,
                     ..
                 },
