@@ -1,9 +1,9 @@
 use std::{collections::HashMap, fmt};
 
-use crate::{stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind}, stelaro_common::SortedMap, stelaro_sir::sir_id::STELO_SIR_ID};
+use crate::stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind};
 use crate::stelaro_diagnostics::ErrorEmitted;
-use crate::stelaro_common::{sym, Ident, IndexVec, LocalDefId, Span, Spanned, Symbol};
-use crate::stelaro_sir::{def::Res, sir_id::{OwnerId, ItemLocalId, SirId}};
+use crate::stelaro_common::{sym, Ident, IndexVec, LocalDefId, Span, SortedMap, Spanned, Symbol};
+use crate::stelaro_sir::{def::Res, sir_id::{OwnerId, ItemLocalId, SirId, STELO_SIR_ID}};
 use crate::stelaro_ty::ty::{FloatTy, IntTy, UintTy};
 
 

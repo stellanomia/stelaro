@@ -10,8 +10,7 @@ use crate::stelaro_ast_lowering::index::index_sir;
 use crate::stelaro_common::{Arena, Idx, IndexVec, LocalDefId, SortedMap, Span, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
-use crate::stelaro_sir::sir_id::SirId;
-use crate::stelaro_sir::{sir, sir_id::{ItemLocalId, OwnerId, STELO_OWNER_ID}};
+use crate::stelaro_sir::{sir, sir_id::{ItemLocalId, OwnerId, SirId, STELO_OWNER_ID}};
 use crate::stelaro_ty::ResolverAstLowering;
 
 
