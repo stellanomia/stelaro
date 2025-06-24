@@ -109,8 +109,10 @@ impl<'sess> Parser<'sess> {
 
         Ok(
             FnSig {
-                params,
-                ret_ty,
+                decl: FnDecl {
+                    inputs: params,
+                    output: ret_ty
+                },
                 span: start.merge(&self.prev_token.span)
             }
         )
