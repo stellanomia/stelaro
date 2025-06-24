@@ -93,16 +93,15 @@ impl<'sir> LoweringContext<'_, 'sir> {
 
     fn lower_item_kind(
         &mut self,
-        span: Span,
+        _span: Span,
         id: NodeId,
-        sir_id: SirId,
+        _sir_id: SirId,
         i: &ast::ItemKind,
     ) -> sir::ItemKind<'sir> {
         use ast::ItemKind;
 
         match i {
             ItemKind::Fn(box ast::Function {
-                span,
                 ident,
                 sig: ast::FnSig {
                     decl,
@@ -113,13 +112,11 @@ impl<'sir> LoweringContext<'_, 'sir> {
                 ..
             }) => {
                 self.with_new_scopes(*fn_sig_span, |this| {
-                    let body_id = this.lower_body(|this| {
-                        todo!()
-                    });
-                    let decl = this.lower_fn_decl();
+                    let body_id = this.lower_fn_body_block(decl, body);
+                    let decl = this.lower_fn_decl(decl, id, *fn_sig_span);
 
                     let sig = sir::FnSig {
-                        decl: todo!(),
+                        decl,
                         span: *fn_sig_span,
                     };
 
@@ -128,8 +125,7 @@ impl<'sir> LoweringContext<'_, 'sir> {
                         sig,
                         body: body_id,
                     }
-                });
-                todo!()
+                })
             },
             ItemKind::Mod(ident, module) => {
                 match module {
@@ -164,7 +160,26 @@ impl<'sir> LoweringContext<'_, 'sir> {
 
     fn lower_fn_decl(
         &mut self,
+        decl: &ast::FnDecl,
+        fn_node_id: NodeId,
+        fn_span: Span,
     ) -> &'sir sir::FnDecl<'sir> {
         todo!()
+    }
+
+    pub fn lower_fn_body(
+        &mut self,
+        decl: &ast::FnDecl,
+        body: impl FnOnce(&mut Self) -> sir::Expr<'sir>,
+    ) -> sir::BodyId {
+        todo!()
+    }
+
+    fn lower_fn_body_block(
+        &mut self,
+        decl: &ast::FnDecl,
+        body: &ast::Block,
+    ) -> sir::BodyId {
+        self.lower_fn_body(decl, |this| this.lower_block_expr(body))
     }
 }

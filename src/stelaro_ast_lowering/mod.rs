@@ -1,3 +1,5 @@
+mod block;
+mod expr;
 mod index;
 mod item;
 
@@ -5,9 +7,10 @@ use std::collections::HashMap;
 
 use crate::stelaro_ast::{ast, visit, NodeId};
 use crate::stelaro_ast_lowering::index::index_sir;
-use crate::stelaro_common::{Arena, IndexVec, LocalDefId, SortedMap, Span, STELO_DEF_ID};
+use crate::stelaro_common::{Arena, Idx, IndexVec, LocalDefId, SortedMap, Span, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
+use crate::stelaro_sir::sir_id::SirId;
 use crate::stelaro_sir::{sir, sir_id::{ItemLocalId, OwnerId, STELO_OWNER_ID}};
 use crate::stelaro_ty::ResolverAstLowering;
 
@@ -194,6 +197,39 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         self.arena.alloc(sir::OwnerInfo { nodes, parenting })
     }
 
+    /// このメソッドは、与えられた `NodeId` に対して新しい `SirId` を割り当てます。
+    /// 結果として得られる `SirId` が実際に SIR で使用されない場合は、このメソッドを呼び出さないようにする必要があります。
+    /// 同じ `NodeId` でこのメソッドを2回呼び出すこともまた禁止されています。
+    fn lower_node_id(&mut self, ast_node_id: NodeId) -> SirId {
+        let owner = self.current_sir_id_owner;
+        let local_id = self.item_local_id_counter;
+        assert_ne!(local_id, ItemLocalId::ZERO);
+        self.item_local_id_counter.increment_by(1);
+        let sir_id = SirId { owner, local_id };
+
+        if let Some(def_id) = self.opt_local_def_id(ast_node_id) {
+            self.children.push((def_id, sir::MaybeOwner::NonOwner(sir_id)));
+        }
+
+        // 同じ `NodeId` が複数回 lowering されていないかチェックします。
+        #[cfg(debug_assertions)]
+        {
+            let old = self.node_id_to_local_id.insert(ast_node_id, local_id);
+            assert_eq!(old, None);
+        }
+
+        sir_id
+    }
+
+    /// `NodeId` にを用いることなく、新しい `SirId` を生成します。
+    fn next_id(&mut self) -> SirId {
+        let owner = self.current_sir_id_owner;
+        let local_id = self.item_local_id_counter;
+        assert_ne!(local_id, ItemLocalId::ZERO);
+        self.item_local_id_counter.increment_by(1);
+        SirId { owner, local_id }
+    }
+
     fn with_new_scopes<T>(&mut self, scope_span: Span, f: impl FnOnce(&mut Self) -> T) -> T {
         let current_item = self.current_item;
         self.current_item = Some(scope_span);
@@ -203,5 +239,10 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         self.current_item = current_item;
 
         ret
+    }
+
+    fn lower_block_expr(&mut self, b: &ast::Block) -> sir::Expr<'sir> {
+        let block = self.lower_block(b);
+        self.expr_block(block)
     }
 }

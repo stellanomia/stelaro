@@ -414,7 +414,6 @@ pub struct FnDecl<'sir> {
     /// 追加の引数データは、関数の[本体](Body::params)に格納されます。
     pub inputs: &'sir [Ty<'sir>],
     pub output: FnRetTy<'sir>,
-    pub c_variadic: bool,
 }
 
 #[derive(Debug, Clone, Copy)]
