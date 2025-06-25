@@ -202,7 +202,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     ) -> PathResult<'ra> {
         let mut module = None;
 
-        for (segment_idx, Segment { ident, .. }) in path.iter().enumerate() {
+        for (segment_idx, Segment { ident, id, .. }) in path.iter().enumerate() {
             let is_last = segment_idx + 1 == path.len();
             let ns = if is_last {
                 opt_ns.unwrap_or(Namespace::TypeNS)
@@ -254,6 +254,9 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                     let res = binding.res();
 
                     if is_last {
+                        if let Some(id) = id && finalize.is_some() {
+                            self.record_res(*id, res);
+                        }
                         return PathResult::NonModule(res);
                     }
 
