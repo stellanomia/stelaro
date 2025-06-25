@@ -122,6 +122,15 @@ pub enum LocalKind {
     Init(Box<Expr>),
 }
 
+impl LocalKind {
+        pub fn init(&self) -> Option<&Expr> {
+        match self {
+            Self::Decl => None,
+            Self::Init(i) => Some(i),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Pat {
     pub id: NodeId,
