@@ -1,6 +1,5 @@
-use crate::stelaro_ast::NodeId;
 use crate::stelaro_common::{DefId, Symbol};
-use crate::stelaro_sir::sir::PrimTy;
+use crate::stelaro_sir::{sir::PrimTy, sir_id::SirId};
 
 use super::definitions::DefPathData;
 
@@ -53,7 +52,7 @@ impl DefKind {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub enum Res<Id = NodeId> {
+pub enum Res<Id = SirId> {
     /// 定義 (e.g., function, struct, module)
     /// `DefKind` は定義の種類を表す
     /// `DefId` は一意に定義を識別できる
@@ -73,7 +72,7 @@ pub enum Res<Id = NodeId> {
     // SelfTyAlias,
 }
 
-impl Res {
+impl<Id> Res<Id> {
     pub fn descr(&self) -> &'static str {
         match *self {
             Res::Def(kind, def_id) => kind.descr(def_id),
@@ -90,6 +89,15 @@ impl Res {
             Res::Local(..) => "ローカル変数",
             Res::Err => "未解決のアイテム",
         }
+    }
+
+    pub fn apply_id<R, E>(self, mut map: impl FnMut(Id) -> Result<R, E>) -> Result<Res<R>, E> {
+        Ok(match self {
+            Res::Def(kind, id) => Res::Def(kind, id),
+            Res::PrimTy(id) => Res::PrimTy(id),
+            Res::Local(id) => Res::Local(map(id)?),
+            Res::Err => Res::Err,
+        })
     }
 }
 

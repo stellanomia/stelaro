@@ -16,7 +16,9 @@ Stelo {
                     sig: FnSig {
                         decl: FnDecl {
                             inputs: [],
-                            output: Default,
+                            output: Default(
+                                Span {[SPAN]},
+                            ),
                         },
                         span: Span {[SPAN]},
                     },
