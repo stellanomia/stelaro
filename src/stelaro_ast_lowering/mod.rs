@@ -2,6 +2,7 @@ mod block;
 mod expr;
 mod index;
 mod item;
+mod pat;
 
 use std::collections::HashMap;
 
