@@ -238,7 +238,7 @@ pub struct BodyId {
 /// `body_owner_def_id()` を使って SIR マップ経由でアクセスできます。
 #[derive(Debug, Clone, Copy)]
 pub struct Body<'sir> {
-    pub params: &'sir [Param<'sir>],
+    pub params: &'sir [Param],
     pub value: &'sir Expr<'sir>,
 }
 
@@ -399,9 +399,9 @@ pub struct FnSig<'sir> {
 
 /// 関数のヘッダーにおけるパラメーターを表します。
 #[derive(Debug, Clone, Copy)]
-pub struct Param<'sir> {
+pub struct Param {
     pub sir_id: SirId,
-    pub ident: &'sir Ident,
+    pub ident: Ident,
     pub ty_span: Span,
     pub span: Span,
 }
@@ -453,7 +453,7 @@ pub struct ModSpan {
 
 #[derive(Copy, Clone, Debug)]
 pub enum Node<'sir> {
-    Param(&'sir Param<'sir>),
+    Param(&'sir Param),
     Item(&'sir Item<'sir>),
     Expr(&'sir Expr<'sir>),
     Stmt(&'sir Stmt<'sir>),

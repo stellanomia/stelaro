@@ -140,7 +140,7 @@ impl<'sir> LoweringContext<'_, 'sir> {
 
     fn record_body(
         &mut self,
-        params: &'sir [sir::Param<'sir>],
+        params: &'sir [sir::Param],
         value: sir::Expr<'sir>,
     ) -> sir::BodyId {
         let body = sir::Body { params, value: self.arena.alloc(value) };
@@ -152,7 +152,7 @@ impl<'sir> LoweringContext<'_, 'sir> {
 
     pub fn lower_body(
         &mut self,
-        f: impl FnOnce(&mut Self) -> (&'sir [sir::Param<'sir>], sir::Expr<'sir>),
+        f: impl FnOnce(&mut Self) -> (&'sir [sir::Param], sir::Expr<'sir>),
     ) -> sir::BodyId {
         let (parameters, result) = f(self);
         self.record_body(parameters, result)
@@ -161,10 +161,37 @@ impl<'sir> LoweringContext<'_, 'sir> {
     fn lower_fn_decl(
         &mut self,
         decl: &ast::FnDecl,
-        fn_node_id: NodeId,
-        fn_span: Span,
+        _fn_node_id: NodeId,
+        _fn_span: Span,
     ) -> &'sir sir::FnDecl<'sir> {
-        todo!()
+        let inputs = &decl.inputs[..];
+
+        let inputs = self.arena.alloc_from_iter(
+            inputs.iter().map(|param| {
+                self.lower_ty_direct(&param.ty)
+            })
+        );
+
+        let output = match &decl.output {
+            ast::FnRetTy::Ty(ty) => sir::FnRetTy::Return(
+                self.lower_ty(ty)
+            ),
+            ast::FnRetTy::Default(span) => sir::FnRetTy::DefaultReturn(*span),
+        };
+
+        self.arena.alloc(
+            sir::FnDecl { inputs, output }
+        )
+    }
+
+    fn lower_param(&mut self, param: &ast::Param) -> sir::Param {
+        let sir_id = self.lower_node_id(param.id);
+        sir::Param {
+            sir_id,
+            ident: param.ident,
+            ty_span: param.ty.span,
+            span: param.span,
+        }
     }
 
     pub fn lower_fn_body(
@@ -172,7 +199,12 @@ impl<'sir> LoweringContext<'_, 'sir> {
         decl: &ast::FnDecl,
         body: impl FnOnce(&mut Self) -> sir::Expr<'sir>,
     ) -> sir::BodyId {
-        todo!()
+        self.lower_body(|this| {
+            let params = this.arena.alloc_from_iter(
+                decl.inputs.iter().map(|param| this.lower_param(param))
+            );
+            (params, body(this))
+        })
     }
 
     fn lower_fn_body_block(

@@ -5,6 +5,7 @@ mod item;
 
 use std::collections::HashMap;
 
+use crate::stelaro_ast::ty::{Ty, TyKind};
 use crate::stelaro_ast::{ast, visit, NodeId};
 use crate::stelaro_ast_lowering::index::index_sir;
 use crate::stelaro_common::{Arena, Idx, IndexVec, LocalDefId, SortedMap, Span, STELO_DEF_ID};
@@ -238,6 +239,38 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         self.current_item = current_item;
 
         ret
+    }
+
+    fn lower_ty(&mut self, t: &Ty) -> &'sir sir::Ty<'sir> {
+        self.arena.alloc(self.lower_ty_direct(t))
+    }
+
+    fn lower_path_ty(
+        &mut self,
+        t: &Ty,
+        path: &ast::Path,
+    ) -> sir::Ty<'sir> {
+        sir::Ty {
+            kind: sir::TyKind::Path(todo!()),
+            span: t.span,
+            sir_id: self.lower_node_id(t.id)
+        }
+    }
+
+    fn lower_ty_direct(&mut self, t: &Ty) -> sir::Ty<'sir> {
+        let kind = match &t.kind {
+            TyKind::Path(path) => {
+                return self.lower_path_ty(t, path);
+            },
+            TyKind::Infer => sir::TyKind::Infer,
+            TyKind::Unit => sir::TyKind::Unit,
+        };
+
+        sir::Ty {
+            sir_id: self.lower_node_id(t.id),
+            span: t.span,
+            kind
+        }
     }
 
     fn lower_block_expr(&mut self, b: &ast::Block) -> sir::Expr<'sir> {
