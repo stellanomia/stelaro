@@ -190,10 +190,10 @@ pub struct Stmt<'sir> {
 
 #[derive(Debug, Clone, Copy)]
 pub enum StmtKind<'sir> {
-    /// let バインディング
+    /// let文
     Let(&'sir LetStmt<'sir>),
 
-    /// An item binding.
+    /// アイテムへのバインディング
     Item(ItemId),
 
     /// 末尾にセミコロンが付かない式
@@ -201,6 +201,12 @@ pub enum StmtKind<'sir> {
 
     /// 末尾にセミコロンが付く式
     Semi(&'sir Expr<'sir>),
+
+    /// Return文
+    Return(&'sir Expr<'sir>),
+
+    /// While文
+    While(&'sir Expr<'sir>, &'sir Block<'sir>)
 }
 
 /// `let` 文を表す (i.e., `let <pat>:<ty> = <init>;`).
