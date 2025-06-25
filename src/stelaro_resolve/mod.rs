@@ -385,14 +385,17 @@ pub struct Resolver<'ra, 'tcx> {
     /// 匿名モジュールへのマップ
     block_map: HashMap<NodeId, Module<'ra>>,
 
-    // DefIdから対応するModuleDataへのマップ (ローカルステロ内の全モジュール)
+    /// `NodeId` から解決結果へのマップ
+    res_map: HashMap<NodeId, Res<NodeId>>,
+
+    /// `DefId` から対応する `ModuleData` へのマップ (ローカルの全モジュール)
     module_map: IndexMap<DefId, Module<'ra>>,
     binding_parent_modules: HashMap<NameBinding<'ra>, Module<'ra>>,
 
-    /// NodeId (アイテム定義ノード) から、それが定義する LocalDefId へのマップ
+    /// `NodeId` (アイテム定義ノード) から、それが定義する LocalDefId` へのマップ
     node_id_to_def_id: HashMap<NodeId, LocalDefId>,
 
-    /// LocalDefId から、それを定義するアイテムの NodeId へのマップ
+    /// `LocalDefId` から、それを定義するアイテムの `NodeId` へのマップ
     def_id_to_node_id: IndexVec<LocalDefId, NodeId>,
 
     main_def: Option<MainDefinition>,
@@ -505,6 +508,12 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             }
     }
 
+    fn record_res(&mut self, node_id: NodeId, resolution: Res<NodeId>) {
+        if let Some(prev_res) = self.res_map.insert(node_id, resolution) {
+            panic!("path resolved multiple times ({prev_res:?} before, {resolution:?} now)");
+        }
+    }
+
     pub fn new(
         tcx: TyCtxt<'tcx>,
         stelo_span: Span,
@@ -530,6 +539,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             tcx,
             arenas,
             graph_root,
+            res_map: HashMap::new(),
             block_map: Default::default(),
             module_map,
             binding_parent_modules: HashMap::new(),

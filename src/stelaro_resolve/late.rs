@@ -334,7 +334,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             None,
         );
 
-        match res {
+        let res = match res {
             PathResult::Module(module) => {
                 Res::Def(DefKind::Mod, module.def_id())
             },
@@ -365,7 +365,9 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 
                 Res::Err
             },
-        }
+        };
+        self.r.record_res(finalize.node_id, res);
+        res
     }
 
     fn resolve_local(&mut self, local: &'ast Local) {
@@ -394,6 +396,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 let scope_bindings = self.innermost_scope_bindings(ValueNS);
                 let res = Res::Local(pat.id);
                 scope_bindings.insert(ident, res);
+                self.r.record_res(pat.id, res);
             },
         }
     }
