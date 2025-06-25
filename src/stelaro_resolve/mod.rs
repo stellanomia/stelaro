@@ -136,7 +136,7 @@ impl<'ra> fmt::Debug for Module<'ra> {
 }
 
 impl<'ra> Module<'ra> {
-    fn res(self) -> Option<Res> {
+    fn res(self) -> Option<Res<NodeId>> {
         match self.kind {
             ModuleKind::Def(kind, def_id, _) => Some(Res::Def(kind, def_id)),
             _ => None,
@@ -239,7 +239,7 @@ impl<'ra> NameBindingData<'ra> {
         }
     }
 
-    fn res(&self) -> Res {
+    fn res(&self) -> Res<NodeId> {
         match self.kind {
             NameBindingKind::Res(res) => res,
             NameBindingKind::Module(module) => module.res().unwrap(),
@@ -286,7 +286,7 @@ impl<'ra> NameResolution<'ra> {
 #[derive(Debug)]
 pub enum PathResult<'ra> {
     Module(Module<'ra>),
-    NonModule(Res),
+    NonModule(Res<NodeId>),
     Indeterminate,
     Failed {
         span: Span,
@@ -308,7 +308,7 @@ pub enum PathResult<'ra> {
 #[derive(Debug, Copy, Clone)]
 pub enum LexicalScopeBinding<'ra> {
     Item(NameBinding<'ra>),
-    Res(Res),
+    Res(Res<NodeId>),
 }
 
 /// ライフタイム `'ra` を持つデータ構造を格納するためのアリーナ
@@ -510,7 +510,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     fn record_res(&mut self, node_id: NodeId, resolution: Res<NodeId>) {
         if let Some(prev_res) = self.res_map.insert(node_id, resolution) {
-            panic!("path resolved multiple times ({prev_res:?} before, {resolution:?} now)");
+            panic!("パスが複数回解決されました (前: {prev_res:?}, 後: {resolution:?})");
         }
     }
 
@@ -574,6 +574,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let ast_lowering = ResolverAstLowering {
             node_id_to_def_id: self.node_id_to_def_id,
             main_def,
+            res_map: self.res_map,
         };
 
         ResolverOutputs { ast_lowering }

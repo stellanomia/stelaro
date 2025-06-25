@@ -16,6 +16,7 @@ pub struct ResolverOutputs {
 pub struct ResolverAstLowering {
     pub node_id_to_def_id: HashMap<NodeId, LocalDefId>,
     pub main_def: Option<MainDefinition>,
+    pub res_map: HashMap<NodeId, Res<NodeId>>,
 }
 
 #[derive(Debug, Clone, Copy)]

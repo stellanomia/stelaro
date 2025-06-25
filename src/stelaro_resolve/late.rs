@@ -73,7 +73,7 @@ impl<'a> PathSource<'a> {
 /// 引数リストのバインディングが一意であることを明示するための型。
 /// `fresh_param_binding` でパラメーターを一意性を保ちながら追加し、
 /// `apply_param_bindings` で最も外側のスコープにバインディングを適用する。
-type UniqueParamBindings = IndexMap<Ident, Res>;
+type UniqueParamBindings = IndexMap<Ident, Res<NodeId>>;
 
 /// 診断メッセージ生成時に使用される文脈情報を保持する構造体。
 #[derive(Debug, Default)]
@@ -314,7 +314,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         path: &[Segment],
         finalize: Finalize,
         source: PathSource<'ast>,
-    ) -> Res {
+    ) -> Res<NodeId> {
         let ns = source.namespace();
         // let Finalize { path_span, .. } = finalize;
 
@@ -442,7 +442,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     // }
 
     /// 現在の最も外側のスコープのバインディングを得る
-    fn innermost_scope_bindings(&mut self, ns: Namespace) -> &mut IndexMap<Ident, Res> {
+    fn innermost_scope_bindings(&mut self, ns: Namespace) -> &mut IndexMap<Ident, Res<NodeId>> {
         &mut self.scopes[ns].last_mut().unwrap().bindings
     }
 
@@ -462,7 +462,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         ident: Ident,
         node_id: NodeId,
         bindings: &mut UniqueParamBindings,
-    ) -> Res {
+    ) -> Res<NodeId> {
         let already_exists = bindings.contains_key(&ident);
 
         if already_exists {
