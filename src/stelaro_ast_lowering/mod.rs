@@ -3,16 +3,16 @@ mod expr;
 mod index;
 mod item;
 mod pat;
+mod path;
 
 use std::collections::HashMap;
 
-use crate::stelaro_ast::ty::{Ty, TyKind};
-use crate::stelaro_ast::{ast, visit, NodeId};
+use crate::stelaro_ast::{ast, visit, NodeId, ty::{Ty, TyKind}};
 use crate::stelaro_ast_lowering::index::index_sir;
 use crate::stelaro_common::{Arena, Idx, IndexVec, LocalDefId, SortedMap, Span, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
-use crate::stelaro_sir::{sir, sir_id::{ItemLocalId, OwnerId, SirId, STELO_OWNER_ID}};
+use crate::stelaro_sir::{sir, def::Res, sir_id::{ItemLocalId, OwnerId, SirId, STELO_OWNER_ID}};
 use crate::stelaro_ty::ResolverAstLowering;
 
 
@@ -120,6 +120,10 @@ pub fn lower_to_sir(
 }
 
 impl<'a, 'sir> LoweringContext<'a, 'sir> {
+    fn get_res(&self, id: NodeId) -> Option<Res<NodeId>> {
+        self.resolver.res_map.get(&id).copied()
+    }
+
     /// AST内のあるノードのIDが与えられたときに、それに対応する `LocalDefId` を名前解決器から (存在すれば) 取得する。
     fn opt_local_def_id(&self, node: NodeId) -> Option<LocalDefId> {
         self.resolver.node_id_to_def_id.get(&node).copied()
@@ -242,6 +246,19 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         ret
     }
 
+    fn lower_res(&mut self, res: Res<NodeId>) -> Res {
+        let res: Result<Res, ()> = res.apply_id(|id| {
+            let owner = self.current_sir_id_owner;
+            let local_id = self.ident_to_local_id.get(&id).copied().ok_or(())?;
+            Ok(SirId { owner, local_id })
+        });
+
+        // Resが外側のSIR ownerのLocalを指している場合、SirIdを見つけられないことがあります。
+        // これは、以下のような誤ったコードで戻り値の型 `x` をlower化しようとするときに起こり得ます。
+        //   fn foo(x: i32) -> x {}
+        res.unwrap_or(Res::Err)
+    }
+
     fn lower_ty(&mut self, t: &Ty) -> &'sir sir::Ty<'sir> {
         self.arena.alloc(self.lower_ty_direct(t))
     }
@@ -252,7 +269,9 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         path: &ast::Path,
     ) -> sir::Ty<'sir> {
         sir::Ty {
-            kind: sir::TyKind::Path(todo!()),
+            kind: sir::TyKind::Path(
+                self.lower_path(t.id, path)
+            ),
             span: t.span,
             sir_id: self.lower_node_id(t.id)
         }

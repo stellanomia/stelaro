@@ -6,11 +6,9 @@ use crate::stelaro_sir::sir;
 
 
 impl<'sir> LoweringContext<'_, 'sir> {
-
     pub fn lower_expr(&mut self, e: &ast::Expr) -> &'sir sir::Expr<'sir> {
         self.arena.alloc(self.lower_expr_mut(e))
     }
-
 
     pub fn lower_expr_mut(&mut self, e: &ast::Expr) -> sir::Expr<'sir> {
         todo!()
