@@ -286,7 +286,7 @@ where
     V: Visitor<'ast> + ?Sized,
 {
     match ret_ty {
-        FnRetTy::Default => {},
+        FnRetTy::Default(_) => {},
         FnRetTy::Ty(ty) => try_visit!(visitor.visit_ty(ty)),
     }
 

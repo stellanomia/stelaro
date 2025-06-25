@@ -49,7 +49,8 @@ pub struct FnDecl {
 
 #[derive(Debug, Clone)]
 pub enum FnRetTy {
-    Default,
+    /// `Span` は返り値の型が入るべき場所のSpanを表す
+    Default(Span),
     Ty(Box<Ty>),
 }
 

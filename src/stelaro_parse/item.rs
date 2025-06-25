@@ -104,7 +104,9 @@ impl<'sess> Parser<'sess> {
 
             FnRetTy::Ty(Box::new(ty))
         } else {
-            FnRetTy::Default
+            // 返り値が入るべき場所を指す Span を生成する
+            let start = self.prev_token.span.end;
+            FnRetTy::Default((start..start).into())
         };
 
         Ok(
