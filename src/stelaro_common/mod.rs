@@ -12,6 +12,7 @@ pub mod span;
 pub mod stable_hasher;
 pub mod symbol;
 pub mod unhash;
+pub mod visit_utils;
 
 #[cfg(test)]
 mod tests;
@@ -30,6 +31,7 @@ pub use span::{Span, Spanned, DUMMY_SPAN};
 // impl_hash_stable_trivial は stelaro_common 外部に公開されるべきではない
 pub use stable_hasher::{StableHasher, StableHasherHash, FromStableHash};
 pub use symbol::{Symbol, Ident, sym};
+pub use visit_utils::VisitorResult;
 
 use std::rc::Rc;
 
