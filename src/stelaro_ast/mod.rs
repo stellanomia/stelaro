@@ -5,4 +5,4 @@ pub mod ty;
 pub mod visit;
 
 pub use node_id::{NodeId, STELO_NODE_ID};
-pub use visit::{Visitor, VisitorResult};
+pub use visit::Visitor;
