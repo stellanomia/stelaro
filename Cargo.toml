@@ -12,6 +12,7 @@ bumpalo = { version = "3.18.1", features = ["collections"]}
 indexmap = "2.9.0"
 rustc-stable-hash = "0.1.2"
 scoped-tls = "1.0.1"
+stacker = "0.1.21"
 
 [dev-dependencies]
 insta = { version = "1.43.1", features = ["glob", "filters"] }
