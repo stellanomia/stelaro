@@ -39,6 +39,10 @@ impl Span {
         }
     }
 
+    pub fn contains(&self, other: &Span) -> bool {
+        self.start <= other.start && self.end >= other.end
+    }
+
     pub fn as_range_usize(&self) -> Range<usize> {
         self.start as usize..self.end as usize
     }
