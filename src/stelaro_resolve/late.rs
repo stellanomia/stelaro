@@ -276,11 +276,6 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             ExprKind::Block(block) => {
                 self.resolve_block(block);
             },
-            ExprKind::Return(opt_expr) => {
-                if let Some(expr) = opt_expr {
-                    self.resolve_expr(expr, None);
-                }
-            },
             ExprKind::Path(path) => {
                 self.resolve_path_with_context(
                     expr.id,

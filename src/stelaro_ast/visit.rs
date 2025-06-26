@@ -334,9 +334,6 @@ where
             try_visit!(visitor.visit_expr(inner_expr));
         },
         ExprKind::Lit(_lit) => {},
-        ExprKind::Return(return_expr) => {
-            visit_opt!(visitor, visit_expr, return_expr);
-        },
         ExprKind::Paren(expr) => {
             try_visit!(visitor.visit_expr(expr));
         },
