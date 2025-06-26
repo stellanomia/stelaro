@@ -10,6 +10,7 @@ pub mod sorted_map;
 pub mod source_map;
 pub mod span;
 pub mod stable_hasher;
+pub mod stack;
 pub mod symbol;
 pub mod unhash;
 pub mod visit_utils;
