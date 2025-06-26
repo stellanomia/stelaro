@@ -164,7 +164,6 @@ pub enum ExprKind {
     Binary(BinOp, Box<Expr>, Box<Expr>),
     Unary(UnOp, Box<Expr>),
     Lit(Lit),
-    Return(Option<Box<Expr>>),
     Paren(Box<Expr>),
     Assign(Box<Expr>, Box<Expr>),
     Path(Path),
