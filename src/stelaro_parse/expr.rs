@@ -196,6 +196,7 @@ impl Parser<'_> {
                         ExprKind::Assign(
                             Box::new(lhs),
                             Box::new(rhs),
+                            op_token.span,
                         )
                     )
                 }

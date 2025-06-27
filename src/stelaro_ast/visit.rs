@@ -337,7 +337,7 @@ where
         ExprKind::Paren(expr) => {
             try_visit!(visitor.visit_expr(expr));
         },
-        ExprKind::Assign(lhs, rhs) => {
+        ExprKind::Assign(lhs, rhs, ..) => {
             try_visit!(visitor.visit_expr(lhs));
             try_visit!(visitor.visit_expr(rhs));
         },

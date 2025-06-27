@@ -52,10 +52,10 @@ impl<'sir> LoweringContext<'_, 'sir> {
                     );
                     sir::ExprKind::Block(sir_block)
                 },
-                ExprKind::Assign(lhs, rhs) => {
+                ExprKind::Assign(lhs, rhs, span) => {
                     let lhs = self.lower_expr(lhs);
                     let rhs = self.lower_expr(rhs);
-                    sir::ExprKind::Assign(lhs, rhs, todo!())
+                    sir::ExprKind::Assign(lhs, rhs, *span)
                 },
                 ExprKind::Path(path) => {
                     sir::ExprKind::Path(self.lower_path(e.id, path))
