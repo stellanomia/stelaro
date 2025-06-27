@@ -111,7 +111,7 @@ impl DiagCtxtInner {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ErrorEmitted(());
 
 #[derive(Clone, Copy)]

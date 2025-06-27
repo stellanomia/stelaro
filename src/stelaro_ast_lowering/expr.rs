@@ -1,7 +1,7 @@
-use crate::stelaro_ast::ast;
+use crate::stelaro_ast::{ast, token};
 use crate::stelaro_ast_lowering::LoweringContext;
-use crate::stelaro_common::{ensure_sufficient_stack, Span};
-use crate::stelaro_sir::sir;
+use crate::stelaro_common::{ensure_sufficient_stack, Span, Spanned};
+use crate::stelaro_sir::sir::{self, LitKind};
 
 
 
@@ -43,7 +43,7 @@ impl<'sir> LoweringContext<'_, 'sir> {
                     let expr = self.lower_expr(expr);
                     sir::ExprKind::Unary(*un_op, expr)
                 },
-                ExprKind::Lit(token_lit) => todo!(),
+                ExprKind::Lit(token_lit) => sir::ExprKind::Lit(self.lower_lit(token_lit, e.span)),
                 ExprKind::If(cond, then, else_opt) => todo!(),
                 ExprKind::Block(block) => todo!(),
                 ExprKind::Assign(lhs, rhs) => todo!(),
@@ -53,6 +53,22 @@ impl<'sir> LoweringContext<'_, 'sir> {
 
             sir::Expr { sir_id, kind, span: e.span }
         })
+    }
+
+    pub fn lower_lit(
+        &mut self,
+        token_lit: &token::Lit,
+        span: Span,
+    ) -> &'sir Spanned<LitKind> {
+        let lit_kind = match LitKind::from_token_lit(*token_lit) {
+            Ok(lit_kind) => lit_kind,
+            Err(err) => {
+                // let guar = report_lit_error(&self.tcx.sess.psess, err, *token_lit, span);
+                // LitKind::Err(guar)
+                todo!()
+            }
+        };
+        self.arena.alloc(Spanned { node: lit_kind, span })
     }
 
     pub fn expr(&mut self, span: Span, kind: sir::ExprKind<'sir>) -> sir::Expr<'sir> {

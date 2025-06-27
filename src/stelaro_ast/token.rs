@@ -93,12 +93,12 @@ impl Token {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Lit {
-    pub kind: LiteralKind,
+    pub kind: LitKind,
     pub symbol: Symbol,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum LiteralKind {
+pub enum LitKind {
     Bool(bool),
     Char,
     Integer,

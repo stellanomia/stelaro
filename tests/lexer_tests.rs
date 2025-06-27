@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-use stelaro::stelaro_ast::token::{Lit, LiteralKind, TokenKind};
+use stelaro::stelaro_ast::token::{Lit, LitKind, TokenKind};
 use stelaro::stelaro_common::{SourceMap, Symbol, create_default_session_globals_then};
 use stelaro::stelaro_session::ParseSess;
 use stelaro::stelaro_lexer::Lexer;
@@ -42,7 +42,7 @@ fn main() {
             TokenKind::Equal,
             TokenKind::Literal (
                 Lit {
-                    kind: LiteralKind::Float,
+                    kind: LitKind::Float,
                     symbol: Symbol::intern("42.0"),
                 }
             ),
@@ -52,14 +52,14 @@ fn main() {
             TokenKind::Greater,
             TokenKind::Literal (
                 Lit {
-                    kind: LiteralKind::Integer,
+                    kind: LitKind::Integer,
                     symbol: Symbol::intern("10"),
                 }
             ),
             TokenKind::LBrace,
             TokenKind::Literal (
                 Lit {
-                    kind: LiteralKind::Str,
+                    kind: LitKind::Str,
                     symbol: Symbol::intern("\"Hello\""),
                 }
             ),
@@ -68,7 +68,7 @@ fn main() {
             TokenKind::While,
             TokenKind::Literal (
                 Lit {
-                    kind: LiteralKind::Bool(true),
+                    kind: LitKind::Bool(true),
                     symbol: Symbol::intern("true")
                 }
             ),
