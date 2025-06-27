@@ -165,7 +165,8 @@ pub enum ExprKind {
     Unary(UnOp, Box<Expr>),
     Lit(Lit),
     Paren(Box<Expr>),
-    Assign(Box<Expr>, Box<Expr>),
+    /// `Span` は `=` の位置を表す
+    Assign(Box<Expr>, Box<Expr>, Span),
     Path(Path),
     // AssignOp(BinOp, Box<Expr>, Box<Expr>),
 }

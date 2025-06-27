@@ -6,6 +6,7 @@ temp(r#"
 fn main(x: i32, y: i32, z: i32) {
     let x = my_mod::my_mod2::a();
     let y = x + z;
+    z = x + y;
     let z = {
         let a = x * y - z;
         a + my_mod::b()
