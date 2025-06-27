@@ -1,6 +1,6 @@
 use std::{collections::HashMap, fmt};
 
-use crate::stelaro_ast::{ast::{BinOp, UnOp}, token::LiteralKind};
+use crate::stelaro_ast::ast::{BinOp, UnOp};
 use crate::stelaro_diagnostics::ErrorEmitted;
 use crate::stelaro_common::{sym, Ident, IndexVec, LocalDefId, Span, SortedMap, Spanned, Symbol};
 use crate::stelaro_sir::{def::Res, sir_id::{OwnerId, ItemLocalId, SirId, STELO_SIR_ID}};
@@ -254,7 +254,7 @@ impl<'sir> Body<'sir> {
     }
 }
 
-pub type Lit = Spanned<LiteralKind>;
+pub type Lit = Spanned<LitKind>;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Expr<'sir> {
@@ -454,6 +454,25 @@ pub struct Mod<'sir> {
 pub struct ModSpan {
     /// `{` の直後の最初のトークンから、`}` の直前の最後のトークンまでのスパン。
     pub inner_span: Span,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+pub enum LitKind {
+    /// 文字列リテラル (`"foo"`)。シンボルはアンエスケープ (エスケープ解除) されているため、
+    /// 元のトークンのシンボルとは異なる場合があります。
+    Str(Symbol),
+    /// 文字リテラル (`'a'`)
+    Char(char),
+    /// 整数リテラル (`1`)
+    Int(u128),
+    /// 浮動小数点リテラル。
+    /// `LitKind` が `Eq` と `Hash` を実装できるように、
+    /// `f64` ではなくシンボルとして格納されます。
+    Float(Symbol),
+    /// ブールリテラル (`true`, `false`)。
+    Bool(bool),
+    /// 何らかの点で整形式でなかったリテラルのためのプレースホルダー。
+    Err(ErrorEmitted),
 }
 
 

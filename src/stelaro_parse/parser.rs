@@ -1,5 +1,5 @@
 use crate::stelaro_ast::{
-    ast::*, token::{Lit, LiteralKind, Token, TokenKind, TokenStream},
+    ast::*, token::{Lit, LitKind, Token, TokenKind, TokenStream},
     NodeId, STELO_NODE_ID,
 };
 use crate::stelaro_common::{Span, Ident};
@@ -118,7 +118,7 @@ impl<'sess> Parser<'sess> {
 
             Ok(Ident::new(symbol, self.prev_token.span))
         } else if let TokenKind::Literal(lit @ Lit {
-            kind: LiteralKind::Integer | LiteralKind::Float, ..
+            kind: LitKind::Integer | LitKind::Float, ..
         }) = self.token.kind {
                 let next = self.look_ahead(1);
 

@@ -1,4 +1,4 @@
-use crate::stelaro_ast::token::{Lit, LiteralKind, Token, TokenKind, TokenStream};
+use crate::stelaro_ast::token::{Lit, LitKind, Token, TokenKind, TokenStream};
 use crate::stelaro_common::Symbol;
 use crate::stelaro_diagnostics::ErrorEmitted;
 use crate::stelaro_session::ParseSess;
@@ -154,7 +154,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 }
             },
             ('0'..='9') => {
-                // LiteralKind::Integer, Floatのどちらかをとりうる
+                // LitKind::Integer, Floatのどちらかをとりうる
                 let lit_kind = self.lex_number(pos)?;
                 TokenKind::Literal (
                     Lit {
@@ -171,7 +171,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
 
                 TokenKind::Literal (
                     Lit {
-                        kind: LiteralKind::Str,
+                        kind: LitKind::Str,
                         symbol: Symbol::intern(&self.src[pos..self.pos])
                     }
                 )
@@ -181,7 +181,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 let symbol = self.lex_char_lit(pos)?;
                 TokenKind::Literal(
                     Lit {
-                        kind: LiteralKind::Char,
+                        kind: LitKind::Char,
                         symbol
                     }
                 )
@@ -250,7 +250,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
         }
     }
 
-    fn lex_number(&mut self, pos: usize) -> Result<LiteralKind, ErrorEmitted> {
+    fn lex_number(&mut self, pos: usize) -> Result<LitKind, ErrorEmitted> {
         if let '0'..='9' = self.first() {
             self.bump();
 
@@ -289,9 +289,9 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             }
 
             if is_float {
-                Ok(LiteralKind::Float)
+                Ok(LitKind::Float)
             } else {
-                Ok(LiteralKind::Integer)
+                Ok(LitKind::Integer)
             }
         } else {
             // 最初に'.'が入力になることはない
@@ -428,14 +428,14 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                     if keyword_or_ident == "true" {
                         TokenKind::Literal (
                             Lit {
-                                kind: LiteralKind::Bool(true),
+                                kind: LitKind::Bool(true),
                                 symbol: Symbol::intern(&self.src[pos..self.pos]),
                             }
                         )
                     } else if keyword_or_ident == "false" {
                         TokenKind::Literal (
                             Lit {
-                                kind: LiteralKind::Bool(false),
+                                kind: LitKind::Bool(false),
                                 symbol: Symbol::intern(&self.src[pos..self.pos]),
                             }
                         )

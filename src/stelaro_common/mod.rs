@@ -4,6 +4,7 @@ pub mod fingerprint;
 pub mod hashes;
 pub mod idx;
 pub mod index_vec;
+pub mod lit_utils;
 pub mod map;
 pub mod slice;
 pub mod sorted_map;
