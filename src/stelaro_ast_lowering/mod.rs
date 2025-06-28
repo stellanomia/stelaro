@@ -124,6 +124,10 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         self.resolver.res_map.get(&id).copied()
     }
 
+    fn expect_res(&self, id: NodeId) -> Res<NodeId> {
+        self.get_res(id).unwrap_or(Res::Err)
+    }
+
     /// AST内のあるノードのIDが与えられたときに、それに対応する `LocalDefId` を名前解決器から (存在すれば) 取得する。
     fn opt_local_def_id(&self, node: NodeId) -> Option<LocalDefId> {
         self.resolver.node_id_to_def_id.get(&node).copied()
