@@ -1,6 +1,6 @@
 use crate::stelaro_ast::{ast, token};
 use crate::stelaro_ast_lowering::LoweringContext;
-use crate::stelaro_common::{ensure_sufficient_stack, Span, Spanned};
+use crate::stelaro_common::{ensure_sufficient_stack, Span, Spanned, lit_utils::report_lit_error};
 use crate::stelaro_sir::sir::{self, LitKind};
 
 
@@ -75,9 +75,8 @@ impl<'sir> LoweringContext<'_, 'sir> {
         let lit_kind = match LitKind::from_token_lit(*token_lit) {
             Ok(lit_kind) => lit_kind,
             Err(err) => {
-                // let guar = report_lit_error(&self.tcx.sess.psess, err, *token_lit, span);
-                // LitKind::Err(guar)
-                todo!()
+                let guar = report_lit_error(&self.tcx.sess.psess, err, *token_lit, span);
+                LitKind::Err(guar)
             }
         };
         self.arena.alloc(Spanned { node: lit_kind, span })

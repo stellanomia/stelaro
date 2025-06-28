@@ -1,4 +1,7 @@
 use crate::stelaro_ast::token;
+use crate::stelaro_common::Span;
+use crate::stelaro_diagnostics::ErrorEmitted;
+use crate::stelaro_session::ParseSess;
 use crate::stelaro_sir::sir::LitKind;
 
 
@@ -29,4 +32,13 @@ impl LitKind {
             }
         )
     }
+}
+
+pub fn report_lit_error(
+    psess: &ParseSess,
+    err: LitError,
+    lit: token::Lit,
+    span: Span,
+) -> ErrorEmitted {
+    todo!()
 }

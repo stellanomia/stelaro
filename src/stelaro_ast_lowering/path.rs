@@ -15,9 +15,16 @@ impl<'sir> LoweringContext<'_, 'sir> {
 
     pub fn lower_path_segment(
         &mut self,
-        path_span: Span,
+        _path_span: Span,
         segment: &ast::PathSegment,
     ) -> sir::PathSegment {
-        todo!()
+        let res = self.expect_res(segment.id);
+        let sir_id = self.lower_node_id(segment.id);
+
+        sir::PathSegment {
+            ident: segment.ident,
+            sir_id,
+            res: self.lower_res(res),
+        }
     }
 }
