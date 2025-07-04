@@ -1,3 +1,5 @@
+pub mod sir_map;
+
 use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap};
 
