@@ -59,7 +59,7 @@ pub fn report_lit_error(
 
 // エスケープシーケンスを含む char である必要がある
 #[inline]
-fn unescape_char(ch: &str) -> char {
+pub fn unescape_char(ch: &str) -> char {
     let mut chars = ch.chars();
     if let Some('\\') = chars.next() && let Some(e) = chars.next() {
         match e {
@@ -79,7 +79,7 @@ fn unescape_char(ch: &str) -> char {
 
 // エスケープシーケンスを含む文字列である必要がある
 #[inline]
-fn unescape_str(str: &str) -> Symbol {
+pub fn unescape_str(str: &str) -> Symbol {
     let mut chars = str.chars();
     let mut buf = String::with_capacity(str.len());
     while let Some(ch) = chars.next() {
@@ -95,25 +95,4 @@ fn unescape_str(str: &str) -> Symbol {
     }
 
     Symbol::intern(buf.leak())
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::stelaro_common::create_default_session_globals_then;
-
-    use super::*;
-
-    fn test_unescape<T>(f: impl FnOnce() -> T) -> T {
-        create_default_session_globals_then(f)
-    }
-
-    #[test]
-    fn test_unescape_str() {
-        test_unescape(|| {
-            assert_eq!(
-                "abcd	efgh\n	ijkl\\あ\0い\r⭐✨\"\'",
-                unescape_str(r#"abcd\tefgh\n\tijkl\\あ\0い\r⭐✨\"\'"#).as_str(),
-            );
-        })
-    }
 }
