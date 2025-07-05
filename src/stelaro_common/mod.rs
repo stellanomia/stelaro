@@ -15,6 +15,7 @@ pub mod stack;
 pub mod symbol;
 pub mod unhash;
 pub mod visit_utils;
+mod diagnostics;
 
 #[cfg(test)]
 mod tests;

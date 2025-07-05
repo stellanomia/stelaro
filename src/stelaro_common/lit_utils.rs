@@ -1,5 +1,5 @@
 use crate::stelaro_ast::token;
-use crate::stelaro_common::{Span, Symbol};
+use crate::stelaro_common::{Span, Symbol, diagnostics::Diags};
 use crate::stelaro_diagnostics::ErrorEmitted;
 use crate::stelaro_session::ParseSess;
 use crate::stelaro_sir::sir::LitKind;
@@ -54,7 +54,11 @@ pub fn report_lit_error(
     lit: token::Lit,
     span: Span,
 ) -> ErrorEmitted {
-    todo!()
+    match err {
+        LitError::IntTooLarge => {
+            Diags::int_too_large(psess.dcx(), lit, span).emit()
+        }
+    }
 }
 
 fn integer_lit(symbol: Symbol) -> Result<LitKind, LitError> {
