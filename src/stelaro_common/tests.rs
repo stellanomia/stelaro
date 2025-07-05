@@ -6,6 +6,7 @@ use crate::stelaro_common::idx::{Idx, IntoSliceIdx};
 use crate::stelaro_common::symbol::{Symbol, Interner};
 use crate::stelaro_common::unhash::{UnhashMap, UnhashSet, Unhasher};
 use crate::stelaro_common::source_map::{SourceFile, SourceFileId};
+use crate::stelaro_common::lit_utils::*;
 
 #[test]
 fn interner_tests() {
@@ -709,3 +710,14 @@ fn test_session_globals_creation_and_access() {
         assert_eq!(result_from_with, "symbol_in_with_globals");
     });
 }
+
+#[test]
+fn test_unescape_str() {
+    create_default_session_globals_then(|| {
+        assert_eq!(
+            "abcd	efgh\n	ijkl\\あ\0い\r⭐✨\"\'",
+            unescape_str(r#"abcd\tefgh\n\tijkl\\あ\0い\r⭐✨\"\'"#).as_str(),
+        );
+    })
+}
+
