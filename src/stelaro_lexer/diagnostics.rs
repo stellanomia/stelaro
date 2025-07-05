@@ -1,5 +1,5 @@
 use crate::stelaro_common::Span;
-use crate::stelaro_diagnostics::{Diag, DiagCtxtHandle, ErrorEmitted};
+use crate::stelaro_diagnostics::{Diag, DiagCtxtHandle};
 
 pub struct DiagsLexer;
 
@@ -8,7 +8,7 @@ impl<'dcx> DiagsLexer {
         dcx: DiagCtxtHandle<'dcx>,
         unexpected: char,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnexpectedCharacter.into());
         diag.set_message("予期しない文字".to_string());
@@ -20,7 +20,7 @@ impl<'dcx> DiagsLexer {
     pub fn invalid_float_format (
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::InvalidFloatFormat.into());
         diag.set_message("無効な浮動小数点数の表記".to_string());
@@ -32,7 +32,7 @@ impl<'dcx> DiagsLexer {
     pub fn missing_fractional_part (
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::MissingFractionalPart.into());
         diag.set_message("小数部の欠落".to_string());
@@ -45,7 +45,7 @@ impl<'dcx> DiagsLexer {
         dcx: DiagCtxtHandle<'dcx>,
         invalid_ch: char,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::InvalidEscapeSequence.into());
         diag.set_message("無効なエスケープシーケンス".to_string());
@@ -57,7 +57,7 @@ impl<'dcx> DiagsLexer {
     pub fn unterminated_string_literal (
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnterminatedStringLiteral.into());
         diag.set_message("閉じられていない文字列リテラル".to_string());
@@ -70,7 +70,7 @@ impl<'dcx> DiagsLexer {
     pub fn unexpected_quote (
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnexpectedQuote.into());
         diag.set_message("予期しない`'`".to_string());
@@ -82,7 +82,7 @@ impl<'dcx> DiagsLexer {
     pub fn unterminated_char_literal (
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnterminatedCharLiteral.into());
         diag.set_message("閉じられていない文字リテラル".to_string());
@@ -94,7 +94,7 @@ impl<'dcx> DiagsLexer {
     pub fn multiple_characters_in_char_literal (
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
-    ) -> Diag<'dcx, ErrorEmitted> {
+    ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::MultipleCharactersInCharLiteral.into());
         diag.set_message("無効な複数文字の文字リテラル".to_string());
