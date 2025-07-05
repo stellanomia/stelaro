@@ -31,7 +31,7 @@ impl LitKind {
                         ch
                     )
                 },
-                token::LitKind::Integer => todo!(),
+                token::LitKind::Integer => return integer_lit(symbol),
                 token::LitKind::Float => {
                     LitKind::Float(symbol)
                 },
@@ -55,6 +55,13 @@ pub fn report_lit_error(
     span: Span,
 ) -> ErrorEmitted {
     todo!()
+}
+
+fn integer_lit(symbol: Symbol) -> Result<LitKind, LitError> {
+    let s = symbol.as_str();
+    s.parse::<u128>()
+        .map(LitKind::Int)
+        .map_err(|_| LitError::IntTooLarge)
 }
 
 // エスケープシーケンスを含む char である必要がある
