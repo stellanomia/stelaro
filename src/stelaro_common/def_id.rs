@@ -247,6 +247,15 @@ impl DefId {
         self.is_local().then_some(LocalDefId { local_def_index: self.index })
     }
 
+    #[inline]
+    #[track_caller]
+    pub fn expect_local(self) -> LocalDefId {
+        match self.as_local() {
+            Some(local_def_id) => local_def_id,
+            None => panic!("DefId::expect_local: `{self:?}` はローカルではありません"),
+        }
+    }
+
 }
 
 impl std::fmt::Debug for DefId {

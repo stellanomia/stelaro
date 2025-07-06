@@ -29,8 +29,8 @@ impl<'sir> OwnerNode<'sir> {
     }
 }
 
-impl<'hir> From<OwnerNode<'hir>> for Node<'hir> {
-    fn from(val: OwnerNode<'hir>) -> Self {
+impl<'sir> From<OwnerNode<'sir>> for Node<'sir> {
+    fn from(val: OwnerNode<'sir>) -> Self {
         match val {
             OwnerNode::Item(n) => Node::Item(n),
             OwnerNode::Stelo(n) => Node::Stelo(n),
