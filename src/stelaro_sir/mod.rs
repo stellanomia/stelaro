@@ -6,25 +6,30 @@ pub mod visit;
 
 use crate::stelaro_common::LocalDefId;
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_sir::sir_id::{ItemLocalId, OwnerId, STELO_SIR_ID};
-use crate::stelaro_sir::{sir::OwnerNodes, sir_id::SirId};
+use crate::stelaro_sir::{sir::OwnerNodes, sir_id::{ItemLocalId, OwnerId, SirId, STELO_SIR_ID}};
 
 
 impl<'tcx> TyCtxt<'tcx> {
     #[inline]
+    pub fn sir_stelo(self) -> &'tcx sir::Stelo<'tcx> {
+        match self.sir_stelo {
+            Some(stelo) => stelo,
+            None => panic!("bug: TyCtxt sir::Stelo は初期化されていません"),
+        }
+    }
+
+    #[inline]
     pub fn opt_sir_owner_nodes(self, def_id: LocalDefId) -> Option<&'tcx OwnerNodes<'tcx>> {
-        self.sir_stelo?.owners.get(def_id)?.as_owner().map(|i| &i.nodes)
+        self.sir_stelo().owners.get(def_id)?.as_owner().map(|i| &i.nodes)
     }
 
     #[inline]
     pub fn local_def_id_to_sir_id(self, def_id: LocalDefId) -> SirId {
-        self.sir_stelo.map(|stelo| {
-            match stelo.owners[def_id] {
-                sir::MaybeOwner::Owner(_) => SirId::make_owner(def_id),
-                sir::MaybeOwner::NonOwner(sir_id) => sir_id,
-                sir::MaybeOwner::Phantom => panic!("bug: {:?} に SirId はない", def_id),
-            }
-        }).unwrap()
+        match self.sir_stelo().owners[def_id] {
+            sir::MaybeOwner::Owner(_) => SirId::make_owner(def_id),
+            sir::MaybeOwner::NonOwner(sir_id) => sir_id,
+            sir::MaybeOwner::Phantom => panic!("bug: {:?} に SirId はない", def_id),
+        }
     }
 
     #[inline]
