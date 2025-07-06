@@ -5,7 +5,7 @@ use std::{cell::RefCell, collections::HashMap};
 
 use crate::stelaro_common::{DefId, Arena, IndexVec, LocalDefId, Span, StableSteloId, Symbol, STELO_DEF_ID};
 use crate::stelaro_diagnostics::DiagCtxtHandle;
-use crate::stelaro_sir::{def::DefKind, definitions::Definitions};
+use crate::stelaro_sir::{sir, def::DefKind, definitions::{self, Definitions}};
 use crate::stelaro_ty::{Ty, TyKind};
 
 use super::Session;
@@ -31,6 +31,9 @@ pub struct GlobalCtxt<'tcx> {
 
     /// 定義がもつ `DefKind` への参照
     pub def_kind_table: RefCell<IndexVec<LocalDefId, DefKind>>,
+
+    /// AST Lowering 後の Stelo
+    pub sir_stelo: Option<&'tcx sir::Stelo<'tcx>>,
 
     // std, core 実装時など、複数のStelo解析の際に使われる
     // /// インターンされた [StableSteloId] のマップ
@@ -89,6 +92,34 @@ impl<'tcx> TyCtxt<'tcx> {
             unimplemented!()
         }
     }
+
+    pub fn def_key(self, id: DefId) -> definitions::DefKey {
+        if let Some(id) = id.as_local() {
+            self.definitions.borrow().def_key(id)
+        } else {
+            // 外部ステロに対する読み込みはまだ実装されていない
+            // FIXME: 外部ステロに対しても def_kind を返せるようにする
+            unimplemented!()
+        }
+    }
+
+    #[inline]
+    pub fn opt_parent(self, id: DefId) -> Option<DefId> {
+        self.def_key(id).parent.map(|index| DefId { index, ..id })
+    }
+
+    #[inline]
+    pub fn parent(self, id: DefId) -> DefId {
+        match self.opt_parent(id) {
+            Some(id) => id,
+            None => panic!("{id:?} は親を持たない"),
+        }
+    }
+
+    #[inline]
+    pub fn opt_local_parent(self, id: LocalDefId) -> Option<LocalDefId> {
+        self.opt_parent(id.to_def_id()).map(DefId::expect_local)
+    }
 }
 
 
@@ -111,6 +142,7 @@ impl<'tcx> TyCtxt<'tcx> {
             types_interner: RefCell::new(HashMap::new()),
             source_span: RefCell::new(IndexVec::new()),
             def_kind_table: RefCell::new(IndexVec::new()),
+            sir_stelo: None,
         }
     }
 }
