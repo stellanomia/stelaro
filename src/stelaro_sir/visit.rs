@@ -1,6 +1,6 @@
 use crate::stelaro_common::{Ident, LocalDefId, Span, Symbol, VisitorResult};
 use crate::stelaro_sir::{sir::*, sir_id::SirId};
-use crate::{try_visit, walk_list};
+use crate::{try_visit, visit_opt, walk_list};
 
 
 pub trait IntoVisitor<'sir> {
@@ -193,8 +193,24 @@ pub trait Visitor<'v>: Sized {
         walk_ident(self, ident)
     }
 
+    fn visit_local(&mut self, l: &'v LetStmt<'v>) -> Self::Result {
+        walk_local(self, l)
+    }
+
+    fn visit_block(&mut self, b: &'v Block<'v>) -> Self::Result {
+        walk_block(self, b)
+    }
+
+    fn visit_stmt(&mut self, stmt: &'v Stmt<'v>) -> Self::Result {
+        walk_stmt(self, stmt)
+    }
+
     fn visit_lit(&mut self, _sir_id: SirId, _lit: Lit, _negated: bool) -> Self::Result {
         Self::Result::output()
+    }
+
+    fn visit_pat(&mut self, p: &'v Pat<'v>) -> Self::Result {
+        walk_pat(self, p)
     }
 
     fn visit_path(&mut self, path: &'v Path<'v>) -> Self::Result {
@@ -288,6 +304,42 @@ pub fn walk_fn<'v, V: Visitor<'v>>(
 
 pub fn walk_ident<'v, V: Visitor<'v>>(visitor: &mut V, ident: Ident) -> V::Result {
     visitor.visit_name(ident.name)
+}
+
+pub fn walk_local<'v, V: Visitor<'v>>(visitor: &mut V, local: &'v LetStmt<'v>) -> V::Result {
+    let LetStmt { pat, ty, init, sir_id, span: _ } = local;
+    visit_opt!(visitor, visit_expr, *init);
+    try_visit!(visitor.visit_id(*sir_id));
+    try_visit!(visitor.visit_pat(pat));
+    // visit_opt!(visitor, visit_ty_unambsig, *ty);
+    V::Result::output()
+}
+
+
+pub fn walk_block<'v, V: Visitor<'v>>(visitor: &mut V, block: &'v Block<'v>) -> V::Result {
+    let Block { stmts, expr, sir_id, span: _ } = block;
+    try_visit!(visitor.visit_id(*sir_id));
+    walk_list!(visitor, visit_stmt, *stmts);
+    visit_opt!(visitor, visit_expr, *expr);
+    V::Result::output()
+}
+
+pub fn walk_stmt<'v, V: Visitor<'v>>(visitor: &mut V, statement: &'v Stmt<'v>) -> V::Result {
+    let Stmt { kind, sir_id, span: _ } = statement;
+    try_visit!(visitor.visit_id(*sir_id));
+    match *kind {
+        StmtKind::Let(local) => visitor.visit_local(local),
+        StmtKind::Item(item) => visitor.visit_nested_item(item),
+        StmtKind::Expr(expression) | StmtKind::Semi(expression) => {
+            visitor.visit_expr(expression)
+        }
+        StmtKind::Return(expr) => todo!(),
+        StmtKind::While(e, block) => todo!(),
+    }
+}
+
+pub fn walk_pat<'v, V: Visitor<'v>>(visitor: &mut V, pattern: &'v Pat<'v>) -> V::Result {
+    todo!()
 }
 
 pub fn walk_mod<'v, V: Visitor<'v>>(visitor: &mut V, module: &'v Mod<'v>) -> V::Result {
