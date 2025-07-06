@@ -658,6 +658,103 @@ fn test_unhash_set_basic_operations() {
     assert!(!set.remove(&30)); // 存在しない要素の削除
 }
 
+#[test]
+fn test_sorted_map_core_functionality() {
+    let mut map: SortedMap<i32, &str> = SortedMap::new();
+    assert!(map.is_empty());
+    assert_eq!(map.len(), 0);
+
+    // insert & get
+    assert_eq!(map.insert(2, "b"), None);
+    assert_eq!(map.insert(1, "a"), None);
+    assert_eq!(map.len(), 2);
+    assert!(map.contains_key(&1));
+    assert_eq!(map.get(&1), Some(&"a"));
+    assert_eq!(map.get(&3), None);
+
+    // update
+    assert_eq!(map.insert(1, "aa"), Some("a"));
+    assert_eq!(map.len(), 2);
+    assert_eq!(map.get(&1), Some(&"aa"));
+
+    // index & index_mut
+    assert_eq!(map[&1], "aa");
+    map[&2] = "bb";
+    assert_eq!(map[&2], "bb");
+
+    // remove
+    assert_eq!(map.remove(&1), Some("aa"));
+    assert_eq!(map.len(), 1);
+    assert!(!map.contains_key(&1));
+    assert_eq!(map.remove(&99), None);
+
+    // clear
+    map.clear();
+    assert!(map.is_empty());
+}
+
+#[test]
+fn test_sorted_map_creation_and_iterators() {
+    // from_iter
+    let data = vec![(3, "c"), (1, "a"), (2, "b")];
+    let map: SortedMap<_, _> = data.into_iter().collect();
+
+    assert_eq!(map.len(), 3);
+    assert_eq!(map.keys().collect::<Vec<_>>(), vec![&1, &2, &3]);
+    assert_eq!(map.values().copied().collect::<Vec<_>>(), vec!["a", "b", "c"]);
+    assert_eq!(map.iter().collect::<Vec<_>>(), vec![&(1, "a"), &(2, "b"), &(3, "c")]);
+
+    // from_presorted_elements
+    let sorted_data = vec![(10, "x"), (20, "y")];
+    let presorted_map = SortedMap::from_presorted_elements(sorted_data);
+    assert_eq!(presorted_map.keys().collect::<Vec<_>>(), vec![&10, &20]);
+}
+
+#[test]
+fn test_sorted_map_range_and_bulk_operations() {
+    let mut map = SortedMap::from_iter((1..=5).map(|i| (i, i.to_string())));
+
+    // range
+    assert_eq!(map.range(2..4), &[(2, "2".to_string()), (3, "3".to_string())]);
+    assert_eq!(map.range(..=2), &[(1, "1".to_string()), (2, "2".to_string())]);
+    assert!(!map.range_is_empty(2..=4));
+    assert!(map.range_is_empty(6..8));
+
+    // remove_range
+    map.remove_range(2..4);
+    assert_eq!(map.keys().collect::<Vec<_>>(), vec![&1, &4, &5]);
+
+    // insert_presorted
+    map.insert_presorted(vec![(2, "2".to_string()), (3, "3".to_string())]);
+    assert_eq!(map.keys().collect::<Vec<_>>(), vec![&1, &2, &3, &4, &5]);
+}
+
+#[test]
+fn test_sorted_map_specialized_methods() {
+    // get_mut_or_insert_default
+    let mut map_default: SortedMap<i32, i32> = SortedMap::new();
+    let val_ref = map_default.get_mut_or_insert_default(1);
+    assert_eq!(*val_ref, 0);
+    *val_ref = 100;
+    assert_eq!(map_default.get_mut_or_insert_default(1), &100);
+
+    // Borrowing with String keys
+    let mut map_string: SortedMap<String, i32> = SortedMap::new();
+    map_string.insert("hello".to_string(), 1);
+    assert_eq!(map_string.get("hello"), Some(&1));
+    assert_eq!(map_string["hello"], 1);
+
+    // Debug format
+    let map_debug = SortedMap::from_iter(vec![(1, "a"), (2, "b")]);
+    assert_eq!(format!("{:?}", map_debug), "{1: \"a\", 2: \"b\"}");
+}
+
+#[test]
+#[should_panic(expected = "no entry found for key")]
+fn test_sorted_map_index_panic_on_missing_key() {
+    let map: SortedMap<i32, &str> = SortedMap::new();
+    let _ = map[&99];
+}
 
 #[test]
 fn test_source_file_id_equality() {
@@ -712,11 +809,22 @@ fn test_session_globals_creation_and_access() {
 }
 
 #[test]
-fn test_unescape_str() {
+fn test_unescape() {
     create_default_session_globals_then(|| {
         assert_eq!(
             "abcd	efgh\n	ijkl\\あ\0い\r⭐✨\"\'",
             unescape_str(r#"abcd\tefgh\n\tijkl\\あ\0い\r⭐✨\"\'"#).as_str(),
+        );
+        assert_eq!(
+            ('\n', '\t', '\r', '\\', '\'', '"'),
+            (
+                unescape_char("\\n"),
+                unescape_char("\\t"),
+                unescape_char("\\r"),
+                unescape_char("\\\\"),
+                unescape_char("\\'"),
+                unescape_char("\\\""),
+            ),
         );
     })
 }
