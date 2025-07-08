@@ -276,8 +276,7 @@ pub fn walk_fn_decl<'v, V: Visitor<'v>>(
     visitor: &mut V,
     decl: &'v FnDecl<'v>,
 ) -> V::Result {
-    let FnDecl { inputs, output, .. } =
-        decl;
+    let FnDecl { inputs, output, .. } = decl;
     walk_list!(visitor, visit_ty, *inputs);
     visitor.visit_fn_ret_ty(output)
 }
@@ -311,7 +310,7 @@ pub fn walk_local<'v, V: Visitor<'v>>(visitor: &mut V, local: &'v LetStmt<'v>) -
     visit_opt!(visitor, visit_expr, *init);
     try_visit!(visitor.visit_id(*sir_id));
     try_visit!(visitor.visit_pat(pat));
-    // visit_opt!(visitor, visit_ty_unambsig, *ty);
+    visit_opt!(visitor, visit_ty, *ty);
     V::Result::output()
 }
 
@@ -333,12 +332,12 @@ pub fn walk_stmt<'v, V: Visitor<'v>>(visitor: &mut V, statement: &'v Stmt<'v>) -
         StmtKind::Expr(expr) | StmtKind::Semi(expr) => {
             try_visit!(visitor.visit_expr(expr));
         }
-        StmtKind::Break(expr) => {
+        StmtKind::Break(_, expr) => {
             visit_opt!(visitor, visit_expr, expr);
         }
+        StmtKind::Continue(_) => {},
         StmtKind::Return(expr) => {
             visit_opt!(visitor, visit_expr, expr);
-            V::Result::output()
         },
         StmtKind::Loop(b, _, _) => {
             try_visit!(visitor.visit_block(b));

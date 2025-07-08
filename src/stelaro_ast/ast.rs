@@ -109,6 +109,9 @@ pub enum StmtKind {
     /// break (expr);
     Break(Option<Box<Expr>>),
 
+    /// continue;
+    Continue,
+
     /// return (expr);
     Return(Option<Box<Expr>>),
 }

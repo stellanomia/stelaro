@@ -64,6 +64,9 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                 StmtKind::Break(e) => {
                     todo!();
                 }
+                StmtKind::Continue => {
+                    todo!();
+                }
                 StmtKind::Return(e) => {
                     let e = e.as_ref().map(|e| self.lower_expr(e));
                     let sir_id = self.lower_node_id(s.id);

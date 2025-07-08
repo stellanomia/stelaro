@@ -188,6 +188,30 @@ pub struct Stmt<'sir> {
     pub span: Span,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum LoopSource {
+    Loop,
+    While,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum LoopIdError {
+    OutsideLoopScope,
+}
+
+impl fmt::Display for LoopIdError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(match self {
+            LoopIdError::OutsideLoopScope => "loop スコープの中ではない",
+        })
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Destination {
+    pub target_id: Result<SirId, LoopIdError>,
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum StmtKind<'sir> {
     /// let文
@@ -203,7 +227,9 @@ pub enum StmtKind<'sir> {
     Semi(&'sir Expr<'sir>),
 
     /// Break文
-    Break(Option<&'sir Expr<'sir>>),
+    Break(Destination, Option<&'sir Expr<'sir>>),
+
+    Continue(Destination),
 
     /// Return文
     Return(Option<&'sir Expr<'sir>>),
@@ -212,11 +238,6 @@ pub enum StmtKind<'sir> {
     Loop(&'sir Block<'sir>, LoopSource, Span),
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub enum LoopSource {
-    Loop,
-    While,
-}
 
 /// `let` 文を表す (i.e., `let <pat>:<ty> = <init>;`).
 #[derive(Debug, Clone, Copy)]
