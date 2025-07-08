@@ -9,11 +9,19 @@ fn main(x: i32, y: i32, z: i32) {
     z = x + y;
     let z = {
         let a = x * y - z;
+        let b = if a < x {
+            x / z
+        } else {
+            a - y
+        };
         a + my_mod::b()
     };
 
     let c: char = 'c';
 
+    loop {
+        break x;
+    }
     return z;
 }
 

@@ -454,6 +454,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             "fn" => Some(TokenKind::Fn),
             "mod" => Some(TokenKind::Mod),
             "break" => Some(TokenKind::Break),
+            "continue" => Some(TokenKind::Continue),
             "return" => Some(TokenKind::Return),
             "let" => Some(TokenKind::Let),
             "if" => Some(TokenKind::If),

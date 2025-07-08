@@ -217,6 +217,7 @@ where
             try_visit!(visitor.visit_block(block));
         },
         StmtKind::Break(expr) => visit_opt!(visitor, visit_expr, expr),
+        StmtKind::Continue => {},
         StmtKind::Return(expr) => visit_opt!(visitor, visit_expr, expr),
     }
 

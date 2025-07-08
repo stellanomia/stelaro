@@ -8,6 +8,10 @@ pub struct Token {
     pub span: Span,
 }
 
+/// Token の種類。
+///
+/// キーワードを追加するときには、字句解析可能にするために、
+/// stelaro_lexer/lexer.rs Lexer::as_keyword にキーワードを追加しなければならない。
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenKind {
     /// `(`
@@ -78,6 +82,8 @@ pub enum TokenKind {
     Else, // else
     /// break文
     Break,
+    /// continue
+    Continue,
     /// for文
     For, // for
     /// loop文
@@ -257,6 +263,7 @@ impl fmt::Display for TokenKind {
             TokenKind::If => wrt!(f, "if"),
             TokenKind::Else => wrt!(f, "else"),
             TokenKind::Break => wrt!(f, "break"),
+            TokenKind::Continue => wrt!(f, "continue"),
             TokenKind::For => wrt!(f, "for"),
             TokenKind::While => wrt!(f, "while"),
             TokenKind::Loop => wrt!(f, "loop"),

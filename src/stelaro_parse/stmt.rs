@@ -17,6 +17,10 @@ impl Parser<'_> {
             },
             TokenKind::Break => {
                 self.parse_stmt_break().map(Some)
+            },
+            TokenKind::Continue => {
+                self.eat(TokenKind::Continue, self.token.span)?;
+                Ok(Some(self.mk_stmt(self.prev_token.span, StmtKind::Continue)))
             }
             TokenKind::Return => {
                 self.parse_stmt_return().map(Some)

@@ -29,6 +29,9 @@ struct LoweringContext<'a, 'sir> {
     current_sir_id_owner: OwnerId,
     item_local_id_counter: ItemLocalId,
 
+    /// Break, Continue が正しい文脈で使用されているか判定するのに使う。
+    loop_scope: Option<SirId>,
+
     /// 現在の SIR 所有ノード内でローワリングされるNodeId。
     /// 重複ローワリングの検査にのみ使用される。
     #[cfg(debug_assertions)]
@@ -49,6 +52,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
             bodies: Vec::new(),
             current_sir_id_owner: STELO_OWNER_ID,
             current_item: None,
+            loop_scope: None,
             item_local_id_counter: ItemLocalId::ZERO,
             node_id_to_local_id: HashMap::new(),
             ident_to_local_id: HashMap::new(),
