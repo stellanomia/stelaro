@@ -333,7 +333,10 @@ pub fn walk_stmt<'v, V: Visitor<'v>>(visitor: &mut V, statement: &'v Stmt<'v>) -
         StmtKind::Expr(expression) | StmtKind::Semi(expression) => {
             visitor.visit_expr(expression)
         }
-        StmtKind::Return(expr) => todo!(),
+        StmtKind::Return(expr) => {
+            visit_opt!(visitor, visit_expr, expr);
+            V::Result::output()
+        },
         StmtKind::While(e, block) => todo!(),
     }
 }
