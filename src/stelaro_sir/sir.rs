@@ -202,7 +202,7 @@ pub enum LoopIdError {
 impl fmt::Display for LoopIdError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(match self {
-            LoopIdError::OutsideLoopScope => "loop スコープの中ではない",
+            LoopIdError::OutsideLoopScope => "ループのスコープ内ではない",
         })
     }
 }
@@ -528,5 +528,23 @@ impl<'sir> Node<'sir> {
             Node::Stelo(i) => Some(OwnerNode::Stelo(i)),
             _ => None,
         }
+    }
+
+    #[inline]
+    pub fn associated_body(&self) -> Option<(LocalDefId, BodyId)> {
+        match self {
+            Node::Item(Item {
+                owner_id,
+                kind:
+                    | ItemKind::Fn { body, .. },
+                ..
+            }) => Some((owner_id.def_id, *body)),
+
+            _ => None,
+        }
+    }
+
+    pub fn body_id(&self) -> Option<BodyId> {
+        Some(self.associated_body()?.1)
     }
 }

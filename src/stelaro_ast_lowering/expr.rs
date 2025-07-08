@@ -18,7 +18,7 @@ impl<'sir> LoweringContext<'_, 'sir> {
         use ast::ExprKind;
 
         ensure_sufficient_stack(|| {
-            // 丸括弧式は SirId を持たず、特別に処理されます。
+            // 丸括弧式は SirId を持たず、特別に処理される。
             if let ExprKind::Paren(expr) = &e.kind {
                 let mut expr = self.lower_expr_mut(expr);
                 if e.span.contains(&expr.span) {

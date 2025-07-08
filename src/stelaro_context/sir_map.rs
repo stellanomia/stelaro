@@ -105,6 +105,10 @@ impl<'tcx> TyCtxt<'tcx> {
     pub fn sir_body(self, id: BodyId) -> &'tcx Body<'tcx> {
         self.sir_owner_nodes(id.sir_id.owner).bodies[&id.sir_id.local_id]
     }
+
+    pub fn sir_body_owner_def_id(self, BodyId { sir_id }: BodyId) -> LocalDefId {
+        self.parent_sir_node(sir_id).associated_body().unwrap().0
+    }
 }
 
 impl<'tcx> SirTyCtxt<'tcx> for TyCtxt<'tcx> {
