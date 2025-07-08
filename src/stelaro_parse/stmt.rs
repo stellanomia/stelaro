@@ -9,9 +9,15 @@ impl Parser<'_> {
             TokenKind::Let => {
                 self.parse_stmt_let().map(Some)
             },
+            TokenKind::Loop => {
+                self.parse_stmt_loop().map(Some)
+            }
             TokenKind::While => {
                 self.parse_stmt_while().map(Some)
             },
+            TokenKind::Break => {
+                self.parse_stmt_break().map(Some)
+            }
             TokenKind::Return => {
                 self.parse_stmt_return().map(Some)
             },
@@ -100,6 +106,21 @@ impl Parser<'_> {
         )
     }
 
+    pub fn parse_stmt_loop(&mut self) -> PResult<Stmt> {
+        self.eat(TokenKind::Loop, self.token.span)?;
+        let start = self.prev_token.span;
+        let block = self.parse_block()?;
+
+        Ok(
+            self.mk_stmt(
+                start.merge(&self.prev_token.span),
+                StmtKind::Loop (
+                    Box::new(block)
+                )
+            )
+        )
+    }
+
     pub fn parse_stmt_while(&mut self) -> PResult<Stmt> {
         self.eat(TokenKind::While, self.token.span)?;
         let start = self.prev_token.span;
@@ -114,6 +135,30 @@ impl Parser<'_> {
                 StmtKind::While (
                     Box::new(cond),
                     Box::new(block)
+                )
+            )
+        )
+    }
+
+    pub fn parse_stmt_break(&mut self) -> PResult<Stmt> {
+        self.eat(TokenKind::Break, self.token.span)?;
+        let start = self.prev_token.span;
+
+        let expr = if self.token.kind == TokenKind::Semicolon {
+            None
+        } else {
+            Some(
+                Box::new(self.parse_expr()?)
+            )
+        };
+
+        self.eat(TokenKind::Semicolon, self.token.span)?;
+
+        Ok(
+            self.mk_stmt(
+                start.merge(&self.prev_token.span),
+                StmtKind::Break (
+                    expr,
                 )
             )
         )

@@ -453,6 +453,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
         match string {
             "fn" => Some(TokenKind::Fn),
             "mod" => Some(TokenKind::Mod),
+            "break" => Some(TokenKind::Break),
             "return" => Some(TokenKind::Return),
             "let" => Some(TokenKind::Let),
             "if" => Some(TokenKind::If),
@@ -460,6 +461,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             "and" => Some(TokenKind::And),
             "or" => Some(TokenKind::Or),
             "for" => Some(TokenKind::For),
+            "loop" => Some(TokenKind::Loop),
             "while" => Some(TokenKind::While),
             _ => None,
         }
