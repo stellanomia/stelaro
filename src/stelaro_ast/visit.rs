@@ -215,7 +215,7 @@ where
             try_visit!(visitor.visit_expr(expr));
             try_visit!(visitor.visit_block(block));
         },
-        StmtKind::Return(expr) => try_visit!(visitor.visit_expr(expr)),
+        StmtKind::Return(expr) => visit_opt!(visitor, visit_expr, expr),
     }
 
     V::Result::output()

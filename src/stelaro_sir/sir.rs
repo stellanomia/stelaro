@@ -203,7 +203,7 @@ pub enum StmtKind<'sir> {
     Semi(&'sir Expr<'sir>),
 
     /// Return文
-    Return(&'sir Expr<'sir>),
+    Return(Option<&'sir Expr<'sir>>),
 
     /// While文
     While(&'sir Expr<'sir>, &'sir Block<'sir>)

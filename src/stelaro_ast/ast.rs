@@ -104,7 +104,7 @@ pub enum StmtKind {
     While(Box<Expr>, Box<Block>),
 
     /// return expr;
-    Return(Box<Expr>),
+    Return(Option<Box<Expr>>),
 }
 
 #[derive(Debug, Clone)]

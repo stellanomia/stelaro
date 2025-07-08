@@ -123,7 +123,13 @@ impl Parser<'_> {
         self.eat(TokenKind::Return, self.token.span)?;
         let start = self.prev_token.span;
 
-        let expr = self.parse_expr()?;
+        let expr = if self.token.kind == TokenKind::Semicolon {
+            None
+        } else {
+            Some(
+                Box::new(self.parse_expr()?)
+            )
+        };
 
         self.eat(TokenKind::Semicolon, self.token.span)?;
 
@@ -131,7 +137,7 @@ impl Parser<'_> {
             self.mk_stmt(
                 start.merge(&self.prev_token.span),
                 StmtKind::Return (
-                    Box::new(expr),
+                    expr,
                 )
             )
         )

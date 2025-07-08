@@ -56,7 +56,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                     stmts.push(sir::Stmt { sir_id, kind, span });
                 }
                 StmtKind::Return(e) => {
-                    let e = self.lower_expr(e);
+                    let e = e.as_ref().map(|e| self.lower_expr(e));
                     let sir_id = self.lower_node_id(s.id);
                     let kind = sir::StmtKind::Return(e);
                     let span = s.span;
