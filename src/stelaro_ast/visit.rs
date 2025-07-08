@@ -211,10 +211,12 @@ where
         StmtKind::Let(local) => try_visit!(visitor.visit_local(local)),
         StmtKind::Expr(expr) => try_visit!(visitor.visit_expr(expr)),
         StmtKind::Semi(expr) => try_visit!(visitor.visit_expr(expr)),
+        StmtKind::Loop(b) => try_visit!(visitor.visit_block(b)),
         StmtKind::While(expr, block) => {
             try_visit!(visitor.visit_expr(expr));
             try_visit!(visitor.visit_block(block));
         },
+        StmtKind::Break(expr) => visit_opt!(visitor, visit_expr, expr),
         StmtKind::Return(expr) => visit_opt!(visitor, visit_expr, expr),
     }
 

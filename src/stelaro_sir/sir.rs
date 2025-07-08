@@ -202,11 +202,20 @@ pub enum StmtKind<'sir> {
     /// 末尾にセミコロンが付く式
     Semi(&'sir Expr<'sir>),
 
+    /// Break文
+    Break(Option<&'sir Expr<'sir>>),
+
     /// Return文
     Return(Option<&'sir Expr<'sir>>),
 
-    /// While文
-    While(&'sir Expr<'sir>, &'sir Block<'sir>)
+    /// Loop文
+    Loop(&'sir Block<'sir>, LoopSource, Span),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum LoopSource {
+    Loop,
+    While,
 }
 
 /// `let` 文を表す (i.e., `let <pat>:<ty> = <init>;`).

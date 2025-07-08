@@ -328,17 +328,24 @@ pub fn walk_stmt<'v, V: Visitor<'v>>(visitor: &mut V, statement: &'v Stmt<'v>) -
     let Stmt { kind, sir_id, span: _ } = statement;
     try_visit!(visitor.visit_id(*sir_id));
     match *kind {
-        StmtKind::Let(local) => visitor.visit_local(local),
-        StmtKind::Item(item) => visitor.visit_nested_item(item),
-        StmtKind::Expr(expression) | StmtKind::Semi(expression) => {
-            visitor.visit_expr(expression)
+        StmtKind::Let(local) => try_visit!(visitor.visit_local(local)),
+        StmtKind::Item(item) => try_visit!(visitor.visit_nested_item(item)),
+        StmtKind::Expr(expr) | StmtKind::Semi(expr) => {
+            try_visit!(visitor.visit_expr(expr));
+        }
+        StmtKind::Break(expr) => {
+            visit_opt!(visitor, visit_expr, expr);
         }
         StmtKind::Return(expr) => {
             visit_opt!(visitor, visit_expr, expr);
             V::Result::output()
         },
-        StmtKind::While(e, block) => todo!(),
+        StmtKind::Loop(b, _, _) => {
+            try_visit!(visitor.visit_block(b));
+        }
     }
+
+    V::Result::output()
 }
 
 pub fn walk_pat<'v, V: Visitor<'v>>(visitor: &mut V, pattern: &'v Pat<'v>) -> V::Result {

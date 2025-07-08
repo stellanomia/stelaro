@@ -55,18 +55,19 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                     let span = s.span;
                     stmts.push(sir::Stmt { sir_id, kind, span });
                 }
+                StmtKind::Loop(b) => {
+                    todo!();
+                }
+                StmtKind::While(e, b) => {
+                    todo!();
+                }
+                StmtKind::Break(e) => {
+                    todo!();
+                }
                 StmtKind::Return(e) => {
                     let e = e.as_ref().map(|e| self.lower_expr(e));
                     let sir_id = self.lower_node_id(s.id);
                     let kind = sir::StmtKind::Return(e);
-                    let span = s.span;
-                    stmts.push(sir::Stmt { sir_id, kind, span });
-                }
-                StmtKind::While(e, b) => {
-                    let e = self.lower_expr(e);
-                    let b = self.lower_block(b);
-                    let sir_id = self.lower_node_id(s.id);
-                    let kind = sir::StmtKind::While(e, b);
                     let span = s.span;
                     stmts.push(sir::Stmt { sir_id, kind, span });
                 }

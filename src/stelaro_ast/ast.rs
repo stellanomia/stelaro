@@ -100,10 +100,16 @@ pub enum StmtKind {
     /// expr; 式文
     Semi(Box<Expr>),
 
+    /// loop {...}
+    Loop(Box<Block>),
+
     /// while expr { block }
     While(Box<Expr>, Box<Block>),
 
-    /// return expr;
+    /// break (expr);
+    Break(Option<Box<Expr>>),
+
+    /// return (expr);
     Return(Option<Box<Expr>>),
 }
 

@@ -52,8 +52,12 @@ pub enum TokenKind {
     GreaterEqual,
     /// `<`
     Less,
-    // `<=`
+    /// `<=`
     LessEqual,
+    /// `and`
+    And,
+    /// `or`
+    Or,
 
     Ident(Symbol),
 
@@ -72,10 +76,12 @@ pub enum TokenKind {
     /// if式
     If, // if
     Else, // else
-    And, // and
-    Or, // or
+    /// break文
+    Break,
     /// for文
     For, // for
+    /// loop文
+    Loop, // loop
     /// while文
     While, // while
 
@@ -240,6 +246,8 @@ impl fmt::Display for TokenKind {
             TokenKind::GreaterEqual => wrt!(f, ">="),
             TokenKind::Less => wrt!(f, "<"),
             TokenKind::LessEqual => wrt!(f, "<="),
+            TokenKind::And => wrt!(f, "and"),
+            TokenKind::Or => wrt!(f, "or"),
             TokenKind::Ident(symbol) => wrt!(f, symbol.as_str()),
             TokenKind::Literal(lit) => wrt!(f, lit.symbol.as_str()),
             TokenKind::Fn => wrt!(f, "fn"),
@@ -248,10 +256,10 @@ impl fmt::Display for TokenKind {
             TokenKind::Let => wrt!(f, "let"),
             TokenKind::If => wrt!(f, "if"),
             TokenKind::Else => wrt!(f, "else"),
-            TokenKind::And => wrt!(f, "and"),
-            TokenKind::Or => wrt!(f, "or"),
+            TokenKind::Break => wrt!(f, "break"),
             TokenKind::For => wrt!(f, "for"),
             TokenKind::While => wrt!(f, "while"),
+            TokenKind::Loop => wrt!(f, "loop"),
             TokenKind::Eof => wrt!(f, "入力の終端"),
         }
     }
