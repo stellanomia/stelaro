@@ -80,7 +80,7 @@ impl DefPathTable {
 
 /// ノードの定義を保持する定義テーブル。
 /// `LocalDefId` や `DefPath` に対応する `DefPathTable` を保持する。
-/// また、`LocalDefId` と `HirId` の相互変換を行うマッピングも保持する。
+/// また、`LocalDefId` と `SirId` の相互変換を行うマッピングも保持する。
 #[derive(Debug)]
 pub struct Definitions {
     table: DefPathTable,

@@ -93,7 +93,7 @@ use nested_filter::NestedFilter;
 /// 各メソッドのデフォルト実装は、対応する`walk`メソッドを介して
 /// 入力の部分構造を再帰的に訪問します。
 ///
-/// クレート内のすべてのアイテムを何らかの順序で訪問したいだけの場合は、
+/// ステロ内のすべてのアイテムを何らかの順序で訪問したいだけの場合は、
 /// `tcx.sir_visit_all_item_likes_in_stelo` を呼び出すべきです。
 pub trait Visitor<'v>: Sized {
     // この型はオーバーライドされるべきではありません。`Self::MaybeTyCtxt`として便利に使うために存在します。
