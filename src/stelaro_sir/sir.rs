@@ -483,7 +483,7 @@ pub struct ModSpan {
     pub inner_span: Span,
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub enum LitKind {
     /// 文字列リテラル (`"foo"`)。シンボルはアンエスケープ (エスケープ解除) されているため、
     /// 元のトークンのシンボルとは異なる場合があります。
