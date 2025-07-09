@@ -348,7 +348,14 @@ pub fn walk_stmt<'v, V: Visitor<'v>>(visitor: &mut V, statement: &'v Stmt<'v>) -
 }
 
 pub fn walk_pat<'v, V: Visitor<'v>>(visitor: &mut V, pattern: &'v Pat) -> V::Result {
-    todo!()
+    let Pat { sir_id, kind, .. } = pattern;
+    try_visit!(visitor.visit_id(*sir_id));
+
+    match *kind {
+        PatKind::WildCard => {},
+        PatKind::Binding(_sir_id, ident) => try_visit!(visitor.visit_ident(ident)),
+    }
+    V::Result::output()
 }
 
 pub fn walk_mod<'v, V: Visitor<'v>>(visitor: &mut V, module: &'v Mod<'v>) -> V::Result {
@@ -374,6 +381,40 @@ pub fn walk_path_segment<'v, V: Visitor<'v>>(
 }
 
 pub fn walk_expr<'v, V: Visitor<'v>>(visitor: &mut V, expr: &'v Expr<'v>) -> V::Result {
-    todo!();
+    let Expr { sir_id, kind, .. } = expr;
+    try_visit!(visitor.visit_id(*sir_id));
+
+    match *kind {
+        ExprKind::Call(callee, args) => {
+            try_visit!(visitor.visit_expr(callee));
+            walk_list!(visitor, visit_expr, args);
+        },
+        ExprKind::Binary(_, lhs, rhs) => {
+            try_visit!(visitor.visit_expr(lhs));
+            try_visit!(visitor.visit_expr(rhs));
+        },
+        ExprKind::Unary(_, expr) => {
+            try_visit!(visitor.visit_expr(expr));
+        },
+        ExprKind::Lit(lit) => {
+            try_visit!(visitor.visit_lit(*sir_id, *lit, false));
+        },
+        ExprKind::If(cond, then, else_opt) => {
+            try_visit!(visitor.visit_expr(cond));
+            try_visit!(visitor.visit_expr(then));
+            visit_opt!(visitor, visit_expr, else_opt);
+        },
+        ExprKind::Path(ref path) => {
+            try_visit!(visitor.visit_path(path));
+        },
+        ExprKind::Block(block) => {
+            try_visit!(visitor.visit_block(block))
+        },
+        ExprKind::Assign(lhs, rhs, _) => {
+            try_visit!(visitor.visit_expr(rhs));
+            try_visit!(visitor.visit_expr(lhs));
+        },
+        ExprKind::Err(_) => {},
+    }
     V::Result::output()
 }
