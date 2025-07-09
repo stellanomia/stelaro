@@ -165,20 +165,20 @@ impl<'sir> Block<'sir> {
 
 
 #[derive(Debug, Clone, Copy)]
-pub struct Pat<'sir> {
+pub struct Pat {
     pub sir_id: SirId,
-    pub kind: PatKind<'sir>,
+    pub kind: PatKind,
     pub span: Span,
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum PatKind<'sir> {
+pub enum PatKind {
     /// `_` のような、ワイルドカードのパターンを表す。
     WildCard,
 
     /// 新しい束縛を表します。
     /// `SirId` は、束縛される変数の正規のIDです。
-    Binding(SirId, Ident, Option<&'sir Pat<'sir>>),
+    Binding(SirId, Ident),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -242,7 +242,7 @@ pub enum StmtKind<'sir> {
 /// `let` 文を表す (i.e., `let <pat>:<ty> = <init>;`).
 #[derive(Debug, Clone, Copy)]
 pub struct LetStmt<'sir> {
-    pub pat: &'sir Pat<'sir>,
+    pub pat: &'sir Pat,
     /// 型アテノーション
     pub ty: Option<&'sir Ty<'sir>>,
     /// 値を設定するための初期化式（存在する場合）。
@@ -326,9 +326,6 @@ pub enum ExprKind<'sir> {
 
     /// 代入 (e.g., `a = foo()`)
     Assign(&'sir Expr<'sir>, &'sir Expr<'sir>, Span),
-
-    /// `return expr;` を表す
-    Ret(Option<&'sir Expr<'sir>>),
 
     Err(ErrorEmitted),
 }
@@ -514,7 +511,7 @@ pub enum Node<'sir> {
     Stmt(&'sir Stmt<'sir>),
     PathSegment(&'sir PathSegment),
     Ty(&'sir Ty<'sir>),
-    Pat(&'sir Pat<'sir>),
+    Pat(&'sir Pat),
     Block(&'sir Block<'sir>),
     LetStmt(&'sir LetStmt<'sir>),
     Stelo(&'sir Mod<'sir>),

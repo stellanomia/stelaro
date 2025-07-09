@@ -209,7 +209,7 @@ pub trait Visitor<'v>: Sized {
         Self::Result::output()
     }
 
-    fn visit_pat(&mut self, p: &'v Pat<'v>) -> Self::Result {
+    fn visit_pat(&mut self, p: &'v Pat) -> Self::Result {
         walk_pat(self, p)
     }
 
@@ -347,7 +347,7 @@ pub fn walk_stmt<'v, V: Visitor<'v>>(visitor: &mut V, statement: &'v Stmt<'v>) -
     V::Result::output()
 }
 
-pub fn walk_pat<'v, V: Visitor<'v>>(visitor: &mut V, pattern: &'v Pat<'v>) -> V::Result {
+pub fn walk_pat<'v, V: Visitor<'v>>(visitor: &mut V, pattern: &'v Pat) -> V::Result {
     todo!()
 }
 
