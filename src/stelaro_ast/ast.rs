@@ -150,7 +150,7 @@ pub struct Pat {
 #[derive(Debug, Clone)]
 pub enum PatKind {
     WildCard,
-    // Rustの binding @ OPT_SUBPATTERN が Option<Box<Pat>> で実装可能
+    // BindingMode の導入で、参照や Mutability を表現可能
     // FIXME: letバインディングによって生成される Pat は 様々な種類をとれるべきで、
     // 将来的に PatKind::Path やデストラクトを作成し、一時的な実装を廃止する。
     Ident(Ident),
