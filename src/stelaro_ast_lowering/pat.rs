@@ -6,7 +6,7 @@ use crate::stelaro_sir::{sir, sir_id::SirId, def::Res};
 
 
 impl<'a, 'sir> LoweringContext<'a, 'sir> {
-    pub(crate) fn lower_pat(&mut self, pat: &ast::Pat) -> &'sir sir::Pat {
+    pub fn lower_pat(&mut self, pat: &ast::Pat) -> &'sir sir::Pat {
         self.arena.alloc(self.lower_pat_mut(pat))
     }
 
@@ -32,12 +32,30 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         sir_id: SirId,
     ) -> sir::PatKind {
         match self.get_res(pat.id) {
-            None | Some(Res::Local(_)) => todo!(),
+            res @ (None | Some(Res::Local(_))) => {
+                let binding_id = match res {
+                    Some(Res::Local(id)) => {
+                        if id == pat.id {
+                            self.ident_to_local_id.insert(id, sir_id.local_id);
+                            sir_id
+                        } else {
+                            SirId {
+                                owner: self.current_sir_id_owner,
+                                local_id: self.ident_to_local_id[&id],
+                            }
+                        }
+                    },
+                    _ => {
+                        self.ident_to_local_id.insert(pat.id, sir_id.local_id);
+                        sir_id
+                    },
+                };
+                sir::PatKind::Binding(binding_id, ident)
+            },
             Some(_) => {
-                todo!()
+                unimplemented!("現在、Pattern は Path をとり得らない。");
             }
         }
-        todo!()
     }
 
     fn pat_with_node_id_of(
