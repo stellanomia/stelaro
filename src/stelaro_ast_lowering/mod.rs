@@ -31,6 +31,7 @@ struct LoweringContext<'a, 'sir> {
 
     /// Break, Continue が正しい文脈で使用されているか判定するのに使う。
     loop_scope: Option<SirId>,
+    is_in_loop_condition: bool,
 
     /// 現在の SIR 所有ノード内でローワリングされるNodeId。
     /// 重複ローワリングの検査にのみ使用される。
@@ -53,6 +54,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
             current_sir_id_owner: STELO_OWNER_ID,
             current_item: None,
             loop_scope: None,
+            is_in_loop_condition: false,
             item_local_id_counter: ItemLocalId::ZERO,
             node_id_to_local_id: HashMap::new(),
             ident_to_local_id: HashMap::new(),
