@@ -4,6 +4,8 @@ pub mod sir;
 pub mod sir_id;
 pub mod visit;
 
+pub use visit::{Visitor, nested_filter::NestedFilter};
+
 use crate::stelaro_common::LocalDefId;
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir::{sir::OwnerNodes, sir_id::{ItemLocalId, OwnerId, SirId, STELO_SIR_ID}};

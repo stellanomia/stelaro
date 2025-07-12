@@ -128,6 +128,10 @@ impl ItemLocalId {
     pub fn as_usize(&self) -> usize {
         self.0 as usize
     }
+
+    pub fn as_u32(&self) -> u32 {
+        self.0
+    }
 }
 
 /// `STELO_NODE_ID` と `STELO_DEF_ID` に対応する `SirId`。

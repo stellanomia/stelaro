@@ -1,7 +1,7 @@
-use std::{collections::HashMap, hash::Hash};
+use std::{collections::HashMap, fmt::{self, Write}, hash::Hash};
 
 use crate::stelaro_common::{
-    DefIndex, DefPathHash, Hash64, IndexVec, LocalDefId,
+    sym, DefIndex, DefPathHash, Hash64, IndexVec, LocalDefId,
     StableHasher, StableSteloId, SteloNum, Symbol, LOCAL_STELO, STELO_ROOT_INDEX,
 };
 
@@ -149,6 +149,25 @@ pub struct DefPath {
     pub stelo: SteloNum,
 }
 
+impl DisambiguatedDefPathData {
+    pub fn fmt_maybe_verbose(&self, writer: &mut impl Write, verbose: bool) -> fmt::Result {
+        let name = self.data.get_opt_name().unwrap_or(sym::UNKNOWN);
+        if verbose && self.disambiguator != 0 {
+            write!(writer, "{}#{}", name, self.disambiguator)
+        } else {
+            writer.write_str(name.as_str())
+        }
+
+    }
+}
+
+
+impl fmt::Display for DisambiguatedDefPathData {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.fmt_maybe_verbose(f, true)
+    }
+}
+
 impl DefPath {
     pub fn make<FN>(stelo: SteloNum, start_index: DefIndex, mut get_key: FN) -> DefPath
     where
@@ -172,6 +191,18 @@ impl DefPath {
         }
         data.reverse();
         DefPath { data, stelo }
+    }
+
+    /// ステロ接頭辞なしで、`DefPath`の文字列表現を返します。
+    /// このメソッドは、`TyCtxt`が利用できない場合に便利です。
+    pub fn to_string_no_stelo_verbose(&self) -> String {
+        let mut s = String::with_capacity(self.data.len() * 16);
+
+        for component in &self.data {
+            write!(s, "::{component}").unwrap();
+        }
+
+        s
     }
 }
 
