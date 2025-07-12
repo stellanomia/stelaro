@@ -1,8 +1,7 @@
 use crate::stelaro_ast::ast::{self, StmtKind};
 use crate::stelaro_ast_lowering::LoweringContext;
 use crate::stelaro_common::Span;
-use crate::stelaro_sir::sir::LoopSource;
-use crate::stelaro_sir::{sir, sir_id::SirId};
+use crate::stelaro_sir::{sir::{self, LoopSource}, sir_id::SirId};
 
 
 impl<'a, 'sir> LoweringContext<'a, 'sir> {
@@ -128,6 +127,18 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         result
     }
 
+    fn with_loop_condition_scope<T>(&mut self, f: impl FnOnce(&mut Self) -> T) -> T {
+        let was_in_loop_condition = self.is_in_loop_condition;
+        self.is_in_loop_condition = true;
+
+        let result = f(self);
+
+        self.is_in_loop_condition = was_in_loop_condition;
+
+        result
+    }
+
+
     fn lower_loop_destination(&mut self) -> sir::Destination {
         let target_id = self.loop_scope
             .map(Ok)
@@ -141,17 +152,25 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         cond: &ast::Expr,
         body: &ast::Block,
     ) -> sir::StmtKind<'sir> {
-        // let lowered_cond = self.with_loop_condition_scope(|t| t.lower_cond(cond));
-        // let then = self.lower_block_expr(body);
-        // let expr_break = self.expr_break(span);
-        // let stmt_break = self.stmt_expr(span, expr_break);
-        // let else_blk = self.block_all(span, arena_vec![self; stmt_break], None);
-        // let else_expr = self.arena.alloc(self.expr_block(else_blk));
-        // let if_kind = sir::ExprKind::If(lowered_cond, self.arena.alloc(then), Some(else_expr));
-        // let if_expr = self.expr(span, if_kind);
-        // let block = self.block_expr(self.arena.alloc(if_expr));
-        // let span = span.merge(&cond.span);
-        // sir::StmtKind::Loop(block, sir::LoopSource::While, span)
-        todo!()
+        let cond = self.with_loop_condition_scope(|t| t.lower_expr(cond));
+        let then = self.lower_block_expr(body);
+        let stmt_break = self.stmt_break(span);
+        let else_block = self.block_all(span, self.arena.alloc([stmt_break]), None);
+        let else_expr = self.arena.alloc(self.expr_block(else_block));
+        let if_kind = sir::ExprKind::If(cond, self.arena.alloc(then), Some(else_expr));
+        let if_expr = self.expr(span, if_kind);
+        let block = self.block_expr(self.arena.alloc(if_expr));
+        let span = span.merge(&cond.span);
+        sir::StmtKind::Loop(block, sir::LoopSource::While, span)
+    }
+
+    pub fn stmt(&mut self, span: Span, kind: sir::StmtKind<'sir>) -> sir::Stmt<'sir> {
+        let sir_id = self.next_id();
+        sir::Stmt { sir_id, kind, span }
+    }
+
+    pub fn stmt_break(&mut self, span: Span) -> sir::Stmt<'sir> {
+        let stmt_break = sir::StmtKind::Break(self.lower_loop_destination(), None);
+        self.stmt(span, stmt_break)
     }
 }

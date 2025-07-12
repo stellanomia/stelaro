@@ -306,4 +306,24 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         let block = self.lower_block(b);
         self.expr_block(block)
     }
+
+    fn block_expr(&mut self, expr: &'sir sir::Expr<'sir>) -> &'sir sir::Block<'sir> {
+        self.block_all(expr.span, &[], Some(expr))
+    }
+
+    fn block_all(
+        &mut self,
+        span: Span,
+        stmts: &'sir [sir::Stmt<'sir>],
+        expr: Option<&'sir sir::Expr<'sir>>,
+    ) -> &'sir sir::Block<'sir> {
+        let block = sir::Block {
+            stmts,
+            expr,
+            sir_id: self.next_id(),
+            span,
+        };
+
+        self.arena.alloc(block)
+    }
 }
