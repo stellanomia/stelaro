@@ -5,6 +5,7 @@ pub mod sir_id;
 pub mod visit;
 
 pub use visit::{Visitor, nested_filter::NestedFilter};
+pub use def::{DefKind, Namespace, PerNS, Res};
 
 use crate::stelaro_common::LocalDefId;
 use crate::stelaro_context::TyCtxt;

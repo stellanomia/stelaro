@@ -175,7 +175,6 @@ impl<'a, 'sir> Visitor<'sir> for NodeCollector<'a, 'sir> {
         });
     }
 
-
     fn visit_infer(
         &mut self,
         inf_id: SirId,
