@@ -178,7 +178,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             },
             '\'' => {
                 self.bump();
-                let symbol = self.lex_char_lit(pos)?;
+                let symbol = self.lex_char_lit(pos+1)?;
                 TokenKind::Literal(
                     Lit {
                         kind: LitKind::Char,

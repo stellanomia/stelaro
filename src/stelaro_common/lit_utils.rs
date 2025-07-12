@@ -24,8 +24,13 @@ impl LitKind {
                     let ch = if ch.contains('\\') {
                         unescape_char(ch)
                     } else {
-                        ch.parse::<char>()
-                            .expect("bug: Lexer が適切に char リテラルを処理できていません。アンエスケープに失敗しました。")
+                        match ch.parse::<char>() {
+                            Ok(ch) => ch,
+                            Err(err) => {
+                                panic!("bug: Lexer が適切に char リテラルを処理できていません。\
+                                `{ch}` のアンエスケープに失敗しました: {err}")
+                            },
+                        }
                     };
                     LitKind::Char(
                         ch

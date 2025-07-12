@@ -6,6 +6,7 @@ pub mod visit;
 
 pub use visit::{Visitor, nested_filter::NestedFilter};
 pub use def::{DefKind, Namespace, PerNS, Res};
+pub use definitions::{DefKey, DefPath};
 
 use crate::stelaro_common::LocalDefId;
 use crate::stelaro_context::TyCtxt;
