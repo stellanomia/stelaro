@@ -23,11 +23,13 @@ pub mod stelaro_sir;
 pub mod stelaro_ty;
 
 
+use stelaro_ast_lowering::lower_to_sir;
 use stelaro_common::{create_session_globals_then, RealFileLoader, Arena, SourceMapInputs, StableSteloId, Symbol};
 use stelaro_context::TyCtxt;
 use stelaro_parse::new_parser_from_source_str;
 use stelaro_resolve::{Resolver, ResolverArenas};
 use stelaro_session::{config::Input, session::{build_session, CompilerPaths}, Session};
+
 
 pub fn temp(src: String) {
     let paths = CompilerPaths {
@@ -75,7 +77,10 @@ pub fn temp(src: String) {
 
         resolver.resolve_stelo(&stelo);
 
-        // dbg!(stelo);
+        let resolver = resolver.into_outputs().ast_lowering;
+        let stelo = lower_to_sir(tcx, resolver, stelo);
+
+        dbg!(stelo);
     });
 }
 

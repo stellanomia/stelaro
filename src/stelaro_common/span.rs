@@ -24,6 +24,10 @@ impl Span {
         self.start == self.end
     }
 
+    pub fn is_dummy(&self) -> bool {
+        *self == DUMMY_SPAN
+    }
+
     /// Spanをマージして新しいSpanを作成する
     pub fn merge(&self, other: &Span) -> Self {
         Self {

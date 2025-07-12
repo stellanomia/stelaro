@@ -211,6 +211,7 @@ macro_rules! _generate_sym_constants_impl {
 
 define_keywords_and_symbols! {
     UNDERSCORE => "_",
+    UNKNOWN => "unknown",
     STELO => "stelo",
     MAIN => "main",
     LET => "let",

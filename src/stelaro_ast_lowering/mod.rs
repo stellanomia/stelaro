@@ -67,7 +67,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
 }
 
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 enum AstOwner<'a> {
     NonOwner,
     Stelo(&'a ast::Stelo),
@@ -105,7 +105,6 @@ pub fn lower_to_sir(
     stelo: ast::Stelo,
 ) -> sir::Stelo<'_> {
     let ast_index = index_stelo(&resolver.node_id_to_def_id, &stelo);
-
     let mut owners = IndexVec::from_fn_n(
         |_| sir::MaybeOwner::Phantom,
         tcx.definitions.borrow().def_index_count(),
