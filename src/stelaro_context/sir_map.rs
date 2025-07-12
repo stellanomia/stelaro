@@ -1,10 +1,10 @@
 use crate::stelaro_common::{DefId, DefPathHash, LocalDefId};
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_sir::definitions::{DefKey, DefPath};
 use crate::stelaro_sir::{
     sir::{Body, BodyId, Item, ItemId, Node, OwnerNode, OwnerNodes, Mod},
     sir_id::{SirId, OwnerId, ItemLocalId, STELO_OWNER_ID},
-    visit::{SirTyCtxt, Visitor},
+    visit::SirTyCtxt,
+    DefKey, DefPath,
 };
 
 
@@ -18,11 +18,6 @@ impl<'tcx> TyCtxt<'tcx> {
     #[inline]
     pub fn sir_owner_nodes(self, owner_id: OwnerId) -> &'tcx OwnerNodes<'tcx> {
         self.expect_sir_owner_nodes(owner_id.def_id)
-    }
-
-    #[inline]
-    fn opt_sir_owner_node(self, def_id: LocalDefId) -> Option<OwnerNode<'tcx>> {
-        self.opt_sir_owner_nodes(def_id).map(|nodes| nodes.node())
     }
 
     #[inline]
@@ -122,14 +117,5 @@ impl<'tcx> SirTyCtxt<'tcx> for TyCtxt<'tcx> {
 
     fn sir_item(&self, id: ItemId) -> &'tcx Item<'tcx> {
         (*self).sir_item(id)
-    }
-}
-
-impl<'tcx> TyCtxt<'tcx> {
-    pub fn sir_visit_all_item_likes_in_stelo<V>(self, visitor: &mut V) -> V::Result
-    where
-        V: Visitor<'tcx>,
-    {
-        todo!()
     }
 }

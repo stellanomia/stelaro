@@ -209,6 +209,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
     /// このメソッドは、与えられた `NodeId` に対して新しい `SirId` を割り当てます。
     /// 結果として得られる `SirId` が実際に SIR で使用されない場合は、このメソッドを呼び出さないようにする必要があります。
     /// 同じ `NodeId` でこのメソッドを2回呼び出すこともまた禁止されています。
+    #[track_caller]
     fn lower_node_id(&mut self, ast_node_id: NodeId) -> SirId {
         let owner = self.current_sir_id_owner;
         let local_id = self.item_local_id_counter;
