@@ -11,7 +11,6 @@ use crate::stelaro_ast::{ast, visit, NodeId, ty::{Ty, TyKind}};
 use crate::stelaro_ast_lowering::index::index_sir;
 use crate::stelaro_common::{Arena, Idx, IndexVec, LocalDefId, SortedMap, Span, STELO_DEF_ID};
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_diagnostics::DiagCtxtHandle;
 use crate::stelaro_sir::{sir, def::Res, sir_id::{ItemLocalId, OwnerId, SirId, STELO_OWNER_ID}};
 use crate::stelaro_ty::ResolverAstLowering;
 
@@ -59,10 +58,6 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
             node_id_to_local_id: HashMap::new(),
             ident_to_local_id: HashMap::new(),
         }
-    }
-
-    pub fn dcx(&self) -> DiagCtxtHandle<'sir> {
-        self.tcx.dcx()
     }
 }
 

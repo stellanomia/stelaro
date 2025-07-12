@@ -53,7 +53,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                 sir::PatKind::Binding(binding_id, ident)
             },
             Some(_) => {
-                unimplemented!("現在、Pattern は Path をとり得らない。");
+                unimplemented!("Pattern は Path をとることはできない");
             }
         }
     }
