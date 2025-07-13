@@ -30,10 +30,9 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         let mut expr = None;
 
         while let [s, tail @ ..] = ast_stmts {
-            let sir_id = self.lower_node_id(s.id);
-
             match s.kind {
                 StmtKind::Let(ref local) => {
+                    let sir_id = self.lower_node_id(s.id);
                     let local = self.lower_local(local);
                     let kind = sir::StmtKind::Let(local);
                     let span = s.span;
@@ -44,18 +43,22 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                     if tail.is_empty() {
                         expr = Some(e);
                     } else {
+                        let sir_id = self.lower_node_id(s.id);
                         let kind = sir::StmtKind::Expr(e);
                         let span = s.span;
                         stmts.push(sir::Stmt { sir_id, kind, span });
                     }
                 }
                 StmtKind::Semi(ref e) => {
+                    let sir_id = self.lower_node_id(s.id);
                     let e = self.lower_expr(e);
                     let kind = sir::StmtKind::Semi(e);
                     let span = s.span;
                     stmts.push(sir::Stmt { sir_id, kind, span });
                 }
                 StmtKind::Loop(ref b) => {
+                    let sir_id = self.lower_node_id(s.id);
+
                     self.with_loop_scope(sir_id,|this| {
                         let span = s.span;
                         let kind = sir::StmtKind::Loop(
@@ -67,6 +70,8 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                     })
                 }
                 StmtKind::While(ref cond, ref b) => {
+                    let sir_id = self.lower_node_id(s.id);
+
                     self.with_loop_scope(sir_id, |this| {
                         let span = s.span.merge(&cond.span);
                         let kind = this.lower_expr_while_in_loop_scope(span, cond, b);
@@ -76,6 +81,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                     })
                 }
                 StmtKind::Break(ref e) => {
+                    let sir_id = self.lower_node_id(s.id);
                     let opt_expr = e.as_ref().map(|expr| self.lower_expr(expr));
                     let kind = sir::StmtKind::Break(
                         self.lower_loop_destination(),
@@ -86,12 +92,13 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                     );
                 }
                 StmtKind::Continue => {
+                    let sir_id = self.lower_node_id(s.id);
                     let kind = sir::StmtKind::Continue(self.lower_loop_destination());
                     stmts.push(sir::Stmt { sir_id, kind, span: s.span });
                 }
                 StmtKind::Return(ref e) => {
-                    let e = e.as_ref().map(|e| self.lower_expr(e));
                     let sir_id = self.lower_node_id(s.id);
+                    let e = e.as_ref().map(|e| self.lower_expr(e));
                     let kind = sir::StmtKind::Return(e);
                     let span = s.span;
                     stmts.push(sir::Stmt { sir_id, kind, span });
