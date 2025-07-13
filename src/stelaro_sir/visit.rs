@@ -247,9 +247,9 @@ pub fn walk_item<'v, V: Visitor<'v>>(visitor: &mut V, item: &'v Item<'v>) -> V::
 }
 
 pub fn walk_param<'v, V: Visitor<'v>>(visitor: &mut V, param: &'v Param) -> V::Result {
-    let Param { sir_id, ident, ty_span: _, span: _, } = param;
+    let Param { sir_id, pat, ty_span: _, span: _, } = param;
     try_visit!(visitor.visit_id(*sir_id));
-    visitor.visit_ident(*ident)
+    visitor.visit_pat(pat)
 }
 
 pub fn walk_body<'v, V: Visitor<'v>>(visitor: &mut V, body: &Body<'v>) -> V::Result {

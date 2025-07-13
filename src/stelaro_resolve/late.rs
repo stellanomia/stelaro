@@ -45,9 +45,15 @@ impl<'ra, R> Scope<'ra, R> {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum PatSource {
+    Let,
+    FnParam,
+}
+
 /// パス (`Path`) が出現する構文上の文脈。
 #[allow(unused)]
-#[derive(Debug, Copy, Clone,)]
+#[derive(Debug, Clone, Copy)]
 pub enum PathSource<'a> {
     /// 型注釈などで使われるパス。
     Type,
@@ -71,9 +77,9 @@ impl<'a> PathSource<'a> {
 }
 
 /// 引数リストのバインディングが一意であることを明示するための型。
-/// `fresh_param_binding` でパラメーターを一意性を保ちながら追加し、
-/// `apply_param_bindings` で最も外側のスコープにバインディングを適用する。
-type UniqueParamBindings = IndexMap<Ident, Res<NodeId>>;
+/// `fresh_pat_binding` でパラメーターを一意性を保ちながら追加し、
+/// `apply_pat_bindings` で最も外側のスコープにバインディングを適用する。
+type UniquePatBindings = IndexMap<Ident, Res<NodeId>>;
 
 /// 診断メッセージ生成時に使用される文脈情報を保持する構造体。
 #[derive(Debug, Default)]
@@ -317,7 +323,10 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             path.len() == 1 &&
             let Some(ty) = PrimTy::from_name(path[0].ident.name)
         {
-            return Res::PrimTy(ty);
+            let res = Res::PrimTy(ty);
+            dbg!((finalize, res));
+            self.r.record_res(finalize.node_id, res);
+            return res;
         }
 
         let res = self.r.resolve_path_with_scopes(
@@ -372,13 +381,20 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             self.visit_expr(init);
         }
 
-        self.resolve_pat(&local.pat);
+        self.resolve_pat_top(&local.pat, PatSource::Let);
+    }
+
+    fn resolve_pat_top(&mut self, pat: &'ast Pat, pat_src: PatSource) {
+        let mut bindings = UniquePatBindings::new();
+        self.resolve_pat(pat, pat_src, &mut bindings);
+        self.apply_pat_bindings(bindings);
     }
 
     fn resolve_pat(
         &mut self,
         pat: &'ast Pat,
-        // pat_src: PatSource,
+        pat_src: PatSource,
+        bindings: &mut UniquePatBindings,
     ) {
         visit::walk_pat(self, pat);
 
@@ -388,8 +404,15 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 // FIXME: 現在、パターンはletバインディングからしか生成できず、
                 // かつ、本来 Path として生成するべき Pat を Pat::Ident として
                 // 単一の識別子に制限している。
+                //
+                // TODO: 定数や構造体が実装されたとき、
+                // バインディングとして扱えるかどうかを確かめるために
+                // self.maybe_resolve_ident_in_lexical_scope(ident, ValueNS)
+                // を投機的に呼び出し、None でない場合問題のあるバインディングとして
+                // 扱う必要がある。
+                // try_resolve_as_non_binding としてメソッドに切り出してもよい。
+                let res = self.fresh_pat_binding(ident, pat.id, pat_src, bindings);
                 let scope_bindings = self.innermost_scope_bindings(ValueNS);
-                let res = Res::Local(pat.id);
                 scope_bindings.insert(ident, res);
                 self.r.record_res(pat.id, res);
             },
@@ -402,19 +425,12 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     }
 
     fn resolve_fn_params(&mut self, params: &'ast [Param]) {
-        let mut bindings = UniqueParamBindings::new();
+        let mut bindings = UniquePatBindings::new();
 
-        for Param {ident, id, .. } in params {
-            // TODO: 定数や構造体が実装されたとき、
-            // バインディングとして扱えるかどうかを確かめるために
-            // self.maybe_resolve_ident_in_lexical_scope(ident, ValueNS)
-            // を投機的に呼び出し、None でない場合問題のあるバインディングとして
-            // 扱う必要がある。
-            // try_resolve_as_non_binding としてメソッドに切り出してもよい。
-
-            self.fresh_param_binding(*ident, *id, &mut bindings);
+        for Param { pat, .. } in params {
+            self.resolve_pat(pat, PatSource::FnParam, &mut bindings);
         }
-        self.apply_param_bindings(bindings);
+        self.apply_pat_bindings(bindings);
 
         for Param { ty, .. } in params {
             self.visit_ty(ty);
@@ -442,7 +458,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
     }
 
     /// 現在最も外側のスコープにバインディングを適用する
-    fn apply_param_bindings(&mut self, bindings: UniqueParamBindings) {
+    fn apply_pat_bindings(&mut self, bindings: UniquePatBindings) {
         let scope_bindings = self.innermost_scope_bindings(ValueNS);
 
         if !bindings.is_empty() {
@@ -450,13 +466,14 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         }
     }
 
-    /// `UniqueParamBindings` の各 Ident が重複していないことを保証し、
+    /// `UniquePatBindings` の各 Ident が重複していないことを保証し、
     /// バインディングを追加しつつ、ローカル変数への解決をする。
-    fn fresh_param_binding(
+    fn fresh_pat_binding(
         &mut self,
         ident: Ident,
         node_id: NodeId,
-        bindings: &mut UniqueParamBindings,
+        _pat_src: PatSource,
+        bindings: &mut UniquePatBindings,
     ) -> Res<NodeId> {
         let already_exists = bindings.contains_key(&ident);
 
