@@ -210,7 +210,7 @@ impl<'sess> Parser<'sess> {
             Param {
                 id: self.next_node_id(),
                 ty: Box::new(ty),
-                ident,
+                pat: Pat { id: self.next_node_id(), kind: PatKind::Ident(ident), span: ident.span },
                 span: start.merge(&self.prev_token.span),
             }
         )

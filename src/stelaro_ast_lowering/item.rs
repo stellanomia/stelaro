@@ -141,7 +141,7 @@ impl<'sir> LoweringContext<'_, 'sir> {
 
     fn record_body(
         &mut self,
-        params: &'sir [sir::Param],
+        params: &'sir [sir::Param<'sir>],
         value: sir::Expr<'sir>,
     ) -> sir::BodyId {
         let body = sir::Body { params, value: self.arena.alloc(value) };
@@ -153,7 +153,7 @@ impl<'sir> LoweringContext<'_, 'sir> {
 
     pub fn lower_body(
         &mut self,
-        f: impl FnOnce(&mut Self) -> (&'sir [sir::Param], sir::Expr<'sir>),
+        f: impl FnOnce(&mut Self) -> (&'sir [sir::Param<'sir>], sir::Expr<'sir>),
     ) -> sir::BodyId {
         let (parameters, result) = f(self);
         self.record_body(parameters, result)
@@ -185,11 +185,11 @@ impl<'sir> LoweringContext<'_, 'sir> {
         )
     }
 
-    fn lower_param(&mut self, param: &ast::Param) -> sir::Param {
+    fn lower_param(&mut self, param: &ast::Param) -> sir::Param<'sir> {
         let sir_id = self.lower_node_id(param.id);
         sir::Param {
             sir_id,
-            ident: param.ident,
+            pat: self.lower_pat(&param.pat),
             ty_span: param.ty.span,
             span: param.span,
         }

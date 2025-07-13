@@ -58,7 +58,7 @@ pub enum FnRetTy {
 pub struct Param {
     pub id: NodeId,
     pub ty: Box<Ty>,
-    pub ident: Ident,
+    pub pat: Pat,
     pub span: Span,
 }
 

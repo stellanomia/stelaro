@@ -175,10 +175,10 @@ pub fn walk_param<'ast, V>(
 where
     V: Visitor<'ast> + ?Sized,
 {
-    let Param { ty, ident, .. } = param;
+    let Param { ty, pat, .. } = param;
 
     try_visit!(visitor.visit_ty(ty));
-    try_visit!(visitor.visit_ident(ident));
+    try_visit!(visitor.visit_pat(pat));
 
     V::Result::output()
 }

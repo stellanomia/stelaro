@@ -203,6 +203,14 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let mut module = None;
 
         for (segment_idx, Segment { ident, id, .. }) in path.iter().enumerate() {
+            let record_segment_res = |this: &mut Self, res| {
+                if finalize.is_some()
+                    && let Some(id) = id
+                {
+                    this.record_res(*id, res);
+                }
+            };
+
             let is_last = segment_idx + 1 == path.len();
             let ns = if is_last {
                 opt_ns.unwrap_or(Namespace::TypeNS)
@@ -234,6 +242,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                     Some(LexicalScopeBinding::Item(binding)) => Ok(binding),
                     // ローカル変数を見つけた
                     Some(LexicalScopeBinding::Res(res)) => {
+                        record_segment_res(self, res);
                         return PathResult::NonModule(res);
                     }
                     _ => Err(Determinacy::determined(finalize.is_some())),
@@ -254,13 +263,11 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                     let res = binding.res();
 
                     if is_last {
-                        if let Some(id) = id && finalize.is_some() {
-                            self.record_res(*id, res);
-                        }
                         return PathResult::NonModule(res);
                     }
 
                     if let Some(next_module) = binding.module() {
+                        record_segment_res(self, res);
                         module = Some(next_module);
                     } else if res == Res::Err {
                         return PathResult::NonModule(Res::Err);
