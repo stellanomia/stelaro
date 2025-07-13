@@ -44,7 +44,9 @@ impl<'sir> LoweringContext<'_, 'sir> {
                     sir::ExprKind::Unary(*un_op, expr)
                 },
                 ExprKind::Lit(token_lit) => sir::ExprKind::Lit(self.lower_lit(token_lit, e.span)),
-                ExprKind::If(cond, then, else_opt) => self.lower_expr_if(cond, then, else_opt.as_deref()),
+                ExprKind::If(cond, then, else_opt) => {
+                    self.lower_expr_if(cond, then, else_opt.as_deref())
+                },
                 ExprKind::Block(block) => {
                     let block_sir_id = self.lower_node_id(block.id);
                     let sir_block = self.arena.alloc(

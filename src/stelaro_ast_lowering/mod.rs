@@ -5,7 +5,7 @@ mod item;
 mod pat;
 mod path;
 
-use std::collections::HashMap;
+use std::{collections::HashMap, thread};
 
 use crate::stelaro_ast::{ast, visit, NodeId, ty::{Ty, TyKind}};
 use crate::stelaro_ast_lowering::index::index_sir;
@@ -55,6 +55,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
             loop_scope: None,
             is_in_loop_condition: false,
             item_local_id_counter: ItemLocalId::ZERO,
+            #[cfg(debug_assertions)]
             node_id_to_local_id: HashMap::new(),
             ident_to_local_id: HashMap::new(),
         }
@@ -116,7 +117,13 @@ pub fn lower_to_sir(
         lowerer.lower_node(def_id);
     }
 
-    todo!()
+    drop(ast_index);
+
+    thread::spawn(|| {
+        drop(stelo);
+    });
+
+    sir::Stelo { owners }
 }
 
 impl<'a, 'sir> LoweringContext<'a, 'sir> {
@@ -158,6 +165,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         let current_ident_to_local_id =
             std::mem::take(&mut self.ident_to_local_id);
 
+        #[cfg(debug_assertions)]
         let current_node_id_to_local_id = std::mem::take(&mut self.node_id_to_local_id);
         let current_owner = std::mem::replace(&mut self.current_sir_id_owner, owner_id);
         let current_local_counter =

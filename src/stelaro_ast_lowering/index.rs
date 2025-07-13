@@ -4,8 +4,7 @@ use crate::stelaro_common::{IndexVec, LocalDefId, SortedMap, Span};
 use crate::stelaro_sir::{
     sir::{self, *},
     sir_id::{ItemLocalId, OwnerId, SirId, STELO_SIR_ID},
-    visit,
-    Visitor,
+    visit, Visitor,
 };
 use crate::stelaro_context::TyCtxt;
 
@@ -28,6 +27,7 @@ struct NodeCollector<'a, 'sir> {
     owner: OwnerId,
 }
 
+#[track_caller]
 pub fn index_sir<'sir>(
     tcx: TyCtxt<'sir>,
     item: sir::OwnerNode<'sir>,

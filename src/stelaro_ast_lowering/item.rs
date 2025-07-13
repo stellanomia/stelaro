@@ -15,6 +15,7 @@ pub struct ItemLowerer<'a, 'sir> {
 
 
 impl<'a, 'sir> ItemLowerer<'a, 'sir> {
+    #[track_caller]
     fn with_lctx(
         &mut self,
         owner: NodeId,
