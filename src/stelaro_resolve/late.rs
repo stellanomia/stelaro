@@ -324,8 +324,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
             let Some(ty) = PrimTy::from_name(path[0].ident.name)
         {
             let res = Res::PrimTy(ty);
-            dbg!((finalize, res));
             self.r.record_res(finalize.node_id, res);
+            self.r.record_res(path.first().unwrap().id.unwrap(), res);
             return res;
         }
 

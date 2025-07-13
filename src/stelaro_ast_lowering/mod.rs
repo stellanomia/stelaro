@@ -20,7 +20,7 @@ struct LoweringContext<'a, 'sir> {
     pub resolver: &'a mut ResolverAstLowering,
     pub arena: &'sir Arena,
 
-    /// ローワリング対象の所有ノードの中にあるボディ（関数本体など）。
+    /// ローワリング対象の所有ノードの中にあるボディ (関数本体など)。
     pub bodies: Vec<(ItemLocalId, &'sir sir::Body<'sir>)>,
     /// 現在の `owner` を Lowering することで生成されたアイテムを収集する。
     pub children: Vec<(LocalDefId, sir::MaybeOwner<'sir>)>,

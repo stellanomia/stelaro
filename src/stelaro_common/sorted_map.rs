@@ -9,7 +9,7 @@ use std::ops::{Bound, Index, IndexMut, RangeBounds};
 /// `SortedMap`は`BTreeMap`と似た特性を持つデータ構造ですが、トレードオフが若干異なります。
 /// ルックアップは *O*(log(*n*))、挿入と削除は *O*(*n*) ですが、要素を順序通りに安価にイテレートできます。
 ///
-/// `SortedMap`は、データをよりコンパクトに格納するため、小さいサイズ（<50）の場合`BTreeMap`よりも
+/// `SortedMap`は、データをよりコンパクトに格納するため、小さいサイズ (<50) の場合`BTreeMap`よりも
 /// 高速になることがあります。また、連続した範囲の要素にスライスとしてアクセスすることや、
 /// すでにソート済みの要素のスライスを効率的に挿入することもサポートしています。
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -154,7 +154,7 @@ impl<K: Ord, V> SortedMap<K, V> {
     where
         R: RangeBounds<K>,
     {
-        // `range`は（`range_slice_indices`を介して）開始と終了を別々に検索する必要があります。
+        // `range`は (`range_slice_indices`を介して) 開始と終了を別々に検索する必要があります。
         // しかし、ここでは範囲全体に対して一度のバイナリサーチを実行できます。
         // `range`に一致する`x`が1つでも見つかれば、その範囲は空では*ありません*。
         self.data

@@ -63,10 +63,6 @@ pub mod nested_filter {
 
     /// ネストされたアイテムは走査しませんが、アイテムの
     /// 内部にあるネストされたものは走査します。
-    ///
-    /// `visit_all_item_likes_in_crate()` を
-    /// 外側のループとして使用し、各アイテムの内容をこの設定を使って走査する
-    /// ビジターを持つ、というのが一般的なパターンです。
     pub struct OnlyBodies(());
     impl<'tcx> NestedFilter<'tcx> for OnlyBodies {
         type MaybeTyCtxt = TyCtxt<'tcx>;
