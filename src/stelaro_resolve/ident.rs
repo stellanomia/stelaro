@@ -79,7 +79,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         .map(LexicalScopeBinding::Item)
     }
 
-    pub(crate) fn maybe_resolve_ident_in_module(
+    pub fn maybe_resolve_ident_in_module(
         &mut self,
         module: &Module<'ra>,
         ident: Ident,

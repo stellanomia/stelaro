@@ -146,7 +146,7 @@ pub struct PathSegment {
 pub struct Block<'sir> {
     /// ブロック内の文。
     pub stmts: &'sir [Stmt<'sir>],
-    /// ブロックの末尾にある、セミコロンが付かない式（存在する場合）。
+    /// ブロックの末尾にある、セミコロンが付かない式 (存在する場合)。
     pub expr: Option<&'sir Expr<'sir>>,
     pub sir_id: SirId,
     /// スパンには、ブロックを囲む波括弧 `{` と `}` が含まれます。
@@ -245,7 +245,7 @@ pub struct LetStmt<'sir> {
     pub pat: &'sir Pat,
     /// 型アテノーション
     pub ty: Option<&'sir Ty<'sir>>,
-    /// 値を設定するための初期化式（存在する場合）。
+    /// 値を設定するための初期化式 (存在する場合)。
     pub init: Option<&'sir Expr<'sir>>,
     pub sir_id: SirId,
     pub span: Span,
@@ -439,7 +439,7 @@ pub struct Param<'sir> {
     pub span: Span,
 }
 
-/// 関数宣言のヘッダー（本体ではない）を表します。
+/// 関数宣言のヘッダー (本体ではない) を表します。
 #[derive(Debug, Clone, Copy)]
 pub struct FnDecl<'sir> {
     /// 関数の仮引数の型。
