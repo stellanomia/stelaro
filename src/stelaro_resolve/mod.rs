@@ -508,6 +508,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             }
     }
 
+    #[track_caller]
     fn record_res(&mut self, node_id: NodeId, resolution: Res<NodeId>) {
         if let Some(prev_res) = self.res_map.insert(node_id, resolution) {
             panic!("パスが複数回解決されました (前: {prev_res:?}, 後: {resolution:?})");

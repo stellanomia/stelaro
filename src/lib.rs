@@ -11,6 +11,7 @@
 
 pub mod stelaro_ast;
 pub mod stelaro_ast_lowering;
+pub mod stelaro_codegen;
 pub mod stelaro_common;
 pub mod stelaro_context;
 pub mod stelaro_diagnostics;
@@ -20,6 +21,7 @@ pub mod stelaro_parse;
 pub mod stelaro_resolve;
 pub mod stelaro_session;
 pub mod stelaro_sir;
+pub mod stelaro_sir_typecheck;
 pub mod stelaro_ty;
 
 
@@ -79,8 +81,9 @@ pub fn temp(src: String) {
 
         let resolver = resolver.into_outputs().ast_lowering;
         let stelo = lower_to_sir(tcx, resolver, stelo);
+        tcx.sir_stelo.replace(Some(&stelo));
 
-        dbg!(stelo);
+        dbg!(&tcx.sir_stelo);
     });
 }
 
