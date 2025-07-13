@@ -33,7 +33,7 @@ pub struct GlobalCtxt<'tcx> {
     pub def_kind_table: RefCell<IndexVec<LocalDefId, DefKind>>,
 
     /// AST Lowering 後の Stelo
-    pub sir_stelo: Option<&'tcx sir::Stelo<'tcx>>,
+    pub sir_stelo: RefCell<Option<&'tcx sir::Stelo<'tcx>>>,
 
     // std, core 実装時など、複数のStelo解析の際に使われる
     // /// インターンされた [StableSteloId] のマップ
@@ -142,7 +142,7 @@ impl<'tcx> TyCtxt<'tcx> {
             types_interner: RefCell::new(HashMap::new()),
             source_span: RefCell::new(IndexVec::new()),
             def_kind_table: RefCell::new(IndexVec::new()),
-            sir_stelo: None,
+            sir_stelo: None.into(),
         }
     }
 }

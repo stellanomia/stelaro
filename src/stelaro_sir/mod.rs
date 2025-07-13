@@ -16,7 +16,7 @@ use crate::stelaro_sir::{sir::OwnerNodes, sir_id::{ItemLocalId, OwnerId, SirId, 
 impl<'tcx> TyCtxt<'tcx> {
     #[inline]
     pub fn sir_stelo(self) -> &'tcx sir::Stelo<'tcx> {
-        match self.sir_stelo {
+        match *self.sir_stelo.borrow() {
             Some(stelo) => stelo,
             None => panic!("bug: TyCtxt sir::Stelo は初期化されていません"),
         }
@@ -42,7 +42,7 @@ impl<'tcx> TyCtxt<'tcx> {
             let parent_owner_id = self.local_def_id_to_sir_id(parent_def_id).owner;
             SirId {
                 owner: parent_owner_id,
-                local_id: self.sir_stelo.unwrap().owners[parent_owner_id.def_id]
+                local_id: self.sir_stelo().owners[parent_owner_id.def_id]
                     .unwrap()
                     .parenting
                     .get(&owner_id.def_id)
