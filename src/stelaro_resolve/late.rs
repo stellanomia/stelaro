@@ -325,7 +325,9 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         {
             let res = Res::PrimTy(ty);
             self.r.record_res(finalize.node_id, res);
-            self.r.record_res(path.first().unwrap().id.unwrap(), res);
+            if let Some(id) = path.first().unwrap().id {
+                self.r.record_res(id, res);
+            }
             return res;
         }
 
