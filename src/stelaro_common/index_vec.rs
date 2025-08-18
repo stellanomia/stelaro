@@ -76,6 +76,7 @@ impl<I: Idx, T> IndexVec<I, T> {
     }
 
     #[inline]
+    #[allow(clippy::should_implement_trait)]
     pub fn into_iter(self) -> vec::IntoIter<T> {
         self.raw.into_iter()
     }

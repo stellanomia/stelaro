@@ -213,6 +213,7 @@ define_keywords_and_symbols! {
     UNDERSCORE => "_",
     UNKNOWN => "unknown",
     STELO => "stelo",
+    STELARO_OUT => "stelaro_out",
     MAIN => "main",
     LET => "let",
     I32 => "i32",

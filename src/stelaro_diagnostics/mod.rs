@@ -1,7 +1,7 @@
 pub mod diag;
 pub mod emitter;
 
-pub use diag::{Diag, DiagCtxtHandle, ErrorEmitted, FatalError};
+pub use diag::{Diag, DiagCtxtHandle, ErrorEmitted};
 pub use emitter::{AriadneEmitter, SilentEmitter};
 
 use std::cell::RefCell;

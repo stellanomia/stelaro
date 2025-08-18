@@ -1,4 +1,4 @@
-use crate::stelaro_common::{Span, Hash128, StableHasher};
+use crate::stelaro_common::{FatalError, Hash128, Span, StableHasher};
 use super::{emitter::DynEmitter, DiagCtxt};
 
 use std::collections::HashSet;
@@ -17,8 +17,11 @@ pub trait EmissionGuarantee: Sized {
     fn emit_producing_guarantee(diag: Diag<'_, Self>) -> Self::EmitResult;
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct ErrorEmitted(());
+
 #[derive(Debug)]
-pub enum FatalError {}
+pub struct FatalAbort;
 
 impl EmissionGuarantee for ErrorEmitted {
     fn emit_producing_guarantee(diag: Diag<'_, Self>) -> Self::EmitResult {
@@ -33,14 +36,21 @@ impl EmissionGuarantee for () {
 }
 
 /// 致命的エラーは発散する (プログラムを終了)
-impl EmissionGuarantee for FatalError {
+impl EmissionGuarantee for FatalAbort {
     type EmitResult = !;
 
     fn emit_producing_guarantee(diag: Diag<'_, Self>) -> ! {
         diag.emit_without_guarantee();
-        std::process::exit(1)
+        FatalError.raise()
     }
 }
+
+impl ErrorEmitted {
+    pub fn raise_fatal(self) -> ! {
+        FatalError.raise()
+    }
+}
+
 
 pub struct DiagCtxtInner {
     /// 発行されたエラーを保持する
@@ -109,10 +119,11 @@ impl DiagCtxtInner {
         }
 
     }
-}
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ErrorEmitted(());
+    fn has_errors(&self) -> Option<ErrorEmitted> {
+        self.errors.first().copied()
+    }
+}
 
 #[derive(Clone, Copy)]
 pub struct DiagCtxtHandle<'a> {
@@ -148,7 +159,7 @@ impl<'a> DiagCtxtHandle<'a> {
         Diag::new(self, span, Level::Help)
     }
 
-    pub fn struct_fatal(self, span: Span) -> Diag<'a, FatalError> {
+    pub fn struct_fatal(self, span: Span) -> Diag<'a, FatalAbort> {
         Diag::new(self, span, Level::FatalError)
     }
 
@@ -161,12 +172,19 @@ impl<'a> DiagCtxtHandle<'a> {
         self.inner.borrow_mut().emit_diagnostic(diag)
     }
 
-    pub fn has_errors(self) -> bool {
-        !self.inner.borrow().errors.is_empty()
+    pub fn has_errors(&self) -> Option<ErrorEmitted> {
+        self.inner.borrow().has_errors()
     }
 
     pub fn has_err_code(self, code: i32) -> bool {
         self.inner.borrow().emitted_diagnostic_codes.contains(&code)
+    }
+
+    /// エラーが発生した後の早期終了処理に使用する
+    pub fn abort_if_errors(&self) {
+        if let Some(guar) = self.has_errors() {
+            guar.raise_fatal();
+        }
     }
 }
 
@@ -254,6 +272,7 @@ impl DiagInner {
     }
 
     /// Hash, PartialEq の実装に使用するためのフィールド取得メソッド
+    #[allow(clippy::type_complexity)]
     fn keys(
         &self,
     ) -> (

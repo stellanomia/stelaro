@@ -4,10 +4,6 @@
 #![feature(debug_closure_helpers)]
 #![feature(never_type)]
 #![feature(min_specialization)]
-#![allow(clippy::should_implement_trait)]
-#![allow(clippy::too_many_arguments)]
-#![allow(clippy::type_complexity)]
-#![allow(clippy::uninlined_format_args)]
 
 pub mod stelaro_ast;
 pub mod stelaro_ast_lowering;
@@ -24,70 +20,66 @@ pub mod stelaro_sir;
 pub mod stelaro_sir_typecheck;
 pub mod stelaro_ty;
 
+use std::path::PathBuf;
+use clap::Parser;
 
-use stelaro_ast_lowering::lower_to_sir;
-use stelaro_common::{create_session_globals_then, RealFileLoader, Arena, SourceMapInputs, StableSteloId, Symbol};
-use stelaro_context::TyCtxt;
-use stelaro_parse::new_parser_from_source_str;
-use stelaro_resolve::{Resolver, ResolverArenas};
-use stelaro_session::{config::Input, session::{build_session, CompilerPaths}, Session};
+use crate::stelaro_ast_lowering::lower_to_sir;
+use crate::stelaro_interface::passes::create_and_enter_global_ctxt;
+use crate::stelaro_resolve::{Resolver, ResolverArenas};
+use crate::stelaro_session::{config, Input};
+use crate::stelaro_interface::{interface, passes};
 
+#[derive(Parser, Debug)]
+#[command(version)]
+pub(crate) struct Args {
+    input_file: PathBuf,
 
-pub fn temp(src: String) {
-    let paths = CompilerPaths {
-        input: Input::Str {
-            name: "temp".to_string(),
-            input: src.to_string()
-        },
-        output_dir: None,
-        output_file: None,
-        temps_dir: None,
-    };
+    #[arg(short, long)]
+    output: Option<PathBuf>,
 
-    let file_loader = Box::new(RealFileLoader);
+    #[arg(short = 'd', long)]
+    output_dir: Option<PathBuf>,
 
-    create_session_globals_then(Some(SourceMapInputs { file_loader }),|| {
-        let sess = build_session(paths);
-        let name = "temp";
-
-        let mut parser = new_parser_from_source_str(
-            &sess.psess,
-            name.into(),
-            src,
-        ).unwrap();
-
-        let stelo = parser.parse_stelo().unwrap();
-        let arena = Arena::new();
-        let sir_arena = Arena::new();
-        let stable_stelo_id = StableSteloId::new(Symbol::intern(name));
-
-        let gcx = &TyCtxt::create_global_ctxt(
-            &sess,
-            stable_stelo_id,
-            &arena,
-            &sir_arena,
-        );
-
-        let tcx = TyCtxt::new(gcx);
-        let arenas = &ResolverArenas::default();
-
-        let mut resolver = Resolver::new(
-            tcx,
-            stelo.span.inner_span,
-            arenas,
-        );
-
-        resolver.resolve_stelo(&stelo);
-
-        let resolver = resolver.into_outputs().ast_lowering;
-        let stelo = lower_to_sir(tcx, resolver, stelo);
-        tcx.sir_stelo.replace(Some(&stelo));
-
-        dbg!(&tcx.sir_stelo);
-    });
+    #[arg(long)]
+    stelo_name: Option<String>
 }
 
-
 pub fn run() {
+    let args = Args::parse();
+    let opts = config::build_session_options(&args);
 
+    let input = Input::File(args.input_file);
+    let odir = args.output_dir;
+    let ofile = args.output;
+
+    let config = interface::Config {
+        opts,
+        input,
+        output_dir: odir,
+        output_file: ofile,
+        file_loader: None,
+    };
+
+    stelaro_interface::run_compiler(config, |sess| {
+        let stelo = passes::parse(sess);
+
+        create_and_enter_global_ctxt(sess, |tcx| {
+            let arenas = &ResolverArenas::default();
+
+            let mut resolver = Resolver::new(
+                tcx,
+                stelo.span.inner_span,
+                arenas,
+            );
+
+            resolver.resolve_stelo(&stelo);
+
+            let resolver = resolver.into_outputs().ast_lowering;
+            let sir_stelo = lower_to_sir(tcx, resolver, stelo);
+            let stelo = tcx.sir_arena.alloc(sir_stelo);
+            tcx.sir_stelo.replace(Some(stelo));
+
+            dbg!(&tcx.sir_stelo.borrow().unwrap());
+        });
+    });
 }
