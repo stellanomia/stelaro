@@ -1,14 +1,14 @@
 use crate::stelaro_ast::{
-    ast::*, token::{Lit, LitKind, Token, TokenKind, TokenStream},
     NodeId, STELO_NODE_ID,
+    ast::*,
+    token::{Lit, LitKind, Token, TokenKind, TokenStream},
 };
-use crate::stelaro_common::{Span, Ident};
+use crate::stelaro_common::{Ident, Span};
 use crate::stelaro_diagnostics::{DiagCtxtHandle, ErrorEmitted};
 use crate::stelaro_session::ParseSess;
 
-use super::diagnostics::DiagsParser;
 use super::PResult;
-
+use super::diagnostics::DiagsParser;
 
 pub struct Parser<'sess> {
     pub psess: &'sess ParseSess,
@@ -53,7 +53,7 @@ impl<'sess> Parser<'sess> {
 
         match self.token_stream.next() {
             Some(t) => self.token = t,
-            None => panic!("bug: TokenStreamの範囲外アクセス")
+            None => panic!("bug: TokenStreamの範囲外アクセス"),
         }
     }
 
@@ -64,10 +64,10 @@ impl<'sess> Parser<'sess> {
         }else {
             Err(
                 DiagsParser::unexpected_token_with_expected(
-                    self.dcx(),
-                    self.token.kind,
-                    expected,
-                    span,
+                self.dcx(),
+                self.token.kind,
+                expected,
+                span,
                 ).emit()
             )
         }
@@ -78,7 +78,7 @@ impl<'sess> Parser<'sess> {
     }
 
     pub fn parse_stelo(&mut self) -> PResult<Stelo> {
-        let start= self.token.span;
+        let start = self.token.span;
 
         let mut items = vec![];
         loop {
@@ -88,54 +88,52 @@ impl<'sess> Parser<'sess> {
 
             match self.parse_item()? {
                 Some(item) => items.push(Box::new(item)),
-                None => {
-                    Err(
-                        DiagsParser::unexpected_token_for_item(
-                            self.dcx(),
-                            self.token.kind,
-                            self.token.span
-                        ).emit()
-                    )?
-                }
+                None => Err(DiagsParser::unexpected_token_for_item(
+                    self.dcx(),
+                    self.token.kind,
+                    self.token.span,
+                )
+                .emit())?,
             }
         }
 
-        Ok(
-            Stelo {
-                items,
-                span: ModSpan {
-                    inner_span: start.merge(&self.prev_token.span)
-                },
-                id: STELO_NODE_ID,
-            }
-        )
+        Ok(Stelo {
+            items,
+            span: ModSpan {
+                inner_span: start.merge(&self.prev_token.span),
+            },
+            id: STELO_NODE_ID,
+        })
     }
 
     pub fn parse_ident(&mut self) -> PResult<Ident> {
-
         if let TokenKind::Ident(symbol) = self.token.kind {
             self.bump();
 
             Ok(Ident::new(symbol, self.prev_token.span))
-        } else if let TokenKind::Literal(lit @ Lit {
-            kind: LitKind::Integer | LitKind::Float, ..
-        }) = self.token.kind {
-                let next = self.look_ahead(1);
+        } else if let TokenKind::Literal(
+            lit @ Lit {
+                kind: LitKind::Integer | LitKind::Float,
+                ..
+            },
+        ) = self.token.kind
+        {
+            let next = self.look_ahead(1);
 
-                // 次のトークンが識別子ならSpanに含める
-                let span = if let Some(TokenKind::Ident(_)) = next.map(|t| t.kind) {
-                    self.token.span.merge(&next.unwrap().span)
-                } else {
-                    self.token.span
-                };
+            // 次のトークンが識別子ならSpanに含める
+            let span = if let Some(TokenKind::Ident(_)) = next.map(|t| t.kind) {
+                self.token.span.merge(&next.unwrap().span)
+            } else {
+                self.token.span
+            };
 
-                Err(
+            Err(
                     DiagsParser::unexpected_numeric_literal_for_identifier(
                         self.dcx(),
                         lit,
                         span,
                     ).emit()
-                )?
+            )?
         } else {
             Err(
                 DiagsParser::unexpected_token_for_identifier(
@@ -156,7 +154,7 @@ impl<'sess> Parser<'sess> {
                 TokenKind::RBrace => {
                     self.bump();
                     break;
-                },
+                }
                 TokenKind::Eof => {
                     Err(
                         DiagsParser::unclosed_delimiter(
@@ -175,48 +173,51 @@ impl<'sess> Parser<'sess> {
                         ).emit()
                     )?
                 }
-                _ => {
-                    match self.parse_stmt()? {
-                        Some(stmt) => stmts.push(stmt),
-                        None => {
-                            if self.can_start_item() {
-                                Err(
-                                    DiagsParser::unclosed_delimiter(
-                                        self.dcx(),
-                                        self.token,
-                                        brace_span,
-                                    ).emit()
-                                )?
-                            } else {
-                                Err(
-                                    DiagsParser::missing_semicolon(
-                                        self.dcx(),
-                                        self.token.span
-                                    ).emit()
-                                )?
-                            }
+                _ => match self.parse_stmt()? {
+                    Some(stmt) => stmts.push(stmt),
+                    None => {
+                        if self.can_start_item() {
+                            Err(DiagsParser::unclosed_delimiter(
+                                self.dcx(),
+                                self.token,
+                                brace_span,
+                            )
+                            .emit())?
+                        } else {
+                            Err(
+                                DiagsParser::missing_semicolon(
+                                    self.dcx(),
+                                    self.token.span
+                                ).emit()
+                            )?
                         }
                     }
-                }
+                },
             }
         }
 
-        Ok(
-            Block {
-                id: self.next_node_id(),
-                stmts,
-                span: brace_span.merge(&self.prev_token.span)
-            }
-        )
+        Ok(Block {
+            id: self.next_node_id(),
+            stmts,
+            span: brace_span.merge(&self.prev_token.span),
+        })
     }
 
     #[inline]
     pub fn mk_expr(&mut self, span: Span, kind: ExprKind) -> Expr {
-        Expr { kind, span, id: self.next_node_id() }
+        Expr {
+            kind,
+            span,
+            id: self.next_node_id(),
+        }
     }
 
     #[inline]
     pub fn mk_stmt(&mut self, span: Span, kind: StmtKind) -> Stmt {
-        Stmt { id: self.next_node_id(), kind, span }
+        Stmt {
+            id: self.next_node_id(),
+            kind,
+            span,
+        }
     }
 }

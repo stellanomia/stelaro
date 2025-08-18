@@ -1,7 +1,10 @@
-use crate::stelaro_ast::{ast::*, token::{Token, TokenKind}};
+use crate::stelaro_ast::{
+    ast::*,
+    token::{Token, TokenKind},
+};
 use crate::stelaro_common::Span;
 
-use super::{diagnostics::DiagsParser, parser::Parser, PResult};
+use super::{PResult, diagnostics::DiagsParser, parser::Parser};
 
 /// 中置演算子 (AssocOp) の定義
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -28,7 +31,7 @@ enum AssocOp {
 enum PrecedenceLimit {
     Inclusive(Precedence), // 優先順位がこの値以上なら許容
     Exclusive(Precedence), // 優先順位がこの値より大きい場合のみ許容
-    None, // 制約なし (最初の式をパースする際など)
+    None,                  // 制約なし (最初の式をパースする際など)
 }
 
 impl AssocOp {
@@ -77,7 +80,7 @@ impl AssocOp {
         match self {
             Assign => Fixity::Right,
             Add | Subtract | Multiply | Divide | Modulus | And | Or => Fixity::Left,
-            Equal | Less | LessEqual | NotEqual | Greater | GreaterEqual => Fixity::NonAssoc
+            Equal | Less | LessEqual | NotEqual | Greater | GreaterEqual => Fixity::NonAssoc,
         }
     }
 
@@ -96,7 +99,10 @@ impl AssocOp {
 
     fn is_comparison(&self) -> bool {
         use AssocOp::*;
-        matches!(*self, Less | Greater | LessEqual | GreaterEqual | Equal | NotEqual)
+        matches!(
+            *self,
+            Less | Greater | LessEqual | GreaterEqual | Equal | NotEqual
+        )
     }
 }
 
@@ -111,13 +117,13 @@ enum Fixity {
 
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 enum Precedence {
-    Assign,     // =
-    Or,         // or
-    And,        // and
-    Cmp,        // < > <= >= == !=
-    Sum,        // + -
-    Product,    // * / %
-    Prefix,     // ! -
+    Assign,  // =
+    Or,      // or
+    And,     // and
+    Cmp,     // < > <= >= == !=
+    Sum,     // + -
+    Product, // * / %
+    Prefix,  // ! -
 }
 
 impl Parser<'_> {
@@ -161,45 +167,33 @@ impl Parser<'_> {
 
             let next_min_prec = match op.fixity() {
                 Fixity::Left | Fixity::NonAssoc => PrecedenceLimit::Exclusive(prec),
-                Fixity::Right => PrecedenceLimit::Inclusive(prec)
+                Fixity::Right => PrecedenceLimit::Inclusive(prec),
             };
 
             let op_token = self.prev_token;
             let rhs = self.parse_expr_(next_min_prec)?;
             let span = lhs.span.merge(&rhs.span);
             lhs = match op {
-                AssocOp::Add |
-                AssocOp::Subtract |
-                AssocOp::Multiply |
-                AssocOp::Divide |
-                AssocOp::Modulus |
-                AssocOp::Or |
-                AssocOp::And |
-                AssocOp::Equal |
-                AssocOp::Less |
-                AssocOp::LessEqual |
-                AssocOp::Greater |
-                AssocOp::GreaterEqual |
-                AssocOp::NotEqual => {
-                    self.mk_expr(
-                        span,
-                        ExprKind::Binary(
-                            BinOp::from_token(op_token),
-                            Box::new(lhs),
-                            Box::new(rhs)
-                        ),
-                    )
-                },
-                AssocOp::Assign => {
-                    self.mk_expr(
-                        span,
-                        ExprKind::Assign(
-                            Box::new(lhs),
-                            Box::new(rhs),
-                            op_token.span,
-                        )
-                    )
-                }
+                AssocOp::Add
+                | AssocOp::Subtract
+                | AssocOp::Multiply
+                | AssocOp::Divide
+                | AssocOp::Modulus
+                | AssocOp::Or
+                | AssocOp::And
+                | AssocOp::Equal
+                | AssocOp::Less
+                | AssocOp::LessEqual
+                | AssocOp::Greater
+                | AssocOp::GreaterEqual
+                | AssocOp::NotEqual => self.mk_expr(
+                    span,
+                    ExprKind::Binary(BinOp::from_token(op_token), Box::new(lhs), Box::new(rhs)),
+                ),
+                AssocOp::Assign => self.mk_expr(
+                    span,
+                    ExprKind::Assign(Box::new(lhs), Box::new(rhs), op_token.span),
+                ),
             };
         }
 
@@ -211,24 +205,24 @@ impl Parser<'_> {
         match &lhs.kind {
             ExprKind::Binary(bin_op, _, _) => {
                 if AssocOp::from_binop(bin_op.node).is_comparison() && next.is_comparison() {
-                    Err(
-                        DiagsParser::chained_comparison(
-                            self.dcx(), bin_op.span, self.prev_token.span
-                        ).emit()
+                    Err(DiagsParser::chained_comparison(
+                        self.dcx(),
+                        bin_op.span,
+                        self.prev_token.span,
                     )
+                    .emit())
                 } else {
                     Ok(())
                 }
-            },
-            _ => {
-                Ok(())
             }
+            _ => Ok(()),
         }
     }
 
     /// 現在のトークンが新しい式の開始として適切かどうかを判定
     fn can_start_expr(&self) -> bool {
-        matches!(self.token.kind,
+        matches!(
+            self.token.kind,
             TokenKind::Literal(_)
             | TokenKind::Ident(_)
             | TokenKind::Minus  // 単項演算子 -
@@ -249,14 +243,11 @@ impl Parser<'_> {
 
                 let node = self.parse_expr_(PrecedenceLimit::Exclusive(Precedence::Prefix))?;
 
-                Ok(
-                    self.mk_expr(
-                        start.merge(&node.span),
-                        ExprKind::Unary(UnOp::Neg, Box::new(node))
-                    )
-                )
-
-            },
+                Ok(self.mk_expr(
+                    start.merge(&node.span),
+                    ExprKind::Unary(UnOp::Neg, Box::new(node)),
+                ))
+            }
             TokenKind::Bang => {
                 self.bump();
 
@@ -264,57 +255,36 @@ impl Parser<'_> {
 
                 let node = self.parse_expr_(PrecedenceLimit::Exclusive(Precedence::Prefix))?;
 
-                Ok(
-                    self.mk_expr(
-                        start.merge(&node.span),
-                        ExprKind::Unary(UnOp::Not, Box::new(node))
-                    )
-                )
-
-            },
-            TokenKind::Plus |
-            TokenKind::Star |
-            TokenKind::Slash => {
+                Ok(self.mk_expr(
+                    start.merge(&node.span),
+                    ExprKind::Unary(UnOp::Not, Box::new(node)),
+                ))
+            }
+            TokenKind::Plus | TokenKind::Star | TokenKind::Slash => {
                 self.bump();
 
-                if self.token.kind == TokenKind::Plus
-                    && self.prev_token.kind == TokenKind::Plus {
-                    Err(
-                        DiagsParser::prefix_increment(
-                            self.dcx(),
-                            self.prev_token.span.merge(&self.token.span)
-                        ).emit()
+                if self.token.kind == TokenKind::Plus && self.prev_token.kind == TokenKind::Plus {
+                    Err(DiagsParser::prefix_increment(
+                        self.dcx(),
+                        self.prev_token.span.merge(&self.token.span),
                     )
+                    .emit())
                 } else {
-                    Err(
-                        DiagsParser::expect_expression(
-                            self.dcx(),
-                            self.prev_token,
-                            self.prev_token.span
-                        ).emit()
+                    Err(DiagsParser::expect_expression(
+                        self.dcx(),
+                        self.prev_token,
+                        self.prev_token.span,
                     )
+                    .emit())
                 }
-            },
-            TokenKind::RParen | TokenKind::RBrace => {
-                Err(
-                    DiagsParser::unexpected_closing_delimiter(
-                        self.dcx(),
-                        self.token.span,
-                    ).emit()
-                )?
-            },
-            _ if !self.can_start_expr() => {
-                Err(
-                    DiagsParser::expect_expression(
-                        self.dcx(),
-                        self.token,
-                        self.token.span
-                    ).emit()
-                )
-            },
-            _ => {
-                self.parse_expr_postfix()
             }
+            TokenKind::RParen | TokenKind::RBrace => {
+                Err(DiagsParser::unexpected_closing_delimiter(self.dcx(), self.token.span).emit())?
+            }
+            _ if !self.can_start_expr() => {
+                Err(DiagsParser::expect_expression(self.dcx(), self.token, self.token.span).emit())
+            }
+            _ => self.parse_expr_postfix(),
         }
     }
 
@@ -325,7 +295,7 @@ impl Parser<'_> {
 
         match self.token.kind {
             TokenKind::LParen => self.parse_expr_fn_call(node.span, node),
-            _ => Ok(node)
+            _ => Ok(node),
         }
     }
 
@@ -336,25 +306,14 @@ impl Parser<'_> {
             TokenKind::Literal(lit) => {
                 self.bump();
 
-                Ok(
-                    self.mk_expr(
-                        self.prev_token.span,
-                        ExprKind::Lit(lit)
-                    )
-                )
-            },
+                Ok(self.mk_expr(self.prev_token.span, ExprKind::Lit(lit)))
+            }
             TokenKind::Ident(_) => {
                 let start = self.token.span;
 
                 let path = self.parse_path()?;
 
-                Ok(
-                    self.mk_expr(
-                    start.merge(&self.prev_token.span),
-                    ExprKind::Path(
-                        path
-                    ))
-                )
+                Ok(self.mk_expr(start.merge(&self.prev_token.span), ExprKind::Path(path)))
             }
             TokenKind::LParen => {
                 self.bump();
@@ -366,13 +325,11 @@ impl Parser<'_> {
 
                 self.eat(TokenKind::RParen, self.token.span)?;
 
-                Ok(
-                    self.mk_expr(
-                        self.prev_token.span.merge(&start.merge(&span)),
-                        ExprKind::Paren(Box::new(node))
-                    )
-                )
-            },
+                Ok(self.mk_expr(
+                    self.prev_token.span.merge(&start.merge(&span)),
+                    ExprKind::Paren(Box::new(node)),
+                ))
+            }
             TokenKind::LBrace => {
                 let start = self.token.span;
 
@@ -380,55 +337,34 @@ impl Parser<'_> {
 
                 let span = start.merge(&self.prev_token.span);
 
-                Ok(
-                    self.mk_expr(
-                        span,
-                        ExprKind::Block(
-                            Box::new(block)
-                        )
-                    )
-                )
-            },
-            TokenKind::If => {
-                self.parse_expr_if()
-            },
-            _ => {
-                Err(
-                    DiagsParser::unexpected_token(
-                        self.dcx(),
-                        self.token.kind,
-                        self.token.span
-                    ).emit()
-                )
+                Ok(self.mk_expr(span, ExprKind::Block(Box::new(block))))
             }
+            TokenKind::If => self.parse_expr_if(),
+            _ => Err(
+                DiagsParser::unexpected_token(self.dcx(), self.token.kind, self.token.span).emit(),
+            ),
         }
     }
 
     fn parse_expr_fn_call(&mut self, start: Span, f: Expr) -> PResult<Expr> {
         let seq = self.parse_delim_comma_seq(TokenKind::LParen, TokenKind::RParen)?;
 
-        Ok(
-            self.mk_expr(
-                start.merge(&self.prev_token.span),
-                ExprKind::Call(
-                    Box::new(f),
-                    seq
-                ),
-            )
-        )
+        Ok(self.mk_expr(
+            start.merge(&self.prev_token.span),
+            ExprKind::Call(Box::new(f), seq),
+        ))
     }
 
     /// コンマで区切られた列をパース
     fn parse_delim_comma_seq(&mut self, open: TokenKind, close: TokenKind) -> PResult<Vec<Expr>> {
         if self.token.kind != open {
-            Err(
-                DiagsParser::unexpected_token_with_expected(
-                    self.dcx(),
-                    self.token.kind,
-                    open,
-                    self.token.span,
-                ).emit()
-            )?
+            Err(DiagsParser::unexpected_token_with_expected(
+                self.dcx(),
+                self.token.kind,
+                open,
+                self.token.span,
+            )
+            .emit())?
         }
 
         self.bump();
@@ -456,12 +392,12 @@ impl Parser<'_> {
 
                             break;
                         }
-                    },
+                    }
                     _ if self.token.kind == close => {
                         self.bump();
 
                         break;
-                    },
+                    }
                     _ => {
                         let diag = DiagsParser::unexpected_token_with_expected_any(
                             self.dcx(),
@@ -500,28 +436,17 @@ impl Parser<'_> {
                 // 通常のelseブロック
                 let block = self.parse_block()?;
 
-                Some(
-                    Box::new(
-                        self.mk_expr(
-                            block.span,
-                            ExprKind::Block(Box::new(block))
-                        )
-                    )
-                )
+                Some(Box::new(
+                    self.mk_expr(block.span, ExprKind::Block(Box::new(block))),
+                ))
             }
         } else {
             None
         };
 
-        Ok(
-            self.mk_expr(
-                start.merge(&self.prev_token.span),
-                ExprKind::If (
-                    Box::new(cond),
-                    Box::new(block),
-                    else_branch,
-                )
-            )
-        )
+        Ok(self.mk_expr(
+            start.merge(&self.prev_token.span),
+            ExprKind::If(Box::new(cond), Box::new(block), else_branch),
+        ))
     }
 }

@@ -1,14 +1,15 @@
 use crate::stelaro_common::Ident;
 use crate::stelaro_resolve::{
-    Determinacy, Finalize, LexicalScopeBinding, ModuleKind,
-    PathResult, Segment, late::{Scope, ScopeKind}, Module,
-    NameBinding, BindingKey, Resolver
+    BindingKey, Determinacy, Finalize, LexicalScopeBinding, Module, ModuleKind, NameBinding,
+    PathResult, Resolver, Segment,
+    late::{Scope, ScopeKind},
 };
-use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
-
+use crate::stelaro_sir::def::{
+    Namespace::{self, TypeNS, ValueNS},
+    PerNS, Res,
+};
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
-
     /// これは、現在のレキシカルスコープ内で、名前空間 `ns` の識別子 `ident` を解決します。
     /// より具体的には、スコープの階層を上にたどり、`ident` を定義している最初のスコープでの
     /// 束縛を返します (どのスコープもそれを定義していない場合は `None` を返します)。
@@ -30,17 +31,12 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         scopes: &[Scope<'ra>],
         ignore_binding: Option<NameBinding<'ra>>,
     ) -> Option<LexicalScopeBinding<'ra>> {
-
         // スコープスタックを逆順に辿る
         let mut module;
         for scope in scopes.iter().rev() {
             if let Some(res) = scope.bindings.get(&ident) {
                 // 識別子は型パラメータまたはローカル変数に解決される。
-                return Some(
-                    LexicalScopeBinding::Res(
-                        *res
-                    )
-                );
+                return Some(LexicalScopeBinding::Res(*res));
             }
 
             module = match scope.kind {
@@ -49,7 +45,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             };
 
             match module.kind {
-                ModuleKind::Block => {}, // ブロックは通過して見ることができる
+                ModuleKind::Block => {} // ブロックは通過して見ることができる
                 _ => break,
             }
 
@@ -59,7 +55,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                 ns,
                 parent_module,
                 finalize,
-                ignore_binding
+                ignore_binding,
             );
 
             if let Ok(binding) = item {
@@ -106,7 +102,8 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         ignore_binding: Option<NameBinding<'ra>>,
     ) -> Result<NameBinding<'ra>, Determinacy> {
         let key = BindingKey::new(ident, ns);
-        let res = self.resolution(*module, key)
+        let res = self
+            .resolution(*module, key)
             .try_borrow_mut()
             .map_err(|_| Determinacy::Determined)?;
 
@@ -280,10 +277,10 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                             label: format!(
                                 "`{ident}` は{}で、モジュールではありません",
                                 res.descr_ja()
-                            )
+                            ),
                         };
                     }
-                },
+                }
                 Err(Determinacy::Undetermined) => return PathResult::Indeterminate,
                 Err(Determinacy::Determined) => {
                     return PathResult::Failed {
@@ -302,14 +299,16 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
                             *ident,
                         ),
                     };
-                },
+                }
             }
-
         }
 
         PathResult::Module(match module {
             Some(module) => module,
-            _ => panic!("resolve_path: 空でないパス `{:?}` にはモジュールがありません", path),
+            _ => panic!(
+                "resolve_path: 空でないパス `{:?}` にはモジュールがありません",
+                path
+            ),
         })
     }
 }

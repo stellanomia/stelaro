@@ -1,10 +1,13 @@
 //! rustc の `rustc_index/vec.rs` に基づいて設計されています。
 
+use super::{IndexSlice, idx::Idx};
 use std::{
-    borrow::{Borrow, BorrowMut}, fmt, marker::PhantomData,
-    ops::{Deref, DerefMut, RangeBounds}, slice, vec
+    borrow::{Borrow, BorrowMut},
+    fmt,
+    marker::PhantomData,
+    ops::{Deref, DerefMut, RangeBounds},
+    slice, vec,
 };
-use super::{idx::Idx, IndexSlice};
 
 /// `usize` ではなく `I` によってインデックスされる、所有権付きの連続した `T` のコレクション。
 /// IndexVec は特定の関連付けられたインデックスタイプによる要素アクセスのみを許可します。
@@ -17,7 +20,6 @@ pub struct IndexVec<I: Idx, T> {
     _marker: PhantomData<fn(&I)>,
 }
 
-
 impl<I: Idx, T> IndexVec<I, T> {
     #[inline]
     pub const fn new() -> Self {
@@ -27,7 +29,10 @@ impl<I: Idx, T> IndexVec<I, T> {
     ///  `Vec<T>` から新しい `IndexVec<I, T>` を作成する。
     #[inline]
     pub const fn from_raw(raw: Vec<T>) -> Self {
-        IndexVec { raw, _marker: PhantomData }
+        IndexVec {
+            raw,
+            _marker: PhantomData,
+        }
     }
 
     #[inline]
@@ -87,7 +92,10 @@ impl<I: Idx, T> IndexVec<I, T> {
     ) -> impl DoubleEndedIterator<Item = (I, T)> + ExactSizeIterator {
         // 各インデックスを作成する際に、オプティマイザが境界チェックを省略できるようにする。
         let _ = I::new(self.len());
-        self.raw.into_iter().enumerate().map(|(n, t)| (I::new(n), t))
+        self.raw
+            .into_iter()
+            .enumerate()
+            .map(|(n, t)| (I::new(n), t))
     }
 
     #[inline]
@@ -105,7 +113,10 @@ impl<I: Idx, T> IndexVec<I, T> {
             std::ops::Bound::Excluded(i) => i.checked_add(1).unwrap(),
             std::ops::Bound::Unbounded => 0,
         };
-        self.raw.drain(range).enumerate().map(move |(n, t)| (I::new(begin + n), t))
+        self.raw
+            .drain(range)
+            .enumerate()
+            .map(move |(n, t)| (I::new(begin + n), t))
     }
 
     #[inline]
@@ -160,7 +171,8 @@ impl<I: Idx, T> IndexVec<I, Option<T>> {
 
     #[inline]
     pub fn get_or_insert_with(&mut self, index: I, value: impl FnOnce() -> T) -> &mut T {
-        self.ensure_contains_elem(index, || None).get_or_insert_with(value)
+        self.ensure_contains_elem(index, || None)
+            .get_or_insert_with(value)
     }
 
     #[inline]
@@ -207,7 +219,6 @@ impl<I: Idx, T> BorrowMut<IndexSlice<I, T>> for IndexVec<I, T> {
         self
     }
 }
-
 
 impl<I: Idx, T> FromIterator<T> for IndexVec<I, T> {
     #[inline]

@@ -1,6 +1,9 @@
-use crate::stelaro_common::{span::Span, Symbol};
+use crate::stelaro_common::{Symbol, span::Span};
 
-use std::{collections::{vec_deque::Iter, VecDeque}, fmt};
+use std::{
+    collections::{VecDeque, vec_deque::Iter},
+    fmt,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Token {
@@ -95,10 +98,10 @@ pub enum TokenKind {
 }
 
 impl Token {
-    pub fn dummy() -> Self{
+    pub fn dummy() -> Self {
         Self {
             kind: TokenKind::Eof, // 便宜上EOFとする
-            span: (0..0).into()
+            span: (0..0).into(),
         }
     }
 }
@@ -119,7 +122,7 @@ pub enum LitKind {
 }
 
 #[derive(Debug)]
-pub struct TokenStream (VecDeque<Token>);
+pub struct TokenStream(VecDeque<Token>);
 
 impl TokenStream {
     pub fn new(tokens: VecDeque<Token>) -> Self {
@@ -184,7 +187,8 @@ impl TokenStream {
     }
 
     pub fn debug_tokens(&self) -> String {
-        self.0.iter()
+        self.0
+            .iter()
             .map(|t| format!("{t:?}"))
             .collect::<Vec<_>>()
             .join(" ")
@@ -225,7 +229,6 @@ macro_rules! wrt {
         write!($formatter, "{}", $expr)
     };
 }
-
 
 impl fmt::Display for TokenKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

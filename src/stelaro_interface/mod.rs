@@ -3,14 +3,14 @@ pub mod passes;
 
 pub use interface::Config;
 
-use crate::stelaro_common::{create_session_globals_then, RealFileLoader, SourceMapInputs};
-use crate::stelaro_session::session::{build_session, CompilerPaths};
+use crate::stelaro_common::{RealFileLoader, SourceMapInputs, create_session_globals_then};
 use crate::stelaro_session::Session;
+use crate::stelaro_session::session::{CompilerPaths, build_session};
 
 pub fn run_compiler<R>(config: Config, f: impl FnOnce(&Session) -> R) -> R {
     let file_loader = Box::new(RealFileLoader);
 
-    create_session_globals_then(Some(SourceMapInputs { file_loader }),|| {
+    create_session_globals_then(Some(SourceMapInputs { file_loader }), || {
         let sess = build_session(
             config.opts,
             CompilerPaths {
@@ -18,7 +18,7 @@ pub fn run_compiler<R>(config: Config, f: impl FnOnce(&Session) -> R) -> R {
                 output_dir: config.output_dir,
                 output_file: config.output_file,
                 temps_dir: dirs::cache_dir(),
-            }
+            },
         );
 
         // `f` からの脱出パスは2つある。

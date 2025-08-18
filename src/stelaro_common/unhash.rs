@@ -26,7 +26,10 @@ impl Hasher for Unhasher {
 
     #[inline]
     fn write_u64(&mut self, value: u64) {
-        debug_assert_eq!(0, self.value, "Unhasher は複数の値を混ぜ合わせてハッシュ値を生成しません");
+        debug_assert_eq!(
+            0, self.value,
+            "Unhasher は複数の値を混ぜ合わせてハッシュ値を生成しません"
+        );
         self.value = value;
     }
 }

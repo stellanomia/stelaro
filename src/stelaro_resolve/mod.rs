@@ -10,12 +10,17 @@ use std::hash::Hash;
 use std::ops::Deref;
 use std::{fmt, ptr};
 
-use crate::stelaro_ast::{ast::{Stelo, Path, PathSegment}, NodeId, STELO_NODE_ID};
-use crate::stelaro_common::{sym, DefId, Ident, IndexMap, IndexVec, LocalDefId, Span, Symbol, TypedArena, DUMMY_SPAN, STELO_DEF_ID};
+use crate::stelaro_ast::{
+    NodeId, STELO_NODE_ID,
+    ast::{Path, PathSegment, Stelo},
+};
+use crate::stelaro_common::{
+    DUMMY_SPAN, DefId, Ident, IndexMap, IndexVec, LocalDefId, STELO_DEF_ID, Span, Symbol,
+    TypedArena, sym,
+};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir::def::{DefKind, Namespace, Res};
 use crate::stelaro_ty::{MainDefinition, ResolverAstLowering, ResolverOutputs};
-
 
 /// 名前解決の試行結果が、その時点で最終的なものと見なせるか、
 /// それとも後続の処理によって変化する可能性があるかを示します。
@@ -31,10 +36,13 @@ pub enum Determinacy {
 
 impl Determinacy {
     fn determined(determined: bool) -> Determinacy {
-        if determined { Determinacy::Determined } else { Determinacy::Undetermined }
+        if determined {
+            Determinacy::Determined
+        } else {
+            Determinacy::Undetermined
+        }
     }
 }
-
 
 /// AST に依存しない `PathSegment` の最小限の表現。
 #[derive(Clone, Copy, Debug)]
@@ -57,7 +65,6 @@ impl<'a> From<&'a PathSegment> for Segment {
         }
     }
 }
-
 
 /// モジュール内の名前を識別するキー
 #[derive(Debug, Copy, Clone, Eq, PartialOrd, Ord)]
@@ -86,9 +93,7 @@ impl std::hash::Hash for BindingKey {
     }
 }
 
-
 type Resolutions<'ra> = RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>;
-
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub struct Module<'tcx>(&'tcx ModuleData<'tcx>);
@@ -150,7 +155,8 @@ impl<'ra> Module<'ra> {
     }
 
     fn def_id(self) -> DefId {
-        self.opt_def_id().expect("`ModuleData::def_id` はブロックモジュールに対して呼ばれました")
+        self.opt_def_id()
+            .expect("`ModuleData::def_id` はブロックモジュールに対して呼ばれました")
     }
 
     fn opt_def_id(self) -> Option<DefId> {
@@ -164,7 +170,6 @@ impl<'ra> Module<'ra> {
         matches!(self.kind, ModuleKind::Def(DefKind::Mod, _, _))
     }
 }
-
 
 impl<'ra> ModuleData<'ra> {
     pub fn new(
@@ -188,7 +193,6 @@ pub enum ModuleKind {
     /// 名前を伴うモジュール
     Def(DefKind, DefId, Option<Symbol>),
 }
-
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct NameBinding<'ra>(&'ra NameBindingData<'ra>);
@@ -214,7 +218,6 @@ impl Hash for NameBindingData<'_> {
     }
 }
 
-
 pub trait ToNameBinding<'ra> {
     fn to_name_binding(self, arenas: &'ra ResolverArenas<'ra>) -> NameBinding<'ra>;
 }
@@ -234,7 +237,6 @@ pub enum NameBindingKind<'ra> {
     //     import: Interned<'ra, ImportData<'ra>>,
     // },
 }
-
 
 impl<'ra> NameBindingData<'ra> {
     fn module(&self) -> Option<Module<'ra>> {
@@ -268,7 +270,6 @@ pub struct NameResolution<'ra> {
     // /// 名前空間内で名前を定義する可能性のある単一インポート。
     // pub single_imports: FxIndexSet<Import<'ra>>,
     // pub shadowed_glob: Option<NameBinding<'ra>>,
-
     /// この名前に対して判明している、最もシャドウイングされにくい束縛。
     /// 既知の束縛がない場合は None。
     pub binding: Option<NameBinding<'ra>>,
@@ -288,7 +289,6 @@ impl<'ra> NameResolution<'ra> {
     }
 }
 
-
 #[derive(Debug)]
 pub enum PathResult<'ra> {
     Module(Module<'ra>),
@@ -304,7 +304,6 @@ pub enum PathResult<'ra> {
         segment_name: Symbol,
     },
 }
-
 
 /// 中間的な解決結果。
 ///
@@ -331,10 +330,8 @@ pub struct ResolverArenas<'ra> {
 
     pub name_bindings: TypedArena<'ra, NameBindingData<'ra>>
 
-    /*
-    /// `use` 文の情報を格納するアリーナ (インポート実装時に必要)
-    pub imports: TypedArena<'ra, ImportData<'ra>>,
-    */
+    // /// `use` 文の情報を格納するアリーナ (インポート実装時に必要)
+    // pub imports: TypedArena<'ra, ImportData<'ra>>,
 }
 
 impl<'ra> ResolverArenas<'ra> {
@@ -382,7 +379,6 @@ impl<'ra> ResolverArenas<'ra> {
     }
 }
 
-
 pub struct Resolver<'ra, 'tcx> {
     tcx: TyCtxt<'tcx>,
     arenas: &'ra ResolverArenas<'ra>,
@@ -412,11 +408,10 @@ pub struct Resolver<'ra, 'tcx> {
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     fn local_def_id(&self, node: NodeId) -> LocalDefId {
-        *self.node_id_to_def_id
+        *self
+            .node_id_to_def_id
             .get(&node)
-            .unwrap_or_else(||
-                panic!("bug: NodeId: {:?} に対応する定義がありません", node)
-            )
+            .unwrap_or_else(|| panic!("bug: NodeId: {:?} に対応する定義がありません", node))
     }
 
     fn new_module(
@@ -439,7 +434,8 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     }
 
     pub fn expect_local_module(&mut self, def_id: LocalDefId) -> Module<'ra> {
-        self.get_local_module(def_id).expect("引数の `DefId` はモジュールではありません")
+        self.get_local_module(def_id)
+            .expect("引数の `DefId` はモジュールではありません")
     }
 
     pub fn get_local_module(&mut self, def_id: LocalDefId) -> Option<Module<'ra>> {
@@ -458,9 +454,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         def_kind: DefKind,
         span: Span,
     ) -> LocalDefId {
-        assert!(
-            !self.node_id_to_def_id.contains_key(&node_id),
-        );
+        assert!(!self.node_id_to_def_id.contains_key(&node_id),);
 
         let def_id = self.tcx.create_def(parent, name, def_kind);
 
@@ -500,8 +494,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         module: Module<'ra>,
         key: BindingKey,
     ) -> &'ra RefCell<NameResolution<'ra>> {
-        self
-            .resolutions(module)
+        self.resolutions(module)
             .borrow_mut()
             .entry(key)
             .or_insert_with(|| self.arenas.alloc_name_resolution())
@@ -509,9 +502,10 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 
     pub fn set_binding_parent_module(&mut self, binding: NameBinding<'ra>, module: Module<'ra>) {
         if let Some(old_module) = self.binding_parent_modules.insert(binding, module)
-            && module != old_module {
-                panic!("bug: 同じ定義に対して親モジュールが変更されることはない")
-            }
+            && module != old_module
+        {
+            panic!("bug: 同じ定義に対して親モジュールが変更されることはない")
+        }
     }
 
     #[track_caller]
@@ -588,7 +582,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     }
 }
 
-
 /// 名前解決を完了させるかどうかを決定するフラグです。
 ///
 /// もし `Option<Finalize>` が存在し、かつ名前解決に失敗すると
@@ -599,7 +592,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
 pub struct Finalize {
     node_id: NodeId,
     path_span: Span,
-
     // TODO: Visibility 実装時に追加する
     // report_private: bool,
 

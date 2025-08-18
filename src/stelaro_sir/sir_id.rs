@@ -2,7 +2,6 @@ use std::fmt;
 
 use crate::stelaro_common::{DefId, DefIndex, Idx, LocalDefId, STELO_DEF_ID};
 
-
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct OwnerId {
     pub def_id: LocalDefId,
@@ -16,7 +15,10 @@ impl fmt::Debug for OwnerId {
 
 impl From<OwnerId> for SirId {
     fn from(owner: OwnerId) -> SirId {
-        SirId { owner, local_id: ItemLocalId::ZERO }
+        SirId {
+            owner,
+            local_id: ItemLocalId::ZERO,
+        }
     }
 }
 
@@ -33,11 +35,14 @@ impl OwnerId {
     }
 }
 
-
 impl Idx for OwnerId {
     #[inline]
     fn new(idx: usize) -> Self {
-        OwnerId { def_id: LocalDefId { local_def_index: DefIndex::from_usize(idx) } }
+        OwnerId {
+            def_id: LocalDefId {
+                local_def_index: DefIndex::from_usize(idx),
+            },
+        }
     }
 
     #[inline]
@@ -65,8 +70,12 @@ impl fmt::Debug for SirId {
 
 impl SirId {
     /// 使用すべきでないローカル ID を示す。
-    pub const INVALID: SirId =
-        SirId { owner: OwnerId { def_id: STELO_DEF_ID }, local_id: ItemLocalId::INVALID };
+    pub const INVALID: SirId = SirId {
+        owner: OwnerId {
+            def_id: STELO_DEF_ID,
+        },
+        local_id: ItemLocalId::INVALID,
+    };
 
     #[inline]
     pub fn expect_owner(self) -> OwnerId {
@@ -76,7 +85,11 @@ impl SirId {
 
     #[inline]
     pub fn as_owner(self) -> Option<OwnerId> {
-        if self.local_id.index() == 0 { Some(self.owner) } else { None }
+        if self.local_id.index() == 0 {
+            Some(self.owner)
+        } else {
+            None
+        }
     }
 
     #[inline]
@@ -86,7 +99,10 @@ impl SirId {
 
     #[inline]
     pub fn make_owner(owner: LocalDefId) -> Self {
-        Self { owner: OwnerId { def_id: owner }, local_id: ItemLocalId::ZERO }
+        Self {
+            owner: OwnerId { def_id: owner },
+            local_id: ItemLocalId::ZERO,
+        }
     }
 }
 
@@ -135,7 +151,13 @@ impl ItemLocalId {
 }
 
 /// `STELO_NODE_ID` と `STELO_DEF_ID` に対応する `SirId`。
-pub const STELO_SIR_ID: SirId =
-    SirId { owner: OwnerId { def_id: STELO_DEF_ID }, local_id: ItemLocalId::ZERO };
+pub const STELO_SIR_ID: SirId = SirId {
+    owner: OwnerId {
+        def_id: STELO_DEF_ID,
+    },
+    local_id: ItemLocalId::ZERO,
+};
 
-pub const STELO_OWNER_ID: OwnerId = OwnerId { def_id: STELO_DEF_ID };
+pub const STELO_OWNER_ID: OwnerId = OwnerId {
+    def_id: STELO_DEF_ID,
+};

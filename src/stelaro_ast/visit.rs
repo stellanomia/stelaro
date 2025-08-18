@@ -1,9 +1,11 @@
-use crate::{try_visit, visit_opt, walk_list};
 use crate::stelaro_ast::ast::LocalKind;
-use crate::stelaro_common::{VisitorResult, Ident};
+use crate::stelaro_common::{Ident, VisitorResult};
+use crate::{try_visit, visit_opt, walk_list};
 
-use super::{ast::*, ty::{Ty, TyKind}};
-
+use super::{
+    ast::*,
+    ty::{Ty, TyKind},
+};
 
 /// AST (Abstract Syntax Tree) を走査するための Visitor パターン。
 ///

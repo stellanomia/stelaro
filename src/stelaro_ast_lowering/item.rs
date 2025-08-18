@@ -1,10 +1,12 @@
-use crate::stelaro_ast::{ast::{self, ModSpan}, NodeId, STELO_NODE_ID};
+use crate::stelaro_ast::{
+    NodeId, STELO_NODE_ID,
+    ast::{self, ModSpan},
+};
 use crate::stelaro_ast_lowering::{AstOwner, LoweringContext};
+use crate::stelaro_common::{IndexSlice, IndexVec, LocalDefId, STELO_DEF_ID, Span};
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_common::{IndexSlice, IndexVec, LocalDefId, Span, STELO_DEF_ID};
 use crate::stelaro_sir::{sir, sir_id::SirId};
 use crate::stelaro_ty::ResolverAstLowering;
-
 
 pub struct ItemLowerer<'a, 'sir> {
     pub tcx: TyCtxt<'sir>,
@@ -12,7 +14,6 @@ pub struct ItemLowerer<'a, 'sir> {
     pub ast_index: &'a IndexSlice<LocalDefId, AstOwner<'a>>,
     pub owners: &'a mut IndexVec<LocalDefId, sir::MaybeOwner<'sir>>,
 }
-
 
 impl<'a, 'sir> ItemLowerer<'a, 'sir> {
     #[track_caller]
@@ -25,7 +26,9 @@ impl<'a, 'sir> ItemLowerer<'a, 'sir> {
         lctx.with_sir_id_owner(owner, |lctx| f(lctx));
 
         for (def_id, info) in lctx.children {
-            let owner = self.owners.ensure_contains_elem(def_id, || sir::MaybeOwner::Phantom);
+            let owner = self
+                .owners
+                .ensure_contains_elem(def_id, || sir::MaybeOwner::Phantom);
             assert!(
                 matches!(owner, sir::MaybeOwner::Phantom),
                 "lctx.children に {def_id:?} の重複コピーがあります"
@@ -35,22 +38,25 @@ impl<'a, 'sir> ItemLowerer<'a, 'sir> {
     }
 
     pub fn lower_node(&mut self, def_id: LocalDefId) {
-        let owner = self.owners.ensure_contains_elem(def_id, || sir::MaybeOwner::Phantom);
+        let owner = self
+            .owners
+            .ensure_contains_elem(def_id, || sir::MaybeOwner::Phantom);
         if let sir::MaybeOwner::Phantom = owner {
             let node = self.ast_index[def_id];
             match node {
                 AstOwner::NonOwner => {}
                 AstOwner::Stelo(s) => {
-                    assert_eq!(self.resolver.node_id_to_def_id[&STELO_NODE_ID], STELO_DEF_ID);
+                    assert_eq!(
+                        self.resolver.node_id_to_def_id[&STELO_NODE_ID],
+                        STELO_DEF_ID
+                    );
                     self.with_lctx(STELO_NODE_ID, |lctx| {
                         let module = lctx.lower_mod(&s.items, &s.span);
                         sir::OwnerNode::Stelo(module)
                     })
                 }
                 AstOwner::Item(item) => {
-                    self.with_lctx(item.id, |lctx|
-                        sir::OwnerNode::Item(lctx.lower_item(item))
-                    )
+                    self.with_lctx(item.id, |lctx| sir::OwnerNode::Item(lctx.lower_item(item)))
                 }
             }
         }
@@ -64,17 +70,19 @@ impl<'sir> LoweringContext<'_, 'sir> {
         span: &ModSpan,
     ) -> &'sir sir::Mod<'sir> {
         self.arena.alloc(sir::Mod {
-            spans: sir::ModSpan { inner_span: span.inner_span },
-            item_ids: self.arena.alloc_from_iter(
-                items.iter().flat_map(|x| self.lower_item_ref(x))
-            ),
+            spans: sir::ModSpan {
+                inner_span: span.inner_span,
+            },
+            item_ids: self
+                .arena
+                .alloc_from_iter(items.iter().flat_map(|x| self.lower_item_ref(x))),
         })
     }
 
     pub fn lower_item_ref(&mut self, item: &ast::Item) -> Vec<sir::ItemId> {
-        let node_ids = vec![
-            sir::ItemId { owner_id: self.owner_id(item.id) }
-        ];
+        let node_ids = vec![sir::ItemId {
+            owner_id: self.owner_id(item.id),
+        }];
         // if let ItemKind::Use(use_tree) = &item.kind {
         //     self.lower_item_id_use_tree(use_tree, &mut node_ids);
         // }
@@ -104,36 +112,32 @@ impl<'sir> LoweringContext<'_, 'sir> {
         match i {
             ItemKind::Fn(box ast::Function {
                 ident,
-                sig: ast::FnSig {
-                    decl,
-                    span: fn_sig_span,
-                    ..
-                },
+                sig:
+                    ast::FnSig {
+                        decl,
+                        span: fn_sig_span,
+                        ..
+                    },
                 body,
                 ..
-            }) => {
-                self.with_new_scopes(*fn_sig_span, |this| {
-                    let body_id = this.lower_fn_body_block(decl, body);
-                    let decl = this.lower_fn_decl(decl, id, *fn_sig_span);
+            }) => self.with_new_scopes(*fn_sig_span, |this| {
+                let body_id = this.lower_fn_body_block(decl, body);
+                let decl = this.lower_fn_decl(decl, id, *fn_sig_span);
 
-                    let sig = sir::FnSig {
-                        decl,
-                        span: *fn_sig_span,
-                    };
+                let sig = sir::FnSig {
+                    decl,
+                    span: *fn_sig_span,
+                };
 
-                    sir::ItemKind::Fn {
-                        ident: *ident,
-                        sig,
-                        body: body_id,
-                    }
-                })
-            },
-            ItemKind::Mod(ident, module) => {
-                match module {
-                    ast::ModKind::Inline(
-                        items,
-                        mod_span
-                    ) => sir::ItemKind::Mod(*ident, self.lower_mod(items, mod_span)),
+                sir::ItemKind::Fn {
+                    ident: *ident,
+                    sig,
+                    body: body_id,
+                }
+            }),
+            ItemKind::Mod(ident, module) => match module {
+                ast::ModKind::Inline(items, mod_span) => {
+                    sir::ItemKind::Mod(*ident, self.lower_mod(items, mod_span))
                 }
             },
         }
@@ -144,10 +148,14 @@ impl<'sir> LoweringContext<'_, 'sir> {
         params: &'sir [sir::Param<'sir>],
         value: sir::Expr<'sir>,
     ) -> sir::BodyId {
-        let body = sir::Body { params, value: self.arena.alloc(value) };
+        let body = sir::Body {
+            params,
+            value: self.arena.alloc(value),
+        };
         let id = body.id();
         assert_eq!(id.sir_id.owner, self.current_sir_id_owner);
-        self.bodies.push((id.sir_id.local_id, self.arena.alloc(body)));
+        self.bodies
+            .push((id.sir_id.local_id, self.arena.alloc(body)));
         id
     }
 
@@ -174,15 +182,11 @@ impl<'sir> LoweringContext<'_, 'sir> {
         );
 
         let output = match &decl.output {
-            ast::FnRetTy::Ty(ty) => sir::FnRetTy::Return(
-                self.lower_ty(ty)
-            ),
+            ast::FnRetTy::Ty(ty) => sir::FnRetTy::Return(self.lower_ty(ty)),
             ast::FnRetTy::Default(span) => sir::FnRetTy::DefaultReturn(*span),
         };
 
-        self.arena.alloc(
-            sir::FnDecl { inputs, output }
-        )
+        self.arena.alloc(sir::FnDecl { inputs, output })
     }
 
     fn lower_param(&mut self, param: &ast::Param) -> sir::Param<'sir> {
@@ -201,9 +205,9 @@ impl<'sir> LoweringContext<'_, 'sir> {
         body: impl FnOnce(&mut Self) -> sir::Expr<'sir>,
     ) -> sir::BodyId {
         self.lower_body(|this| {
-            let params = this.arena.alloc_from_iter(
-                decl.inputs.iter().map(|param| this.lower_param(param))
-            );
+            let params = this
+                .arena
+                .alloc_from_iter(decl.inputs.iter().map(|param| this.lower_param(param)));
             (params, body(this))
         })
     }

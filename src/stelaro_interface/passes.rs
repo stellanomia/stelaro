@@ -1,9 +1,8 @@
 use crate::stelaro_ast::ast;
-use crate::stelaro_common::{sym, Arena, StableSteloId, Symbol};
+use crate::stelaro_common::{Arena, StableSteloId, Symbol, sym};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_parse::{new_parser_from_file, new_parser_from_source_str};
-use crate::stelaro_session::{config::Input, Session};
-
+use crate::stelaro_session::{Session, config::Input};
 
 pub fn parse(sess: &Session) -> ast::Stelo {
     let parser = match &sess.paths.input {
@@ -60,4 +59,3 @@ pub fn get_stelo_name(sess: &Session) -> Symbol {
 
     sym::STELARO_OUT
 }
-

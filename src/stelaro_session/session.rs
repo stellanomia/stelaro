@@ -2,7 +2,10 @@ use std::path::PathBuf;
 use std::rc::Rc;
 
 use crate::stelaro_common::{SourceMap, source_map::get_source_map};
-use crate::stelaro_diagnostics::{DiagCtxtHandle, DiagCtxt, emitter::{AriadneEmitter, DynEmitter}};
+use crate::stelaro_diagnostics::{
+    DiagCtxt, DiagCtxtHandle,
+    emitter::{AriadneEmitter, DynEmitter},
+};
 use crate::stelaro_session::config::Options;
 
 use super::config::Input;

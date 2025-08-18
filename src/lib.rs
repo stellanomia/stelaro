@@ -20,14 +20,14 @@ pub mod stelaro_sir;
 pub mod stelaro_sir_typecheck;
 pub mod stelaro_ty;
 
-use std::path::PathBuf;
 use clap::Parser;
+use std::path::PathBuf;
 
 use crate::stelaro_ast_lowering::lower_to_sir;
 use crate::stelaro_interface::passes::create_and_enter_global_ctxt;
-use crate::stelaro_resolve::{Resolver, ResolverArenas};
-use crate::stelaro_session::{config, Input};
 use crate::stelaro_interface::{interface, passes};
+use crate::stelaro_resolve::{Resolver, ResolverArenas};
+use crate::stelaro_session::{Input, config};
 
 #[derive(Parser, Debug)]
 #[command(version)]
@@ -41,7 +41,7 @@ pub(crate) struct Args {
     output_dir: Option<PathBuf>,
 
     #[arg(long)]
-    stelo_name: Option<String>
+    stelo_name: Option<String>,
 }
 
 pub fn run() {

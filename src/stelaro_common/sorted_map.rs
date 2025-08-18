@@ -331,6 +331,8 @@ impl<K: Ord, V> FromIterator<(K, V)> for SortedMap<K, V> {
 
 impl<K: Debug, V: Debug> Debug for SortedMap<K, V> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_map().entries(self.data.iter().map(|(a, b)| (a, b))).finish()
+        f.debug_map()
+            .entries(self.data.iter().map(|(a, b)| (a, b)))
+            .finish()
     }
 }

@@ -1,10 +1,10 @@
 //! rustc の `rustc_data_structures/fingerprint.rs` に基づいて設計されています。
 
+use std::convert::{From, TryInto};
 use std::hash::{Hash, Hasher};
-use std::convert::{TryInto, From};
 
 use super::stable_hasher::impl_hash_stable_trivial;
-use super::{unhash, FromStableHash, Hash64, StableHasherHash};
+use super::{FromStableHash, Hash64, StableHasherHash, unhash};
 
 /// 128ビットのフィンガープリントを表す。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]

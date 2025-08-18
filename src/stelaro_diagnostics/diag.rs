@@ -1,12 +1,11 @@
+use super::{DiagCtxt, emitter::DynEmitter};
 use crate::stelaro_common::{FatalError, Hash128, Span, StableHasher};
-use super::{emitter::DynEmitter, DiagCtxt};
 
 use std::collections::HashSet;
-use std::process;
-use std::ops::Deref;
+use std::hash::{Hash, Hasher};
 use std::marker::PhantomData;
-use std::hash::{Hasher, Hash};
-
+use std::ops::Deref;
+use std::process;
 
 /// 診断メッセージの出力保証を表すトレイト
 pub trait EmissionGuarantee: Sized {
@@ -51,7 +50,6 @@ impl ErrorEmitted {
     }
 }
 
-
 pub struct DiagCtxtInner {
     /// 発行されたエラーを保持する
     pub errors: Vec<ErrorEmitted>,
@@ -79,12 +77,11 @@ impl DiagCtxtInner {
             emitted_diagnostic_codes: HashSet::new(),
             emitted_err_count: 0,
             emitted_warn_count: 0,
-            emitter
+            emitter,
         }
     }
 
     pub fn emit_diagnostic(&mut self, diag: DiagInner) -> Option<ErrorEmitted> {
-
         if let Some(code) = diag.code {
             self.emitted_diagnostic_codes.insert(code);
         }
@@ -95,7 +92,6 @@ impl DiagCtxtInner {
             let diagnostic_hash = hasher.finish();
             !self.emitted_diagnostics.insert(diagnostic_hash)
         };
-
 
         let is_error = diag.is_error();
 
@@ -109,7 +105,6 @@ impl DiagCtxtInner {
             self.emitter.emit_diagnostic(diag);
         }
 
-
         if is_error {
             let guarantee = ErrorEmitted(());
             self.errors.push(guarantee);
@@ -117,7 +112,6 @@ impl DiagCtxtInner {
         } else {
             None
         }
-
     }
 
     fn has_errors(&self) -> Option<ErrorEmitted> {
@@ -191,10 +185,10 @@ impl<'a> DiagCtxtHandle<'a> {
 pub struct Diag<'dcx, G: EmissionGuarantee = ErrorEmitted> {
     dcx: DiagCtxtHandle<'dcx>,
     diag: Option<Box<DiagInner>>,
-    _marker: PhantomData<G>
+    _marker: PhantomData<G>,
 }
 
-impl<'a, G:EmissionGuarantee> Diag<'a, G> {
+impl<'a, G: EmissionGuarantee> Diag<'a, G> {
     pub fn new(dcx: DiagCtxtHandle<'a>, span: Span, level: Level) -> Diag<'a, G> {
         Diag {
             dcx,
@@ -263,11 +257,10 @@ impl DiagInner {
         }
     }
 
-        pub fn is_error(&self) -> bool {
+    pub fn is_error(&self) -> bool {
         match self.level {
             Level::FatalError | Level::Error => true,
-            Level::Warning
-            | Level::Help => false,
+            Level::Warning | Level::Help => false,
         }
     }
 

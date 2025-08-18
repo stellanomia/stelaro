@@ -27,7 +27,9 @@ impl Hash64 {
 
     #[inline]
     pub fn wrapping_add(self, other: Self) -> Self {
-        Self { inner: self.inner.wrapping_add(other.inner) }
+        Self {
+            inner: self.inner.wrapping_add(other.inner),
+        }
     }
 }
 
@@ -83,12 +85,16 @@ impl Hash128 {
 
     #[inline]
     pub fn truncate(self) -> Hash64 {
-        Hash64 { inner: self.inner as u64 }
+        Hash64 {
+            inner: self.inner as u64,
+        }
     }
 
     #[inline]
     pub fn wrapping_add(self, other: Self) -> Self {
-        Self { inner: self.inner.wrapping_add(other.inner) }
+        Self {
+            inner: self.inner.wrapping_add(other.inner),
+        }
     }
 
     #[inline]
@@ -102,7 +108,9 @@ impl FromStableHash for Hash128 {
 
     #[inline]
     fn from(StableHasherHash([a, b]): Self::Hash) -> Self {
-        Self { inner: u128::from(a) | (u128::from(b) << 64) }
+        Self {
+            inner: u128::from(a) | (u128::from(b) << 64),
+        }
     }
 }
 

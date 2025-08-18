@@ -14,10 +14,7 @@ pub struct Lexer<'src, 'sess> {
 }
 
 impl<'src, 'sess> Lexer<'src, 'sess> {
-    pub fn new(
-        psess: &'sess ParseSess,
-        src: &'src str,
-    ) -> Self {
+    pub fn new(psess: &'sess ParseSess, src: &'src str) -> Self {
         Self {
             src,
             cursor: Cursor::new(src),
@@ -57,45 +54,45 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             '(' => {
                 self.bump();
                 TokenKind::LParen
-            },
+            }
             ')' => {
                 self.bump();
                 TokenKind::RParen
-            },
+            }
             '{' => {
                 self.bump();
                 TokenKind::LBrace
-            },
+            }
             '}' => {
                 self.bump();
                 TokenKind::RBrace
-            },
+            }
             ',' => {
                 self.bump();
                 TokenKind::Comma
-            },
+            }
             '.' => {
                 self.bump();
                 TokenKind::Dot
-            },
+            }
             '+' => {
                 self.bump();
                 TokenKind::Plus
-            },
+            }
             '-' => {
                 self.bump();
                 TokenKind::Minus
-            },
+            }
             '*' => {
                 self.bump();
                 TokenKind::Star
-            },
+            }
             '/' => {
                 self.bump();
 
                 // コメントは skip_whitespace_and_comment で捨てられる
                 TokenKind::Slash
-            },
+            }
             '%' => {
                 self.bump();
                 TokenKind::Percent
@@ -103,7 +100,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             ';' => {
                 self.bump();
                 TokenKind::Semicolon
-            },
+            }
             ':' => {
                 self.bump();
                 if self.first() == ':' {
@@ -112,7 +109,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 } else {
                     TokenKind::Colon
                 }
-            },
+            }
             '!' => {
                 self.bump();
 
@@ -122,7 +119,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 } else {
                     TokenKind::Bang
                 }
-            },
+            }
             '=' => {
                 self.bump();
 
@@ -132,7 +129,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 } else {
                     TokenKind::Equal
                 }
-            },
+            }
             '>' => {
                 self.bump();
 
@@ -142,7 +139,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 } else {
                     TokenKind::Greater
                 }
-            },
+            }
             '<' => {
                 self.bump();
 
@@ -152,67 +149,54 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 } else {
                     TokenKind::Less
                 }
-            },
+            }
             ('0'..='9') => {
                 // LitKind::Integer, Floatのどちらかをとりうる
                 let lit_kind = self.lex_number(pos)?;
-                TokenKind::Literal (
-                    Lit {
-                        kind: lit_kind,
-                        symbol: Symbol::intern(&self.src[pos..self.pos])
-                    }
-                )
-            },
+                TokenKind::Literal(Lit {
+                    kind: lit_kind,
+                    symbol: Symbol::intern(&self.src[pos..self.pos]),
+                })
+            }
             '"' => {
                 self.bump();
 
                 // 文字列リテラルの終端まで位置を進める
                 self.lex_str_lit(pos)?;
 
-                TokenKind::Literal (
-                    Lit {
-                        kind: LitKind::Str,
-                        symbol: Symbol::intern(&self.src[pos..self.pos])
-                    }
-                )
-            },
+                TokenKind::Literal(Lit {
+                    kind: LitKind::Str,
+                    symbol: Symbol::intern(&self.src[pos..self.pos]),
+                })
+            }
             '\'' => {
                 self.bump();
-                let symbol = self.lex_char_lit(pos+1)?;
-                TokenKind::Literal(
-                    Lit {
-                        kind: LitKind::Char,
-                        symbol
-                    }
-                )
+                let symbol = self.lex_char_lit(pos + 1)?;
+                TokenKind::Literal(Lit {
+                    kind: LitKind::Char,
+                    symbol,
+                })
             }
             c if c.is_alphabetic() || c == '_' => {
                 self.bump();
                 // キーワード、Identifier、boolean値を解析する
                 self.lex_word(pos)?
-            },
-            EOF_CHAR => {
-                TokenKind::Eof
             }
+            EOF_CHAR => TokenKind::Eof,
             c => {
                 self.bump();
 
                 Err(
-                    DiagsLexer::unexpected_character(
-                        self.psess.dcx(),
-                        c,
-                        (pos..pos+1).into()
-                    ).emit()
+                    DiagsLexer::unexpected_character(self.psess.dcx(), c, (pos..pos + 1).into())
+                        .emit(),
                 )?
-            },
+            }
         };
 
-        Ok(
-            Token {
-                kind: token_kind,
-                span: (pos, self.pos).into()
-            }
-        )
+        Ok(Token {
+            kind: token_kind,
+            span: (pos, self.pos).into(),
+        })
     }
 
     fn first(&self) -> char {
@@ -239,13 +223,11 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                     while !matches!(self.first(), '\n' | EOF_CHAR) {
                         self.bump();
                     }
-                },
+                }
                 c if c.is_whitespace() => {
                     self.bump();
                 }
-                _ => {
-                    break
-                }
+                _ => break,
             }
         }
     }
@@ -260,31 +242,28 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 match c {
                     '0'..='9' => {
                         self.bump();
-                    },
+                    }
                     '.' => {
                         if is_float {
-                            Err(
-                                DiagsLexer::invalid_float_format(
-                                    self.psess.dcx(),
-                                    (pos..self.pos).into()
-                                ).emit()
-                            )?
+                            Err(DiagsLexer::invalid_float_format(
+                                self.psess.dcx(),
+                                (pos..self.pos).into(),
+                            )
+                            .emit())?
                         }
 
                         is_float = true;
                         self.bump();
-                    },
-                    _ => unreachable!()
+                    }
+                    _ => unreachable!(),
                 }
             }
 
             //最後の入力が'.'である(e.g. "123.")
             if self.prev() == '.' {
                 Err(
-                    DiagsLexer::missing_fractional_part(
-                        self.psess.dcx(),
-                        (pos..self.pos).into(),
-                    ).emit()
+                    DiagsLexer::missing_fractional_part(self.psess.dcx(), (pos..self.pos).into())
+                        .emit(),
                 )?
             }
 
@@ -306,16 +285,15 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
                 'n' | 'r' | 't' | '0' | '\'' | '"' | '\\' => {
                     self.bump();
                     Ok(())
-                },
+                }
                 _ => {
                     self.bump();
-                    Err(
-                        DiagsLexer::invalid_escape_sequence(
-                            self.psess.dcx(),
-                            self.prev(),
-                            (self.pos-1..self.pos).into()
-                        ).emit()
-                    )?
+                    Err(DiagsLexer::invalid_escape_sequence(
+                        self.psess.dcx(),
+                        self.prev(),
+                        (self.pos - 1..self.pos).into(),
+                    )
+                    .emit())?
                 }
             }
         } else {
@@ -328,21 +306,20 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             match self.first() {
                 '\\' => {
                     self.lex_escape_sequence()?;
-                },
+                }
                 '"' => {
                     self.bump();
                     break Ok(());
-                },
+                }
                 '\n' | EOF_CHAR => {
                     self.bump();
 
                     // 通常の文字列リテラル中に改行が見つかった場合はエラー
-                    Err(
-                        DiagsLexer::unterminated_string_literal(
-                            self.psess.dcx(),
-                            (pos..self.pos-1).into()
-                        ).emit()
-                    )?
+                    Err(DiagsLexer::unterminated_string_literal(
+                        self.psess.dcx(),
+                        (pos..self.pos - 1).into(),
+                    )
+                    .emit())?
                 }
                 _ => {
                     self.bump();
@@ -356,17 +333,15 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             '\\' => {
                 self.lex_escape_sequence()?;
                 Symbol::intern(&self.src[pos..self.pos])
-            },
+            }
             '\n' => {
                 self.bump();
 
                 Err(
-                    DiagsLexer::unexpected_quote(
-                        self.psess.dcx(),
-                        (pos..self.pos-1).into()
-                    ).emit()
+                    DiagsLexer::unexpected_quote(self.psess.dcx(), (pos..self.pos - 1).into())
+                        .emit(),
                 )?
-            },
+            }
             _ => {
                 self.bump();
                 Symbol::intern(&self.src[pos..self.pos])
@@ -401,7 +376,7 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
             } else {
                 Err(
                     DiagsLexer::multiple_characters_in_char_literal(
-                        self.psess.dcx(),
+                    self.psess.dcx(),
                         (pos..end+1).into()
                     ).emit()
                 )?
@@ -421,32 +396,24 @@ impl<'src, 'sess> Lexer<'src, 'sess> {
 
         let keyword_or_ident = &self.src[pos..self.pos];
 
-        Ok(
-            match self.as_keyword(keyword_or_ident) {
-                Some(keyword) => keyword,
-                None => {
-                    if keyword_or_ident == "true" {
-                        TokenKind::Literal (
-                            Lit {
-                                kind: LitKind::Bool(true),
-                                symbol: Symbol::intern(&self.src[pos..self.pos]),
-                            }
-                        )
-                    } else if keyword_or_ident == "false" {
-                        TokenKind::Literal (
-                            Lit {
-                                kind: LitKind::Bool(false),
-                                symbol: Symbol::intern(&self.src[pos..self.pos]),
-                            }
-                        )
-                    } else {
-                        TokenKind::Ident(
-                            Symbol::intern(keyword_or_ident)
-                        )
-                    }
-                },
+        Ok(match self.as_keyword(keyword_or_ident) {
+            Some(keyword) => keyword,
+            None => {
+                if keyword_or_ident == "true" {
+                    TokenKind::Literal(Lit {
+                        kind: LitKind::Bool(true),
+                        symbol: Symbol::intern(&self.src[pos..self.pos]),
+                    })
+                } else if keyword_or_ident == "false" {
+                    TokenKind::Literal(Lit {
+                        kind: LitKind::Bool(false),
+                        symbol: Symbol::intern(&self.src[pos..self.pos]),
+                    })
+                } else {
+                    TokenKind::Ident(Symbol::intern(keyword_or_ident))
+                }
             }
-        )
+        })
     }
 
     fn as_keyword(&self, string: &str) -> Option<TokenKind> {

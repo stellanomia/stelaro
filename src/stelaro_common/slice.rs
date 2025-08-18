@@ -5,8 +5,7 @@ use std::marker::PhantomData;
 use std::ops::{Index, IndexMut};
 use std::slice::{self, SliceIndex};
 
-use super::{Idx, IntoSliceIdx, IndexVec};
-
+use super::{Idx, IndexVec, IntoSliceIdx};
 
 /// 連続した `T` のデータへのスライスであり、インデックスには `usize` ではなく `I` を用います。
 ///

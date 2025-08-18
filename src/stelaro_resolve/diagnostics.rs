@@ -1,10 +1,12 @@
 use crate::stelaro_common::{Ident, Span, Symbol};
 use crate::stelaro_diagnostics::diag::{Diag, DiagCtxtHandle};
-use crate::stelaro_resolve::{Segment, LexicalScopeBinding, late::Scope};
-use crate::stelaro_sir::def::{Namespace::{self, ValueNS, TypeNS}, PerNS, Res};
+use crate::stelaro_resolve::{LexicalScopeBinding, Segment, late::Scope};
+use crate::stelaro_sir::def::{
+    Namespace::{self, TypeNS, ValueNS},
+    PerNS, Res,
+};
 
 use super::{Module, ModuleKind, NameBinding, Resolver};
-
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     pub fn dcx(&self) -> DiagCtxtHandle<'tcx> {
@@ -30,8 +32,13 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             ModuleKind::Block => "ブロック",
         };
 
-        let (name, span) =
-            (ident.name, self.tcx.sess.source_map().truncate_span_to_item_header(new_binding.span));
+        let (name, span) = (
+            ident.name,
+            self.tcx
+                .sess
+                .source_map()
+                .truncate_span_to_item_header(new_binding.span),
+        );
 
         if self.name_already_seen.get(&name) == Some(&span) {
             return;
@@ -50,18 +57,18 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
             name_str,
             ns.descr_ja(),
             container_dscr,
-            span
+            span,
         );
 
         diag.set_label(
-            self.tcx.sess
+            self.tcx
+                .sess
                 .source_map()
                 .truncate_span_to_item_header(old_binding.span),
             format!(
                 "既に{}名前空間内に `{}` はここで定義されています",
-                old_kind_dscr,
-                name_str,
-            )
+                old_kind_dscr, name_str,
+            ),
         );
 
         diag.emit();
@@ -81,7 +88,11 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         ident: Ident,
     ) -> String {
         let is_last = failed_segment_idx == path.len() - 1;
-        let ns = if is_last { opt_ns.unwrap_or(TypeNS) } else { TypeNS };
+        let ns = if is_last {
+            opt_ns.unwrap_or(TypeNS)
+        } else {
+            TypeNS
+        };
         if failed_segment_idx > 0 {
             let parent = path[failed_segment_idx - 1].ident.name;
             let parent = format!("`{parent}`");
@@ -186,8 +197,10 @@ impl<'dcx, 'ra> DiagsResolver {
         diag.set_message(format!("名前 `{name}` の重複した定義"));
         diag.set_label(
             span,
-            format!("`{name}` は重複して定義されています\n
-            `{name}` はこの{container}の{ns}名前空間で一回だけ定義することができます")
+            format!(
+                "`{name}` は重複して定義されています\n
+            `{name}` はこの{container}の{ns}名前空間で一回だけ定義することができます"
+            ),
         );
 
         diag
@@ -204,7 +217,7 @@ impl<'dcx, 'ra> DiagsResolver {
         diag.set_message(format!("パラメーター `{name}` の重複した定義"));
         diag.set_label(
             span,
-            format!("`{name}` は引数リストの中で重複して定義されています")
+            format!("`{name}` は引数リストの中で重複して定義されています"),
         );
 
         diag
@@ -219,18 +232,15 @@ impl<'dcx, 'ra> DiagsResolver {
     ) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UndefinedIdentifier.into());
-        let descr = module
-        .and_then(|m| m.res())
-        .map(|m| m.descr_ja());
+        let descr = module.and_then(|m| m.res()).map(|m| m.descr_ja());
 
         if let Some(descr) = descr {
-            diag.set_message(
-                format!("定義されていない{descr} `{}`", segment_name.as_str())
-            );
+            diag.set_message(format!(
+                "定義されていない{descr} `{}`",
+                segment_name.as_str()
+            ));
         } else {
-            diag.set_message(
-                format!("定義されていない `{}`", segment_name.as_str())
-            );
+            diag.set_message(format!("定義されていない `{}`", segment_name.as_str()));
         }
 
         diag.set_label(span, msg);

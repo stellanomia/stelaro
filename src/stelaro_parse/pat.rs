@@ -1,7 +1,6 @@
 use crate::stelaro_ast::ast::{Pat, PatKind};
 
-use super::{parser::Parser, PResult};
-
+use super::{PResult, parser::Parser};
 
 impl<'sess> Parser<'sess> {
     pub fn parse_pat_before_ty(&mut self) -> PResult<Pat> {
@@ -13,12 +12,10 @@ impl<'sess> Parser<'sess> {
             PatKind::Ident(ident)
         };
 
-        Ok(
-            Pat {
-                id: self.next_node_id(),
-                kind,
-                span: ident.span
-            }
-        )
+        Ok(Pat {
+            id: self.next_node_id(),
+            kind,
+            span: ident.span,
+        })
     }
 }

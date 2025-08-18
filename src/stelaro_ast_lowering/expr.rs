@@ -1,9 +1,7 @@
 use crate::stelaro_ast::{ast, token};
 use crate::stelaro_ast_lowering::LoweringContext;
-use crate::stelaro_common::{ensure_sufficient_stack, Span, Spanned, lit_utils::report_lit_error};
+use crate::stelaro_common::{Span, Spanned, ensure_sufficient_stack, lit_utils::report_lit_error};
 use crate::stelaro_sir::sir::{self, LitKind};
-
-
 
 impl<'sir> LoweringContext<'_, 'sir> {
     pub fn lower_expr(&mut self, e: &ast::Expr) -> &'sir sir::Expr<'sir> {
@@ -11,7 +9,8 @@ impl<'sir> LoweringContext<'_, 'sir> {
     }
 
     fn lower_exprs(&mut self, exprs: &[ast::Expr]) -> &'sir [sir::Expr<'sir>] {
-        self.arena.alloc_from_iter(exprs.iter().map(|x| self.lower_expr_mut(x)))
+        self.arena
+            .alloc_from_iter(exprs.iter().map(|x| self.lower_expr_mut(x)))
     }
 
     pub fn lower_expr_mut(&mut self, e: &ast::Expr) -> sir::Expr<'sir> {
@@ -33,39 +32,41 @@ impl<'sir> LoweringContext<'_, 'sir> {
                 ExprKind::Call(f, args) => {
                     let f = self.lower_expr(f);
                     sir::ExprKind::Call(f, self.lower_exprs(args))
-                },
+                }
                 ExprKind::Binary(binop, lhs, rhs) => {
                     let lhs = self.lower_expr(lhs);
                     let rhs = self.lower_expr(rhs);
                     sir::ExprKind::Binary(*binop, lhs, rhs)
-                },
+                }
                 ExprKind::Unary(un_op, expr) => {
                     let expr = self.lower_expr(expr);
                     sir::ExprKind::Unary(*un_op, expr)
-                },
+                }
                 ExprKind::Lit(token_lit) => sir::ExprKind::Lit(self.lower_lit(token_lit, e.span)),
                 ExprKind::If(cond, then, else_opt) => {
                     self.lower_expr_if(cond, then, else_opt.as_deref())
-                },
+                }
                 ExprKind::Block(block) => {
                     let block_sir_id = self.lower_node_id(block.id);
-                    let sir_block = self.arena.alloc(
-                        self.lower_block_noalloc(block_sir_id, block)
-                    );
+                    let sir_block = self
+                        .arena
+                        .alloc(self.lower_block_noalloc(block_sir_id, block));
                     sir::ExprKind::Block(sir_block)
-                },
+                }
                 ExprKind::Assign(lhs, rhs, span) => {
                     let lhs = self.lower_expr(lhs);
                     let rhs = self.lower_expr(rhs);
                     sir::ExprKind::Assign(lhs, rhs, *span)
-                },
-                ExprKind::Path(path) => {
-                    sir::ExprKind::Path(self.lower_path(e.id, path))
-                },
+                }
+                ExprKind::Path(path) => sir::ExprKind::Path(self.lower_path(e.id, path)),
                 ExprKind::Paren(_) => unreachable!(),
             };
 
-            sir::Expr { sir_id, kind, span: e.span }
+            sir::Expr {
+                sir_id,
+                kind,
+                span: e.span,
+            }
         })
     }
 
@@ -81,7 +82,10 @@ impl<'sir> LoweringContext<'_, 'sir> {
                 LitKind::Err(guar)
             }
         };
-        self.arena.alloc(Spanned { node: lit_kind, span })
+        self.arena.alloc(Spanned {
+            node: lit_kind,
+            span,
+        })
     }
 
     fn lower_expr_if(

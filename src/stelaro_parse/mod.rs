@@ -1,11 +1,11 @@
-pub mod parser;
 mod diagnostics;
-mod item;
-mod stmt;
 mod expr;
-mod ty;
-mod path;
+mod item;
+pub mod parser;
 mod pat;
+mod path;
+mod stmt;
+mod ty;
 
 use std::path::PathBuf;
 use std::rc::Rc;
@@ -18,7 +18,6 @@ use crate::stelaro_session::ParseSess;
 
 use parser::Parser;
 
-
 type PResult<T> = Result<T, ErrorEmitted>;
 
 pub fn new_parser_from_source_str(
@@ -30,10 +29,14 @@ pub fn new_parser_from_source_str(
     new_parser_from_source_file(psess, source_file)
 }
 
-pub fn new_parser_from_file<'sess>(psess: &'sess ParseSess, path: &std::path::Path) -> Result<Parser<'sess>, ErrorEmitted> {
-    let file = psess.source_map().load_file(path).unwrap_or_else(|e| {
-        psess.dcx().emit_fatal(format!("{e}"))
-    });
+pub fn new_parser_from_file<'sess>(
+    psess: &'sess ParseSess,
+    path: &std::path::Path,
+) -> Result<Parser<'sess>, ErrorEmitted> {
+    let file = psess
+        .source_map()
+        .load_file(path)
+        .unwrap_or_else(|e| psess.dcx().emit_fatal(format!("{e}")));
 
     let mut lexer = Lexer::new(psess, file.src.as_ref());
 

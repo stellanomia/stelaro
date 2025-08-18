@@ -1,7 +1,7 @@
 //! rustc の `rustc_span/def_id.rs` に基づいて設計されています。
 
+use super::{Hash64, Idx, StableHasher, Symbol, fingerprint::Fingerprint};
 use std::{fmt, hash::Hash};
-use super::{fingerprint::Fingerprint, Hash64, Idx, Symbol, StableHasher};
 
 // NOTE: std, core 実装まで使われない
 /// stelo を一意に識別する番号。
@@ -13,9 +13,13 @@ pub const LOCAL_STELO: SteloNum = SteloNum(0);
 
 impl SteloNum {
     #[inline]
-    pub fn new(id: u32) -> Self { SteloNum(id) }
+    pub fn new(id: u32) -> Self {
+        SteloNum(id)
+    }
     #[inline]
-    pub fn as_u32(self) -> u32 { self.0 }
+    pub fn as_u32(self) -> u32 {
+        self.0
+    }
 }
 
 impl fmt::Display for SteloNum {
@@ -23,7 +27,6 @@ impl fmt::Display for SteloNum {
         fmt::Display::fmt(&self.as_u32(), f)
     }
 }
-
 
 impl Idx for SteloNum {
     fn new(idx: usize) -> Self {
@@ -58,7 +61,6 @@ impl From<SteloNum> for u32 {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct DefPathHash(pub Fingerprint);
 
-
 impl DefPathHash {
     /// [DefPathHash] の由来元であるステロを示す [StableSteloId] を返します。
     #[inline]
@@ -78,7 +80,6 @@ impl DefPathHash {
         DefPathHash(Fingerprint::new(stable_stelo_id.0, local_hash))
     }
 }
-
 
 /// [`StableSteloId`] は、ステロ名やその他のいくつかのデータを
 /// 組み合わせた64ビットのハッシュ値です。[`DefPathHash`] が [`DefId`] に対応するのと同様に、
@@ -146,7 +147,6 @@ impl Default for DefPathHash {
     }
 }
 
-
 /// ステロ内の定義を一意に識別するインデックス。
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[repr(transparent)]
@@ -158,14 +158,24 @@ pub const STELO_ROOT_INDEX: DefIndex = DefIndex(0);
 
 impl DefIndex {
     #[inline]
-    pub fn new(index: u32) -> Self { DefIndex(index) }
-    #[inline]
-    pub fn from_usize(index: usize) -> Self {
-        DefIndex(index.try_into().expect("bug: u32 の最大値を超えた DefIndex 変換"))
+    pub fn new(index: u32) -> Self {
+        DefIndex(index)
     }
     #[inline]
-    pub fn as_u32(self) -> u32 { self.0 }
-    pub fn as_usize(self) -> usize { self.0 as usize }
+    pub fn from_usize(index: usize) -> Self {
+        DefIndex(
+            index
+                .try_into()
+                .expect("bug: u32 の最大値を超えた DefIndex 変換"),
+        )
+    }
+    #[inline]
+    pub fn as_u32(self) -> u32 {
+        self.0
+    }
+    pub fn as_usize(self) -> usize {
+        self.0 as usize
+    }
 }
 
 impl Idx for DefIndex {
@@ -202,15 +212,12 @@ impl From<u32> for DefIndex {
     }
 }
 
-
-
 /// コンパイラ内の全ての定義 (ローカル、外部) を一意に識別するID。
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct DefId {
     pub stelo: SteloNum,
     pub index: DefIndex,
 }
-
 
 impl DefId {
     /// 新しい DefId を作成します。
@@ -244,7 +251,9 @@ impl DefId {
 
     #[inline]
     pub fn as_local(self) -> Option<LocalDefId> {
-        self.is_local().then_some(LocalDefId { local_def_index: self.index })
+        self.is_local().then_some(LocalDefId {
+            local_def_index: self.index,
+        })
     }
 
     #[inline]
@@ -255,7 +264,6 @@ impl DefId {
             None => panic!("DefId::expect_local: `{self:?}` はローカルではありません"),
         }
     }
-
 }
 
 impl std::fmt::Debug for DefId {
@@ -271,7 +279,6 @@ impl std::fmt::Debug for DefId {
     }
 }
 
-
 /// ローカルステロ内の定義のみを指すことを保証する DefId。
 /// LocalDefId は DefId が stelo == LOCAL_STELO のときと等しい。
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
@@ -280,14 +287,17 @@ pub struct LocalDefId {
 }
 
 /// ローカルステロのルートモジュールを表す LocalDefId 定数。
-pub const STELO_DEF_ID: LocalDefId = LocalDefId { local_def_index: STELO_ROOT_INDEX };
-
+pub const STELO_DEF_ID: LocalDefId = LocalDefId {
+    local_def_index: STELO_ROOT_INDEX,
+};
 
 impl LocalDefId {
     /// 新しい LocalDefId を作成します。
     #[inline]
     pub fn new(index: DefIndex) -> Self {
-        LocalDefId { local_def_index: index }
+        LocalDefId {
+            local_def_index: index,
+        }
     }
 
     /// 対応する DefId (stelo = LOCAL_STELO) に変換します。
@@ -303,17 +313,17 @@ impl LocalDefId {
     }
 }
 
-
 impl Idx for LocalDefId {
     fn new(idx: usize) -> Self {
-        Self { local_def_index: Idx::new(idx) }
+        Self {
+            local_def_index: Idx::new(idx),
+        }
     }
 
     fn index(self) -> usize {
         self.into()
     }
 }
-
 
 impl From<LocalDefId> for usize {
     fn from(value: LocalDefId) -> Self {
@@ -340,14 +350,12 @@ impl TryFrom<DefId> for LocalDefId {
     }
 }
 
-
 impl From<LocalDefId> for DefId {
     #[inline]
     fn from(local_id: LocalDefId) -> Self {
         local_id.to_def_id()
     }
 }
-
 
 impl std::fmt::Debug for LocalDefId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
