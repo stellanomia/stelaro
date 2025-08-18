@@ -74,7 +74,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
 
                     self.with_loop_scope(sir_id, |this| {
                         let span = s.span.merge(&cond.span);
-                        let kind = this.lower_expr_while_in_loop_scope(span, cond, b);
+                        let kind = this.lower_stmt_while_in_loop_scope(span, cond, b);
                         stmts.push(
                             sir::Stmt { sir_id, kind, span }
                         );
@@ -153,7 +153,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         sir::Destination { target_id }
     }
 
-    fn lower_expr_while_in_loop_scope(
+    fn lower_stmt_while_in_loop_scope(
         &mut self,
         span: Span,
         cond: &ast::Expr,

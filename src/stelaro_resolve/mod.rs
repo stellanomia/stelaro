@@ -90,7 +90,7 @@ impl std::hash::Hash for BindingKey {
 type Resolutions<'ra> = RefCell<IndexMap<BindingKey, &'ra RefCell<NameResolution<'ra>>>>;
 
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct Module<'tcx>(&'tcx ModuleData<'tcx>);
 
 #[derive(Clone, PartialEq, Eq)]
@@ -112,6 +112,12 @@ impl<'ra> Deref for Module<'ra> {
 
     fn deref(&self) -> &Self::Target {
         self.0
+    }
+}
+
+impl Hash for Module<'_> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        ptr::hash(self.0, state)
     }
 }
 
@@ -473,7 +479,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     pub fn resolve_stelo(&mut self, stelo: &Stelo) {
         self.build_module_graph(stelo, self.graph_root);
 
-        if self.dcx().has_errors() {
+        if self.dcx().has_errors().is_some() {
             return;
         }
 

@@ -5,10 +5,10 @@ use std::{cell::RefCell, collections::HashMap};
 
 use crate::stelaro_common::{DefId, Arena, IndexVec, LocalDefId, Span, StableSteloId, Symbol, STELO_DEF_ID};
 use crate::stelaro_diagnostics::DiagCtxtHandle;
+use crate::stelaro_session::Session;
 use crate::stelaro_sir::{sir, def::DefKind, definitions::{self, Definitions}};
 use crate::stelaro_ty::{Ty, TyKind};
 
-use super::Session;
 
 #[derive(Clone, Copy)]
 pub struct TyCtxt<'tcx> {

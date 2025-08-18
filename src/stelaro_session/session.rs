@@ -3,19 +3,21 @@ use std::rc::Rc;
 
 use crate::stelaro_common::{SourceMap, source_map::get_source_map};
 use crate::stelaro_diagnostics::{DiagCtxtHandle, DiagCtxt, emitter::{AriadneEmitter, DynEmitter}};
+use crate::stelaro_session::config::Options;
 
-use super::config::{Input, OutFileName};
+use super::config::Input;
 use super::parse::ParseSess;
 
 pub struct CompilerPaths {
     pub input: Input,
     pub output_dir: Option<PathBuf>,
-    pub output_file: Option<OutFileName>,
+    pub output_file: Option<PathBuf>,
     pub temps_dir: Option<PathBuf>,
 }
 
 pub struct Session {
     pub psess: ParseSess,
+    pub opts: Options,
     pub paths: CompilerPaths,
 }
 
@@ -39,6 +41,7 @@ pub fn default_emitter(
 }
 
 pub fn build_session(
+    opts: Options,
     paths: CompilerPaths,
 ) -> Session {
     let source_map = get_source_map().unwrap();
@@ -49,6 +52,7 @@ pub fn build_session(
 
     Session {
         psess,
+        opts,
         paths:
             CompilerPaths {
                 input: paths.input,

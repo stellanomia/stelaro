@@ -72,7 +72,7 @@ impl Default for SourceMap {
     }
 }
 
-/// パーサーが使用するファイルシステム操作の抽象。
+/// ファイルシステム操作の抽象。
 pub trait FileLoader {
     /// ファイルが存在するかどうかを問い合わせる。
     fn file_exists(&self, path: &Path) -> bool;

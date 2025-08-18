@@ -68,6 +68,7 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         self.name_already_seen.insert(name, span);
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn report_path_resolution_error(
         &mut self,
         path: &[Segment],

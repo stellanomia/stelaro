@@ -1,5 +1,6 @@
 pub mod arena;
 pub mod def_id;
+pub mod fatal_error;
 pub mod fingerprint;
 pub mod hashes;
 pub mod idx;
@@ -22,6 +23,7 @@ mod tests;
 
 pub use arena::{Arena, TypedArena};
 pub use def_id::{DefId, DefPathHash, StableSteloId, LocalDefId, DefIndex, SteloNum, LOCAL_STELO, STELO_DEF_ID, STELO_ROOT_INDEX};
+pub use fatal_error::FatalError;
 pub use fingerprint::{Fingerprint, FingerprintComponent};
 pub use hashes::{Hash64, Hash128};
 pub use idx::{Idx, IntoSliceIdx};
@@ -29,7 +31,7 @@ pub use index_vec::IndexVec;
 pub use map::IndexMap;
 pub use slice::IndexSlice;
 pub use sorted_map::SortedMap;
-pub use source_map::{SourceMap, SourceMapInputs, RealFileLoader};
+pub use source_map::{SourceMap, SourceMapInputs, RealFileLoader, FileLoader};
 pub use span::{Span, Spanned, DUMMY_SPAN};
 // impl_hash_stable_trivial は stelaro_common 外部に公開されるべきではない
 pub use stable_hasher::{StableHasher, StableHasherHash, FromStableHash};
@@ -37,7 +39,7 @@ pub use stack::ensure_sufficient_stack;
 pub use symbol::{Symbol, Ident, sym};
 pub use visit_utils::VisitorResult;
 
-use std::rc::Rc;
+use std::{fmt, rc::Rc};
 
 
 scoped_tls::scoped_thread_local!(static SESSION_GLOBALS: SessionGlobals);
@@ -84,3 +86,23 @@ pub fn create_default_session_globals_then<R>(f: impl FnOnce() -> R) -> R {
     create_session_globals_then(None, f)
 }
 
+
+/// `resume_unwind` で使われる致命的なコンパイルエラーのためのマーカー
+pub struct FatalErrorMarker;
+
+/// `&mut Formatter` を引数に取るクロージャを、Displayフォーマット可能なオブジェクトに変換する
+pub fn make_display(f: impl Fn(&mut fmt::Formatter<'_>) -> fmt::Result) -> impl fmt::Display {
+    struct Printer<F> {
+        f: F,
+    }
+    impl<F> fmt::Display for Printer<F>
+    where
+        F: Fn(&mut fmt::Formatter<'_>) -> fmt::Result,
+    {
+        fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+            (self.f)(fmt)
+        }
+    }
+
+    Printer { f }
+}

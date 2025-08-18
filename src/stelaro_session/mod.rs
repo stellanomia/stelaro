@@ -4,3 +4,4 @@ pub mod session;
 
 pub use parse::ParseSess;
 pub use session::Session;
+pub use config::{Input, Options};
