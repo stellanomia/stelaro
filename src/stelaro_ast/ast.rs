@@ -1,6 +1,10 @@
 use crate::stelaro_common::{Ident, Span, Spanned};
 
-use super::{token::{Lit, Token, TokenKind}, ty::Ty, NodeId};
+use super::{
+    NodeId,
+    token::{Lit, Token, TokenKind},
+    ty::Ty,
+};
 
 #[derive(Debug)]
 pub struct Stelo {
@@ -65,9 +69,8 @@ pub struct Param {
 #[derive(Debug, Clone)]
 pub enum ModKind {
     /// `mod my_module { ... }` を表す
-    Inline(Vec<Box<Item>>, ModSpan)
-    // /// `mod my_module;` を表す
-    // Outline,
+    Inline(Vec<Box<Item>>, ModSpan), // /// `mod my_module;` を表す
+                                     // Outline,
 }
 
 #[derive(Debug, Clone)]
@@ -132,7 +135,7 @@ pub enum LocalKind {
 }
 
 impl LocalKind {
-        pub fn init(&self) -> Option<&Expr> {
+    pub fn init(&self) -> Option<&Expr> {
         match self {
             Self::Decl => None,
             Self::Init(i) => Some(i),
@@ -216,7 +219,10 @@ impl BinOp {
             _ => panic!("bug: 二項演算子でないトークン"),
         };
 
-        BinOp { node: kind, span: token.span }
+        BinOp {
+            node: kind,
+            span: token.span,
+        }
     }
 }
 
@@ -247,7 +253,7 @@ pub enum BinOpKind {
     /// `>=` 演算子 (greater than or equal to)
     Ge,
     /// `>` 演算子 (greater than)
-    Gt
+    Gt,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -1,7 +1,9 @@
-use crate::stelaro_ast::{token::TokenKind, ty::{Ty, TyKind}};
+use crate::stelaro_ast::{
+    token::TokenKind,
+    ty::{Ty, TyKind},
+};
 
-use super::{diagnostics::DiagsParser, parser::Parser, PResult};
-
+use super::{PResult, diagnostics::DiagsParser, parser::Parser};
 
 impl Parser<'_> {
     pub fn parse_ty(&mut self) -> PResult<Ty> {
@@ -16,7 +18,7 @@ impl Parser<'_> {
                 } else {
                     TyKind::Path(path)
                 }
-            },
+            }
             // TODO: タプル型の実装
             TokenKind::LParen => {
                 self.bump();
@@ -24,7 +26,7 @@ impl Parser<'_> {
                 self.eat(TokenKind::RParen, self.token.span)?;
 
                 TyKind::Unit
-            },
+            }
             _ => {
                 let mut diag = DiagsParser::unexpected_token_for_type(
                     self.dcx(),
@@ -33,19 +35,17 @@ impl Parser<'_> {
 
                 diag.set_label(
                     self.prev_token.span.between(&self.token.span),
-                    "ここに型を記述してください".to_string()
+                    "ここに型を記述してください".to_string(),
                 );
 
                 Err(diag.emit())?
             }
         };
 
-        Ok(
-            Ty {
-                id: self.next_node_id(),
-                kind,
-                span: start.merge(&self.prev_token.span),
-            }
-        )
+        Ok(Ty {
+            id: self.next_node_id(),
+            kind,
+            span: start.merge(&self.prev_token.span),
+        })
     }
 }

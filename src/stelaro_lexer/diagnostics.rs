@@ -4,7 +4,7 @@ use crate::stelaro_diagnostics::{Diag, DiagCtxtHandle};
 pub struct DiagsLexer;
 
 impl<'dcx> DiagsLexer {
-    pub fn unexpected_character (
+    pub fn unexpected_character(
         dcx: DiagCtxtHandle<'dcx>,
         unexpected: char,
         span: Span,
@@ -17,10 +17,7 @@ impl<'dcx> DiagsLexer {
         diag
     }
 
-    pub fn invalid_float_format (
-        dcx: DiagCtxtHandle<'dcx>,
-        span: Span,
-    ) -> Diag<'dcx> {
+    pub fn invalid_float_format(dcx: DiagCtxtHandle<'dcx>, span: Span) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::InvalidFloatFormat.into());
         diag.set_message("無効な浮動小数点数の表記".to_string());
@@ -29,10 +26,7 @@ impl<'dcx> DiagsLexer {
         diag
     }
 
-    pub fn missing_fractional_part (
-        dcx: DiagCtxtHandle<'dcx>,
-        span: Span,
-    ) -> Diag<'dcx> {
+    pub fn missing_fractional_part(dcx: DiagCtxtHandle<'dcx>, span: Span) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::MissingFractionalPart.into());
         diag.set_message("小数部の欠落".to_string());
@@ -41,7 +35,7 @@ impl<'dcx> DiagsLexer {
         diag
     }
 
-    pub fn invalid_escape_sequence (
+    pub fn invalid_escape_sequence(
         dcx: DiagCtxtHandle<'dcx>,
         invalid_ch: char,
         span: Span,
@@ -49,15 +43,15 @@ impl<'dcx> DiagsLexer {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::InvalidEscapeSequence.into());
         diag.set_message("無効なエスケープシーケンス".to_string());
-        diag.set_label(span, format!("`{}`は無効なエスケープシーケンス文字です", invalid_ch));
+        diag.set_label(
+            span,
+            format!("`{}`は無効なエスケープシーケンス文字です", invalid_ch),
+        );
 
         diag
     }
 
-    pub fn unterminated_string_literal (
-        dcx: DiagCtxtHandle<'dcx>,
-        span: Span,
-    ) -> Diag<'dcx> {
+    pub fn unterminated_string_literal(dcx: DiagCtxtHandle<'dcx>, span: Span) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnterminatedStringLiteral.into());
         diag.set_message("閉じられていない文字列リテラル".to_string());
@@ -67,10 +61,7 @@ impl<'dcx> DiagsLexer {
     }
 
     // 文字リテラルを期待したが、改行が見つかった
-    pub fn unexpected_quote (
-        dcx: DiagCtxtHandle<'dcx>,
-        span: Span,
-    ) -> Diag<'dcx> {
+    pub fn unexpected_quote(dcx: DiagCtxtHandle<'dcx>, span: Span) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnexpectedQuote.into());
         diag.set_message("予期しない`'`".to_string());
@@ -79,10 +70,7 @@ impl<'dcx> DiagsLexer {
         diag
     }
 
-    pub fn unterminated_char_literal (
-        dcx: DiagCtxtHandle<'dcx>,
-        span: Span,
-    ) -> Diag<'dcx> {
+    pub fn unterminated_char_literal(dcx: DiagCtxtHandle<'dcx>, span: Span) -> Diag<'dcx> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::UnterminatedCharLiteral.into());
         diag.set_message("閉じられていない文字リテラル".to_string());
@@ -91,7 +79,7 @@ impl<'dcx> DiagsLexer {
         diag
     }
 
-    pub fn multiple_characters_in_char_literal (
+    pub fn multiple_characters_in_char_literal(
         dcx: DiagCtxtHandle<'dcx>,
         span: Span,
     ) -> Diag<'dcx> {
@@ -104,8 +92,6 @@ impl<'dcx> DiagsLexer {
         diag
     }
 }
-
-
 
 #[repr(i32)]
 enum ErrorCode {
@@ -130,11 +116,11 @@ mod tests {
     use std::rc::Rc;
 
     use crate::stelaro_common::create_default_session_globals_then;
-    use crate::stelaro_diagnostics::emitter::SilentEmitter;
-    use crate::stelaro_diagnostics::DiagCtxt;
-    use crate::stelaro_lexer::{diagnostics::ErrorCode, Lexer};
-    use crate::stelaro_session::ParseSess;
     use crate::stelaro_common::source_map::SourceMap;
+    use crate::stelaro_diagnostics::DiagCtxt;
+    use crate::stelaro_diagnostics::emitter::SilentEmitter;
+    use crate::stelaro_lexer::{Lexer, diagnostics::ErrorCode};
+    use crate::stelaro_session::ParseSess;
 
     fn create_test_context() -> ParseSess {
         let source_map = Rc::new(SourceMap::new());
@@ -155,59 +141,62 @@ mod tests {
 
     #[test]
     fn test_unexpected_character() {
-        let (sess, is_err) = get_sess_after_src_lex(
-            "let # = 0;"
-        );
+        let (sess, is_err) = get_sess_after_src_lex("let # = 0;");
 
         assert!(is_err);
-        assert!(sess.dcx().has_err_code(ErrorCode::UnexpectedCharacter.into()));
+        assert!(
+            sess.dcx()
+                .has_err_code(ErrorCode::UnexpectedCharacter.into())
+        );
     }
 
     #[test]
     fn test_invalid_float_format() {
-        let (sess, is_err) = get_sess_after_src_lex(
-            "123.456.789;"
-        );
+        let (sess, is_err) = get_sess_after_src_lex("123.456.789;");
 
         assert!(is_err);
-        assert!(sess.dcx().has_err_code(ErrorCode::InvalidFloatFormat.into()));
+        assert!(
+            sess.dcx()
+                .has_err_code(ErrorCode::InvalidFloatFormat.into())
+        );
     }
 
     #[test]
     fn test_missing_fractional_part() {
-        let (sess, is_err) = get_sess_after_src_lex(
-            "123.;"
-        );
+        let (sess, is_err) = get_sess_after_src_lex("123.;");
 
         assert!(is_err);
-        assert!(sess.dcx().has_err_code(ErrorCode::MissingFractionalPart.into()));
+        assert!(
+            sess.dcx()
+                .has_err_code(ErrorCode::MissingFractionalPart.into())
+        );
     }
 
     #[test]
     fn test_invalid_escape_sequence() {
-        let (sess, is_err) = get_sess_after_src_lex(
-            r#""Hello, World\r\q\""#
-        );
+        let (sess, is_err) = get_sess_after_src_lex(r#""Hello, World\r\q\""#);
 
         assert!(is_err);
-        assert!(sess.dcx().has_err_code(ErrorCode::InvalidEscapeSequence.into()));
+        assert!(
+            sess.dcx()
+                .has_err_code(ErrorCode::InvalidEscapeSequence.into())
+        );
     }
 
     #[test]
     fn test_unterminated_string_literal() {
-        let (sess, is_err) = get_sess_after_src_lex(
-            r#""Hello, steralo!"#
-        );
+        let (sess, is_err) = get_sess_after_src_lex(r#""Hello, steralo!"#);
 
         assert!(is_err);
-        assert!(sess.dcx().has_err_code(ErrorCode::UnterminatedStringLiteral.into()));
+        assert!(
+            sess.dcx()
+                .has_err_code(ErrorCode::UnterminatedStringLiteral.into())
+        );
     }
 
     #[test]
     fn test_unexpected_quote() {
-        let (sess, is_err) = get_sess_after_src_lex(
-            "'\na'"
-        );
+        let (sess, is_err) = get_sess_after_src_lex("'\na'");
 
         assert!(is_err);
         assert!(sess.dcx().has_err_code(ErrorCode::UnexpectedQuote.into()));
@@ -215,22 +204,23 @@ mod tests {
 
     #[test]
     fn test_unterminated_char_literal() {
-        let (sess, is_err) = get_sess_after_src_lex(
-            "if 'a == ch {"
-        );
+        let (sess, is_err) = get_sess_after_src_lex("if 'a == ch {");
 
         assert!(is_err);
-        assert!(sess.dcx().has_err_code(ErrorCode::UnterminatedCharLiteral.into()));
+        assert!(
+            sess.dcx()
+                .has_err_code(ErrorCode::UnterminatedCharLiteral.into())
+        );
     }
 
     #[test]
     fn test_multiple_characters_in_char_literal() {
-        let (sess, is_err) = get_sess_after_src_lex(
-            "'String'"
-        );
+        let (sess, is_err) = get_sess_after_src_lex("'String'");
 
         assert!(is_err);
-        assert!(sess.dcx().has_err_code(ErrorCode::MultipleCharactersInCharLiteral.into()));
+        assert!(
+            sess.dcx()
+                .has_err_code(ErrorCode::MultipleCharactersInCharLiteral.into())
+        );
     }
-
 }

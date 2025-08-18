@@ -3,7 +3,6 @@ use std::rc::Rc;
 use crate::stelaro_common::SourceMap;
 use crate::stelaro_diagnostics::{DiagCtxt, DiagCtxtHandle};
 
-
 pub struct ParseSess {
     dcx: DiagCtxt,
     source_map: Rc<SourceMap>,
@@ -11,10 +10,7 @@ pub struct ParseSess {
 
 impl ParseSess {
     pub fn with_dcx(dcx: DiagCtxt, source_map: Rc<SourceMap>) -> Self {
-        Self {
-            dcx,
-            source_map,
-        }
+        Self { dcx, source_map }
     }
 
     #[inline]

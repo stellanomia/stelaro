@@ -1,17 +1,21 @@
 use std::mem;
 
-use crate::stelaro_ast::{ast::*, visit::{walk_item, Visitor}, NodeId};
-use crate::stelaro_common::{LocalDefId, Symbol, Span, STELO_DEF_ID};
+use crate::stelaro_ast::{
+    NodeId,
+    ast::*,
+    visit::{Visitor, walk_item},
+};
+use crate::stelaro_common::{LocalDefId, STELO_DEF_ID, Span, Symbol};
 use crate::stelaro_sir::def::DefKind;
 
 use super::Resolver;
 
-pub fn collect_definitions(
-    resolver: &mut Resolver<'_, '_>,
-    stelo: &Stelo,
-) {
+pub fn collect_definitions(resolver: &mut Resolver<'_, '_>, stelo: &Stelo) {
     let parent_def = STELO_DEF_ID;
-    let mut visitor = DefCollector { resolver, parent_def};
+    let mut visitor = DefCollector {
+        resolver,
+        parent_def,
+    };
     visitor.visit_stelo(stelo);
 }
 

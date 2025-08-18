@@ -1,12 +1,15 @@
 //! rustc の `rustc_data_structures/stable_hasher.rs` に基づいて設計されています。
 
-use std::{hash::{Hash, Hasher}, marker::PhantomData, mem};
-use super::{Hash128, Hash64, Idx, IndexVec};
+use super::{Hash64, Hash128, Idx, IndexVec};
+use std::{
+    hash::{Hash, Hasher},
+    marker::PhantomData,
+    mem,
+};
 
 pub use rustc_stable_hash::{
     FromStableHash, SipHasher128Hash as StableHasherHash, StableSipHasher128 as StableHasher,
 };
-
 
 /// `HashStable` を実装するものは、複数のコンパイルセッションにわたって
 /// 安定した (一貫性のある) 方法でハッシュ化できます。
@@ -42,7 +45,6 @@ pub trait ToStableHashKey {
     type KeyType: Ord + Sized + HashStable;
     fn to_stable_hash_key(&self) -> Self::KeyType;
 }
-
 
 /// 型が安定したソート順 (Ordによる比較結果) を持つことを示すためのトレイトです。
 ///
@@ -84,7 +86,6 @@ impl<T: StableOrd> StableOrd for &T {
     const ORD_IS_SESSION_STABLE: () = ();
 }
 
-
 /// これは `StableOrd` に対応する補助トレイトです。`Symbol` のような一部の型は、
 /// セッションをまたいで安定した方法で比較することは可能ですが、
 /// その `Ord` 実装自体は安定していません。このような場合、`StableOrd` の代わりに
@@ -116,7 +117,6 @@ impl<T: StableOrd> StableCompare for T {
     }
 }
 
-
 /// `HashStable` を単に `Hash::hash()` を呼び出すことで実装し、
 /// 同じ要件を満たすために `StableOrd` も併せて実装します。
 ///
@@ -143,7 +143,6 @@ macro_rules! impl_hash_stable_trivial {
 
 pub(crate) use impl_hash_stable_trivial;
 
-
 impl_hash_stable_trivial!(i8);
 impl_hash_stable_trivial!(i16);
 impl_hash_stable_trivial!(i32);
@@ -166,7 +165,6 @@ impl_hash_stable_trivial!(Hash64);
 impl_hash_stable_trivial!(::std::ffi::OsStr);
 impl_hash_stable_trivial!(::std::path::Path);
 impl_hash_stable_trivial!(::std::path::PathBuf);
-
 
 // デフォルトのハッシュ関数はビットの半分しかハッシュしないため、カスタム実装が必要です。
 // 安定ハッシュ化のためには、完全な128ビットハッシュをハッシュしておきたいです。
@@ -208,7 +206,6 @@ impl HashStable for f64 {
     }
 }
 
-
 impl<T: HashStable> HashStable for [T] {
     default fn hash_stable(&self, hasher: &mut StableHasher) {
         self.len().hash_stable(hasher);
@@ -231,7 +228,6 @@ impl<T: HashStable> HashStable for Vec<T> {
         self[..].hash_stable(hasher);
     }
 }
-
 
 impl HashStable for str {
     #[inline]
@@ -268,7 +264,6 @@ impl ToStableHashKey for String {
         self.clone()
     }
 }
-
 
 impl HashStable for bool {
     #[inline]

@@ -1,9 +1,7 @@
 use crate::stelaro_ast::ast;
 use crate::stelaro_ast_lowering::LoweringContext;
-use crate::stelaro_common::{ensure_sufficient_stack, Ident};
-use crate::stelaro_sir::{sir, sir_id::SirId, def::Res};
-
-
+use crate::stelaro_common::{Ident, ensure_sufficient_stack};
+use crate::stelaro_sir::{def::Res, sir, sir_id::SirId};
 
 impl<'a, 'sir> LoweringContext<'a, 'sir> {
     pub fn lower_pat(&mut self, pat: &ast::Pat) -> &'sir sir::Pat {
@@ -15,15 +13,12 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
             let pat_sir_id = self.lower_node_id(pat.id);
             let node = match pat.kind {
                 ast::PatKind::WildCard => sir::PatKind::WildCard,
-                ast::PatKind::Ident(ident) => {
-                    self.lower_pat_ident(pat, ident, pat_sir_id)
-                },
+                ast::PatKind::Ident(ident) => self.lower_pat_ident(pat, ident, pat_sir_id),
             };
 
             self.pat_with_node_id_of(pat, node, pat_sir_id)
         })
     }
-
 
     fn lower_pat_ident(
         &mut self,
@@ -44,14 +39,14 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                                 local_id: self.ident_to_local_id[&id],
                             }
                         }
-                    },
+                    }
                     _ => {
                         self.ident_to_local_id.insert(pat.id, sir_id.local_id);
                         sir_id
-                    },
+                    }
                 };
                 sir::PatKind::Binding(binding_id, ident)
-            },
+            }
             Some(_) => {
                 unimplemented!("Pattern は Path をとることはできない");
             }
@@ -62,8 +57,12 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         &mut self,
         p: &ast::Pat,
         kind: sir::PatKind,
-        sir_id: SirId,
+        sir_id: SirId
     ) -> sir::Pat {
-        sir::Pat { sir_id, kind, span: p.span }
+        sir::Pat {
+            sir_id,
+            kind,
+            span: p.span,
+        }
     }
 }

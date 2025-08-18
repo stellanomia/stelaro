@@ -1,7 +1,9 @@
-use crate::stelaro_ast::{ast::{Path, PathSegment}, token::TokenKind};
+use crate::stelaro_ast::{
+    ast::{Path, PathSegment},
+    token::TokenKind,
+};
 
-use super::{parser::Parser, PResult};
-
+use super::{PResult, parser::Parser};
 
 impl<'sess> Parser<'sess> {
     pub fn parse_path(&mut self) -> PResult<Path> {

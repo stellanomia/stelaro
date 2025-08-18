@@ -2,7 +2,6 @@ use crate::stelaro_common::{Ident, LocalDefId, Span, Symbol, VisitorResult};
 use crate::stelaro_sir::{sir::*, sir_id::SirId};
 use crate::{try_visit, visit_opt, walk_list};
 
-
 pub trait IntoVisitor<'sir> {
     type Visitor: Visitor<'sir>;
     fn into_visitor(self) -> Self::Visitor;
@@ -30,7 +29,6 @@ impl<'sir> SirTyCtxt<'sir> for ! {
         unreachable!();
     }
 }
-
 
 pub mod nested_filter {
     use crate::stelaro_context::TyCtxt;
@@ -98,7 +96,6 @@ pub trait Visitor<'v>: Sized {
     /// どのネストされたSIRを走査するかを制御するために、この型をオーバーライドしてください。
     /// この型をオーバーライドする場合、[`maybe_tcx`](Self::maybe_tcx)もオーバーライドしなければなりません。
     type NestedFilter: NestedFilter<'v> = nested_filter::None;
-
 
     /// `visit_*`メソッドの結果の型。`()`または`ControlFlow<T>`のいずれかになる。
     type Result: VisitorResult = ();
@@ -223,27 +220,40 @@ pub trait Visitor<'v>: Sized {
 }
 
 pub fn walk_item<'v, V: Visitor<'v>>(visitor: &mut V, item: &'v Item<'v>) -> V::Result {
-    let Item { owner_id: _, kind, span: _ } = item;
+    let Item {
+        owner_id: _,
+        kind,
+        span: _,
+    } = item;
     try_visit!(visitor.visit_id(item.sir_id()));
     match *kind {
         ItemKind::Fn { sig, ident, body } => {
             try_visit!(visitor.visit_ident(ident));
-            try_visit!(
-                visitor.visit_fn(
-                    ident, sig, sig.decl, body, item.span, item.owner_id.def_id
+            try_visit!(visitor.visit_fn(
+                ident,
+                sig,
+                sig.decl,
+                body,
+                item.span,
+                item.owner_id.def_id
             ))
-        },
+        }
         ItemKind::Mod(ident, module) => {
             try_visit!(visitor.visit_ident(ident));
             try_visit!(visitor.visit_mod(module, item.span, item.sir_id()))
-        },
+        }
     }
 
     V::Result::output()
 }
 
 pub fn walk_param<'v, V: Visitor<'v>>(visitor: &mut V, param: &'v Param) -> V::Result {
-    let Param { sir_id, pat, ty_span: _, span: _, } = param;
+    let Param {
+        sir_id,
+        pat,
+        ty_span: _,
+        span: _,
+    } = param;
     try_visit!(visitor.visit_id(*sir_id));
     visitor.visit_pat(pat)
 }
@@ -255,23 +265,23 @@ pub fn walk_body<'v, V: Visitor<'v>>(visitor: &mut V, body: &Body<'v>) -> V::Res
 }
 
 pub fn walk_ty<'v, V: Visitor<'v>>(visitor: &mut V, ty: &'v Ty<'v>) -> V::Result {
-    let Ty { sir_id, span: _, kind } = ty;
+    let Ty {
+        sir_id,
+        span: _,
+        kind,
+    } = ty;
     try_visit!(visitor.visit_id(*sir_id));
 
     match *kind {
         TyKind::Path(ref path) => try_visit!(visitor.visit_path(path)),
-        TyKind::Unit => {},
+        TyKind::Unit => {}
         TyKind::Infer => try_visit!(visitor.visit_infer(ty.sir_id, ty.span)),
     }
 
     V::Result::output()
 }
 
-
-pub fn walk_fn_decl<'v, V: Visitor<'v>>(
-    visitor: &mut V,
-    decl: &'v FnDecl<'v>,
-) -> V::Result {
+pub fn walk_fn_decl<'v, V: Visitor<'v>>(visitor: &mut V, decl: &'v FnDecl<'v>) -> V::Result {
     let FnDecl { inputs, output, .. } = decl;
     walk_list!(visitor, visit_ty, *inputs);
     visitor.visit_fn_ret_ty(output)
@@ -296,13 +306,18 @@ pub fn walk_fn<'v, V: Visitor<'v>>(
     visitor.visit_nested_body(body_id)
 }
 
-
 pub fn walk_ident<'v, V: Visitor<'v>>(visitor: &mut V, ident: Ident) -> V::Result {
     visitor.visit_name(ident.name)
 }
 
 pub fn walk_local<'v, V: Visitor<'v>>(visitor: &mut V, local: &'v LetStmt<'v>) -> V::Result {
-    let LetStmt { pat, ty, init, sir_id, span: _ } = local;
+    let LetStmt {
+        pat,
+        ty,
+        init,
+        sir_id,
+        span: _,
+    } = local;
     visit_opt!(visitor, visit_expr, *init);
     try_visit!(visitor.visit_id(*sir_id));
     try_visit!(visitor.visit_pat(pat));
@@ -310,9 +325,13 @@ pub fn walk_local<'v, V: Visitor<'v>>(visitor: &mut V, local: &'v LetStmt<'v>) -
     V::Result::output()
 }
 
-
 pub fn walk_block<'v, V: Visitor<'v>>(visitor: &mut V, block: &'v Block<'v>) -> V::Result {
-    let Block { stmts, expr, sir_id, span: _ } = block;
+    let Block {
+        stmts,
+        expr,
+        sir_id,
+        span: _,
+    } = block;
     try_visit!(visitor.visit_id(*sir_id));
     walk_list!(visitor, visit_stmt, *stmts);
     visit_opt!(visitor, visit_expr, *expr);
@@ -320,7 +339,11 @@ pub fn walk_block<'v, V: Visitor<'v>>(visitor: &mut V, block: &'v Block<'v>) -> 
 }
 
 pub fn walk_stmt<'v, V: Visitor<'v>>(visitor: &mut V, statement: &'v Stmt<'v>) -> V::Result {
-    let Stmt { kind, sir_id, span: _ } = statement;
+    let Stmt {
+        kind,
+        sir_id,
+        span: _,
+    } = statement;
     try_visit!(visitor.visit_id(*sir_id));
     match *kind {
         StmtKind::Let(local) => try_visit!(visitor.visit_local(local)),
@@ -331,10 +354,10 @@ pub fn walk_stmt<'v, V: Visitor<'v>>(visitor: &mut V, statement: &'v Stmt<'v>) -
         StmtKind::Break(_, expr) => {
             visit_opt!(visitor, visit_expr, expr);
         }
-        StmtKind::Continue(_) => {},
+        StmtKind::Continue(_) => {}
         StmtKind::Return(expr) => {
             visit_opt!(visitor, visit_expr, expr);
-        },
+        }
         StmtKind::Loop(b, _, _) => {
             try_visit!(visitor.visit_block(b));
         }
@@ -348,7 +371,7 @@ pub fn walk_pat<'v, V: Visitor<'v>>(visitor: &mut V, pattern: &'v Pat) -> V::Res
     try_visit!(visitor.visit_id(*sir_id));
 
     match *kind {
-        PatKind::WildCard => {},
+        PatKind::WildCard => {}
         PatKind::Binding(_sir_id, ident) => try_visit!(visitor.visit_ident(ident)),
     }
     V::Result::output()
@@ -361,7 +384,11 @@ pub fn walk_mod<'v, V: Visitor<'v>>(visitor: &mut V, module: &'v Mod<'v>) -> V::
 }
 
 pub fn walk_path<'v, V: Visitor<'v>>(visitor: &mut V, path: &'v Path<'v>) -> V::Result {
-    let Path { segments, span: _, res: _ } = path;
+    let Path {
+        segments,
+        span: _,
+        res: _,
+    } = path;
     walk_list!(visitor, visit_path_segment, *segments);
     V::Result::output()
 }
@@ -370,7 +397,11 @@ pub fn walk_path_segment<'v, V: Visitor<'v>>(
     visitor: &mut V,
     segment: &'v PathSegment,
 ) -> V::Result {
-    let PathSegment { ident, sir_id, res: _ } = segment;
+    let PathSegment {
+        ident,
+        sir_id,
+        res: _,
+    } = segment;
     try_visit!(visitor.visit_ident(*ident));
     try_visit!(visitor.visit_id(*sir_id));
     V::Result::output()
@@ -384,33 +415,33 @@ pub fn walk_expr<'v, V: Visitor<'v>>(visitor: &mut V, expr: &'v Expr<'v>) -> V::
         ExprKind::Call(callee, args) => {
             try_visit!(visitor.visit_expr(callee));
             walk_list!(visitor, visit_expr, args);
-        },
+        }
         ExprKind::Binary(_, lhs, rhs) => {
             try_visit!(visitor.visit_expr(lhs));
             try_visit!(visitor.visit_expr(rhs));
-        },
+        }
         ExprKind::Unary(_, expr) => {
             try_visit!(visitor.visit_expr(expr));
-        },
+        }
         ExprKind::Lit(lit) => {
             try_visit!(visitor.visit_lit(*sir_id, *lit, false));
-        },
+        }
         ExprKind::If(cond, then, else_opt) => {
             try_visit!(visitor.visit_expr(cond));
             try_visit!(visitor.visit_expr(then));
             visit_opt!(visitor, visit_expr, else_opt);
-        },
+        }
         ExprKind::Path(ref path) => {
             try_visit!(visitor.visit_path(path));
-        },
+        }
         ExprKind::Block(block) => {
             try_visit!(visitor.visit_block(block))
-        },
+        }
         ExprKind::Assign(lhs, rhs, _) => {
             try_visit!(visitor.visit_expr(rhs));
             try_visit!(visitor.visit_expr(lhs));
-        },
-        ExprKind::Err(_) => {},
+        }
+        ExprKind::Err(_) => {}
     }
     V::Result::output()
 }

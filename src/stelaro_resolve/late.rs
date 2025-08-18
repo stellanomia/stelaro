@@ -1,11 +1,23 @@
 use std::mem;
 
-use crate::stelaro_ast::{ast::*, ty::{Ty, TyKind}, visit::{self}, NodeId, Visitor};
+use crate::stelaro_ast::{
+    NodeId, Visitor,
+    ast::*,
+    ty::{Ty, TyKind},
+    visit::{self},
+};
 use crate::stelaro_common::{Ident, IndexMap};
-use crate::stelaro_sir::{sir::PrimTy, def::{DefKind, Namespace::{self, ValueNS, TypeNS}, PerNS, Res}};
+use crate::stelaro_sir::{
+    def::{
+        DefKind,
+        Namespace::{self, TypeNS, ValueNS},
+        PerNS, Res,
+    },
+    sir::PrimTy,
+};
 
+use super::{Finalize, Module, PathResult, Resolver, Segment, diagnostics::DiagsResolver};
 use crate::{try_visit, visit_opt};
-use super::{Module, Resolver, Finalize, Segment, PathResult, diagnostics::DiagsResolver};
 
 /// 単一のローカルスコープを表します。
 ///
@@ -22,7 +34,6 @@ pub struct Scope<'ra, R = Res<NodeId>> {
 /// 特定のスコープでどのような名前アクセスが許可されるか、あるいは制限されるかを定義します。
 #[derive(Debug, Clone, Copy)]
 pub enum ScopeKind<'ra> {
-
     /// 通常のスコープ。特別なアクセス制限は適用されません。
     NoRestriction,
 
@@ -61,7 +72,6 @@ pub enum PathSource<'a> {
     /// 式の中で使われるパス。
     /// `Option<&'a Expr>` は親の式への参照で、文脈依存の解決に役立つ。
     Expr(Option<&'a Expr>),
-
     // /// パターン内で使われるパス。
     // Pat,
 }
@@ -90,7 +100,6 @@ pub struct DiagMetadata<'ast> {
     /// 現在処理中の関数を表す
     current_function: Option<&'ast Function>,
 }
-
 
 /// ASTを走査し、名前解決の後半フェーズを実行する。
 pub struct LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
@@ -152,7 +161,7 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
         match &ty.kind {
             TyKind::Path(path) => {
                 self.resolve_path_with_context(ty.id, path, PathSource::Type);
-            },
+            }
             _ => visit::walk_ty(self, ty),
         }
     }
@@ -163,7 +172,9 @@ impl<'ra: 'ast, 'ast, 'tcx> Visitor<'ast> for LateResolutionVisitor<'_, 'ast, 'r
 }
 
 impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
-    pub fn new(resolver: &'a mut Resolver<'ra, 'tcx>) -> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
+    pub fn new(
+        resolver: &'a mut Resolver<'ra, 'tcx>,
+    ) -> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         let graph_root = resolver.graph_root;
         let root_kind = ScopeKind::Module(graph_root);
 
@@ -229,7 +240,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         match &item.kind {
             ItemKind::Fn(_) => {
                 self.with_param_scope(ScopeKind::Item(def_kind), |this| {
-                    visit::walk_item(this, item)
+                visit::walk_item(this, item)
                 })
             },
             ItemKind::Mod(..) => {
@@ -268,7 +279,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 for arg in args {
                     self.resolve_expr(arg, None);
                 }
-            },
+            }
             ExprKind::If(cond, then, opt_else) => {
                 self.with_scope(ValueNS, ScopeKind::NoRestriction, |this| {
                     this.visit_expr(cond);
@@ -278,10 +289,10 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 if let Some(expr) = opt_else {
                     self.visit_expr(expr)
                 }
-            },
+            }
             ExprKind::Block(block) => {
                 self.resolve_block(block);
-            },
+            }
             ExprKind::Path(path) => {
                 self.resolve_path_with_context(
                     expr.id,
@@ -290,10 +301,8 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 );
 
                 visit::walk_expr(self, expr);
-            },
-            _ => {
-                visit::walk_expr(self, expr)
             }
+            _ => visit::walk_expr(self, expr),
         }
     }
 
@@ -319,9 +328,9 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         let ns = source.namespace();
         // let Finalize { path_span, .. } = finalize;
 
-        if ns == TypeNS &&
-            path.len() == 1 &&
-            let Some(ty) = PrimTy::from_name(path[0].ident.name)
+        if ns == TypeNS
+            && path.len() == 1
+            && let Some(ty) = PrimTy::from_name(path[0].ident.name)
         {
             let res = Res::PrimTy(ty);
             self.r.record_res(finalize.node_id, res);
@@ -333,7 +342,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
 
         let res = self.r.resolve_path_with_scopes(
             path,
-             Some(ns),
+            Some(ns),
             Some(finalize),
             &self.parent_module,
             Some(&self.scopes),
@@ -370,7 +379,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 ).emit();
 
                 Res::Err
-            },
+            }
         };
         self.r.record_res(finalize.node_id, res);
         res
@@ -401,7 +410,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         visit::walk_pat(self, pat);
 
         match pat.kind {
-            PatKind::WildCard => {},
+            PatKind::WildCard => {}
             PatKind::Ident(ident) => {
                 // FIXME: 現在、パターンはletバインディングからしか生成できず、
                 // かつ、本来 Path として生成するべき Pat を Pat::Ident として
@@ -417,7 +426,7 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
                 let scope_bindings = self.innermost_scope_bindings(ValueNS);
                 scope_bindings.insert(ident, res);
                 self.r.record_res(pat.id, res);
-            },
+            }
         }
     }
 
@@ -492,7 +501,6 @@ impl<'a, 'ast, 'ra: 'ast, 'tcx> LateResolutionVisitor<'a, 'ast, 'ra, 'tcx> {
         res
     }
 }
-
 
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     pub fn late_resolve_stelo(&mut self, stelo: &Stelo) {

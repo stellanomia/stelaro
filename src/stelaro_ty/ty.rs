@@ -1,6 +1,5 @@
 use crate::stelaro_common::{DefId, Symbol};
 
-
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Ty<'tcx>(&'tcx TyKind<'tcx>);
 

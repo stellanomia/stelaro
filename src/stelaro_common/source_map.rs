@@ -1,10 +1,14 @@
 use std::cell::RefCell;
 use std::io;
 use std::rc::Rc;
-use std::{fs, hash::Hash, path::{Path, PathBuf}};
+use std::{
+    fs,
+    hash::Hash,
+    path::{Path, PathBuf},
+};
 
 use super::stable_hasher::HashStable;
-use super::{Hash128, Span, StableHasher, SESSION_GLOBALS};
+use super::{Hash128, SESSION_GLOBALS, Span, StableHasher};
 
 pub struct SourceMap {
     // TODO: 単一ファイルで codegen が可能になったら複数ファイル対応(files: SourceMapFilesに変更)
@@ -35,15 +39,12 @@ impl SourceMap {
         file
     }
 
-    pub fn with_inputs(
-        SourceMapInputs { file_loader }: SourceMapInputs,
-    ) -> SourceMap {
+    pub fn with_inputs(SourceMapInputs { file_loader }: SourceMapInputs) -> SourceMap {
         SourceMap {
             file: Default::default(),
             file_loader,
         }
     }
-
 
     pub fn truncate_span_to_item_header(&self, span: Span) -> Span {
         self.span_until_char(span, '{')
@@ -51,8 +52,7 @@ impl SourceMap {
 
     pub fn span_until_char(&self, span: Span, c: char) -> Span {
         let file = self.file.borrow();
-        let snippet = file
-            .src[span.as_range_usize()]
+        let snippet = file.src[span.as_range_usize()]
             .split(c)
             .next()
             .unwrap_or("")
@@ -83,7 +83,6 @@ pub trait FileLoader {
     fn read_file(&self, path: &Path) -> io::Result<String>;
 }
 
-
 /// `std::fs` を使用して実際のファイルを読み込む `FileLoader`
 pub struct RealFileLoader;
 
@@ -94,7 +93,10 @@ impl FileLoader for RealFileLoader {
 
     fn read_file(&self, path: &Path) -> io::Result<String> {
         // path のメタデータが取得でき、かつファイルサイズが SourceFile::MAX_FILE_SIZE より大きい場合
-        if path.metadata().is_ok_and(|metadata| metadata.len() > SourceFile::MAX_FILE_SIZE.into()) {
+        if path
+            .metadata()
+            .is_ok_and(|metadata| metadata.len() > SourceFile::MAX_FILE_SIZE.into())
+        {
             return Err(io::Error::other(format!(
                 "{} バイトより大きいテキストファイルはサポートされていません",
                 SourceFile::MAX_FILE_SIZE
@@ -117,21 +119,15 @@ impl SourceFile {
     pub fn new(name: PathBuf, src: String) -> Self {
         let file_id = SourceFileId::from_file_name(&name);
 
-        SourceFile { name, src: Rc::new(src), file_id }
+        SourceFile {
+            name,
+            src: Rc::new(src),
+            file_id,
+        }
     }
 }
 
-#[derive(
-    Debug,
-    Default,
-    Clone,
-    Copy,
-    Hash,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord
-)]
+#[derive(Debug, Default, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 pub struct SourceFileId(pub Hash128);
 
 impl SourceFileId {

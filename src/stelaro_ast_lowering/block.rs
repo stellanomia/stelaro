@@ -1,8 +1,10 @@
 use crate::stelaro_ast::ast::{self, StmtKind};
 use crate::stelaro_ast_lowering::LoweringContext;
 use crate::stelaro_common::Span;
-use crate::stelaro_sir::{sir::{self, LoopSource}, sir_id::SirId};
-
+use crate::stelaro_sir::{
+    sir::{self, LoopSource},
+    sir_id::SirId,
+};
 
 impl<'a, 'sir> LoweringContext<'a, 'sir> {
     pub fn lower_block(
@@ -19,7 +21,12 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         b: &ast::Block,
     ) -> sir::Block<'sir> {
         let (stmts, expr) = self.lower_stmts(&b.stmts);
-        sir::Block { sir_id, stmts, expr, span: b.span }
+        sir::Block {
+            sir_id,
+            stmts,
+            expr,
+            span: b.span,
+        }
     }
 
     fn lower_stmts(
@@ -87,14 +94,20 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
                         self.lower_loop_destination(),
                         opt_expr,
                     );
-                    stmts.push(
-                        sir::Stmt { sir_id, kind, span: s.span }
-                    );
+                    stmts.push(sir::Stmt {
+                        sir_id,
+                        kind,
+                        span: s.span,
+                    });
                 }
                 StmtKind::Continue => {
                     let sir_id = self.lower_node_id(s.id);
                     let kind = sir::StmtKind::Continue(self.lower_loop_destination());
-                    stmts.push(sir::Stmt { sir_id, kind, span: s.span });
+                    stmts.push(sir::Stmt {
+                        sir_id,
+                        kind,
+                        span: s.span,
+                    });
                 }
                 StmtKind::Return(ref e) => {
                     let sir_id = self.lower_node_id(s.id);
@@ -117,7 +130,13 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         let sir_id = self.lower_node_id(l.id);
         let pat = self.lower_pat(&l.pat);
         let span = l.span;
-        self.arena.alloc(sir::LetStmt { sir_id, ty, pat, init, span })
+        self.arena.alloc(sir::LetStmt {
+            sir_id,
+            ty,
+            pat,
+            init,
+            span,
+        })
     }
 
     fn with_loop_scope<T>(&mut self, loop_id: SirId, f: impl FnOnce(&mut Self) -> T) -> T {

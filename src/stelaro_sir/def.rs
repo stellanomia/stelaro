@@ -5,7 +5,7 @@ use super::definitions::DefPathData;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum DefKind {
-    Mod,    // モジュール
+    Mod, // モジュール
     // Struct,
     // Enum,
     // Field,
@@ -13,7 +13,6 @@ pub enum DefKind {
     // Static, // Static item
     // Const,  // Const item
 }
-
 
 impl DefKind {
     /// DefKindに対する英語の説明を得る。
@@ -67,7 +66,6 @@ pub enum Res<Id = SirId> {
 
     /// 名前解決に失敗したとき
     Err,
-
     // SelfTyParam
     // SelfTyAlias,
 }
@@ -100,7 +98,6 @@ impl<Id> Res<Id> {
         })
     }
 }
-
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum Namespace {

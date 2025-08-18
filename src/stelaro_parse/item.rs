@@ -94,7 +94,7 @@ impl<'sess> Parser<'sess> {
     }
 
     fn parse_fn_sig(&mut self) -> PResult<FnSig> {
-        let start= self.prev_token.span;
+        let start = self.prev_token.span;
         let params = self.parse_fn_params()?;
 
         let ret_ty = if self.token.kind == TokenKind::Colon {
@@ -157,12 +157,12 @@ impl<'sess> Parser<'sess> {
 
                             break;
                         }
-                    },
+                    }
                     _ if self.token.kind == TokenKind::RParen => {
                         self.bump();
 
                         break;
-                    },
+                    }
                     _ => {
                         let mut diag = DiagsParser::unexpected_token(
                             self.dcx(),
@@ -172,9 +172,10 @@ impl<'sess> Parser<'sess> {
 
                         diag.set_label(
                             self.token.span,
-                            format!("`,`または`)`を期待しましたが、`{}`が見つかりました",
+                            format!(
+                                "`,`または`)`を期待しましたが、`{}`が見つかりました",
                                 self.token.kind
-                            )
+                            ),
                         );
                         Err(diag.emit())?
                     }
@@ -206,14 +207,16 @@ impl<'sess> Parser<'sess> {
 
         let ty = self.parse_ty()?;
 
-        Ok(
-            Param {
+        Ok(Param {
+            id: self.next_node_id(),
+            ty: Box::new(ty),
+            pat: Pat {
                 id: self.next_node_id(),
-                ty: Box::new(ty),
-                pat: Pat { id: self.next_node_id(), kind: PatKind::Ident(ident), span: ident.span },
+                kind: PatKind::Ident(ident),
+                span: ident.span,
+            },
                 span: start.merge(&self.prev_token.span),
-            }
-        )
+        })
     }
 
     pub fn parse_mod(&mut self) -> PResult<(Ident, Vec<Box<Item>>, ModSpan)> {
@@ -233,11 +236,11 @@ impl<'sess> Parser<'sess> {
                     inner_span = inner_span.merge(&self.token.span);
                     self.bump();
                     break;
-                },
+                }
                 TokenKind::Semicolon => {
                     self.bump();
                     continue;
-                },
+                }
                 TokenKind::Eof => {
                     Err(
                         DiagsParser::unclosed_delimiter(

@@ -7,13 +7,20 @@ mod path;
 
 use std::{collections::HashMap, thread};
 
-use crate::stelaro_ast::{ast, visit, NodeId, ty::{Ty, TyKind}};
+use crate::stelaro_ast::{
+    NodeId, ast,
+    ty::{Ty, TyKind},
+    visit,
+};
 use crate::stelaro_ast_lowering::index::index_sir;
-use crate::stelaro_common::{Arena, Idx, IndexVec, LocalDefId, SortedMap, Span, STELO_DEF_ID};
+use crate::stelaro_common::{Arena, Idx, IndexVec, LocalDefId, STELO_DEF_ID, SortedMap, Span};
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_sir::{sir, def::Res, sir_id::{ItemLocalId, OwnerId, SirId, STELO_OWNER_ID}};
+use crate::stelaro_sir::{
+    def::Res,
+    sir,
+    sir_id::{ItemLocalId, OwnerId, STELO_OWNER_ID, SirId},
+};
 use crate::stelaro_ty::ResolverAstLowering;
-
 
 struct LoweringContext<'a, 'sir> {
     pub tcx: TyCtxt<'sir>,
@@ -62,7 +69,6 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
     }
 }
 
-
 #[derive(Debug, Clone, Copy)]
 enum AstOwner<'a> {
     NonOwner,
@@ -74,9 +80,13 @@ fn index_stelo<'a>(
     node_id_to_def_id: &HashMap<NodeId, LocalDefId>,
     stelo: &'a ast::Stelo,
 ) -> IndexVec<LocalDefId, AstOwner<'a>> {
-    let mut indexer = Indexer { node_id_to_def_id, index: IndexVec::new() };
-    *indexer.index
-    .ensure_contains_elem(STELO_DEF_ID, || AstOwner::NonOwner) = AstOwner::Stelo(stelo);
+    let mut indexer = Indexer {
+        node_id_to_def_id,
+        index: IndexVec::new(),
+    };
+    *indexer
+        .index
+        .ensure_contains_elem(STELO_DEF_ID, || AstOwner::NonOwner) = AstOwner::Stelo(stelo);
 
     visit::walk_stelo(&mut indexer, stelo);
     return indexer.index;
@@ -89,7 +99,9 @@ fn index_stelo<'a>(
     impl<'a> visit::Visitor<'a> for Indexer<'_, 'a> {
         fn visit_item(&mut self, item: &'a ast::Item) {
             let def_id = self.node_id_to_def_id[&item.id];
-            *self.index.ensure_contains_elem(def_id, || AstOwner::NonOwner) = AstOwner::Item(item);
+            *self
+                .index
+                .ensure_contains_elem(def_id, || AstOwner::NonOwner) = AstOwner::Item(item);
             visit::walk_item(self, item)
         }
     }
@@ -141,12 +153,15 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
     }
 
     fn local_def_id(&self, node: NodeId) -> LocalDefId {
-        self.opt_local_def_id(node).unwrap_or_else(|| panic!("ノードID `{node:?}` に対応するエントリが存在しません"))
+        self.opt_local_def_id(node)
+            .unwrap_or_else(|| panic!("ノードID `{node:?}` に対応するエントリが存在しません"))
     }
 
     /// AST内の所有ノードのIDが与えられたときに、それに対応する `OwnerId` を返す。
     fn owner_id(&self, node: NodeId) -> OwnerId {
-        OwnerId { def_id: self.local_def_id(node) }
+        OwnerId {
+            def_id: self.local_def_id(node),
+        }
     }
 
     /// `LoweringContext` をリフレッシュし、ネストしたアイテムを `lower` 化する準備を整えます。
@@ -162,15 +177,13 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         let owner_id = self.owner_id(owner);
 
         let current_bodies = std::mem::take(&mut self.bodies);
-        let current_ident_to_local_id =
-            std::mem::take(&mut self.ident_to_local_id);
+        let current_ident_to_local_id = std::mem::take(&mut self.ident_to_local_id);
 
         #[cfg(debug_assertions)]
         let current_node_id_to_local_id = std::mem::take(&mut self.node_id_to_local_id);
         let current_owner = std::mem::replace(&mut self.current_sir_id_owner, owner_id);
         let current_local_counter =
             std::mem::replace(&mut self.item_local_id_counter, ItemLocalId::new(1));
-
 
         // `next_node_id` と `node_id_to_def_id` はリセットしない：
         // 呼び出し側が作成した `LocalDefId` を `f` が参照できるようにするため。
@@ -198,7 +211,8 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         self.item_local_id_counter = current_local_counter;
 
         debug_assert!(!self.children.iter().any(|(id, _)| id == &owner_id.def_id));
-        self.children.push((owner_id.def_id, sir::MaybeOwner::Owner(info)));
+        self.children
+            .push((owner_id.def_id, sir::MaybeOwner::Owner(info)));
     }
 
     fn make_owner_info(&mut self, node: sir::OwnerNode<'sir>) -> &'sir sir::OwnerInfo<'sir> {
@@ -226,7 +240,8 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         let sir_id = SirId { owner, local_id };
 
         if let Some(def_id) = self.opt_local_def_id(ast_node_id) {
-            self.children.push((def_id, sir::MaybeOwner::NonOwner(sir_id)));
+            self.children
+                .push((def_id, sir::MaybeOwner::NonOwner(sir_id)));
         }
 
         // 同じ `NodeId` が複数回 lowering されていないかチェックします。
@@ -276,17 +291,11 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         self.arena.alloc(self.lower_ty_direct(t))
     }
 
-    fn lower_path_ty(
-        &mut self,
-        t: &Ty,
-        path: &ast::Path,
-    ) -> sir::Ty<'sir> {
+    fn lower_path_ty(&mut self, t: &Ty, path: &ast::Path) -> sir::Ty<'sir> {
         sir::Ty {
-            kind: sir::TyKind::Path(
-                self.lower_path(t.id, path)
-            ),
+            kind: sir::TyKind::Path(self.lower_path(t.id, path)),
             span: t.span,
-            sir_id: self.lower_node_id(t.id)
+            sir_id: self.lower_node_id(t.id),
         }
     }
 
@@ -294,7 +303,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         let kind = match &t.kind {
             TyKind::Path(path) => {
                 return self.lower_path_ty(t, path);
-            },
+            }
             TyKind::Infer => sir::TyKind::Infer,
             TyKind::Unit => sir::TyKind::Unit,
         };
@@ -302,7 +311,7 @@ impl<'a, 'sir> LoweringContext<'a, 'sir> {
         sir::Ty {
             sir_id: self.lower_node_id(t.id),
             span: t.span,
-            kind
+            kind,
         }
     }
 

@@ -20,7 +20,6 @@ pub trait Idx: Copy + 'static + Eq + PartialEq + Debug + Hash {
     }
 }
 
-
 impl Idx for usize {
     #[inline]
     fn new(idx: usize) -> Self {
@@ -43,7 +42,6 @@ impl Idx for u32 {
         self as usize
     }
 }
-
 
 /// カスタムインデックス型を用いてインデックス操作をするためのヘルパートレイト。
 pub trait IntoSliceIdx<I, T: ?Sized> {
@@ -71,7 +69,10 @@ impl<I: Idx, T> IntoSliceIdx<I, [T]> for ops::Range<I> {
     type Output = ops::Range<usize>;
     #[inline]
     fn into_slice_idx(self) -> Self::Output {
-        ops::Range { start: self.start.index(), end: self.end.index() }
+        ops::Range {
+            start: self.start.index(),
+            end: self.end.index(),
+        }
     }
 }
 
@@ -79,7 +80,9 @@ impl<I: Idx, T> IntoSliceIdx<I, [T]> for ops::RangeFrom<I> {
     type Output = ops::RangeFrom<usize>;
     #[inline]
     fn into_slice_idx(self) -> Self::Output {
-        ops::RangeFrom { start: self.start.index() }
+        ops::RangeFrom {
+            start: self.start.index(),
+        }
     }
 }
 

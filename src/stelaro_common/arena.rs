@@ -17,11 +17,17 @@ pub struct TypedArena<'a, T> {
 
 impl<'a, T> TypedArena<'a, T> {
     pub fn new() -> Self {
-        TypedArena { inner: Bump::new(), _marker: PhantomData }
+        TypedArena {
+            inner: Bump::new(),
+            _marker: PhantomData,
+        }
     }
 
     pub fn with_capacity(capacity: usize) -> Self {
-        TypedArena { inner: Bump::with_capacity(capacity), _marker: PhantomData }
+        TypedArena {
+            inner: Bump::with_capacity(capacity),
+            _marker: PhantomData,
+        }
     }
 
     #[inline]
@@ -58,7 +64,9 @@ impl Arena {
     }
 
     pub fn with_capacity(capacity: usize) -> Self {
-        Arena { inner: Bump::with_capacity(capacity) }
+        Arena {
+            inner: Bump::with_capacity(capacity),
+        }
     }
 
     #[inline]

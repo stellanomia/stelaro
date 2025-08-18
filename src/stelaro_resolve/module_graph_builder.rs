@@ -1,25 +1,15 @@
 use visit::Visitor;
 
 use super::{
-    def_collector::collect_definitions,
-    BindingKey,
-    Module,
-    ModuleKind,
-    NameBinding,
-    NameBindingData,
-    NameBindingKind,
-    Resolver,
-    ResolverArenas,
-    ToNameBinding
+    BindingKey, Module, ModuleKind, NameBinding, NameBindingData, NameBindingKind, Resolver,
+    ResolverArenas, ToNameBinding, def_collector::collect_definitions,
 };
 
-use crate::stelaro_ast::{ast::*, visit, NodeId};
+use crate::stelaro_ast::{NodeId, ast::*, visit};
 use crate::stelaro_common::{Ident, Span};
 use crate::stelaro_sir::def::{Namespace, Res};
 
-impl<'ra> ToNameBinding<'ra>
-    for (Module<'ra>, /*ty::Visibility<Id>,*/ Span)
-{
+impl<'ra> ToNameBinding<'ra> for (Module<'ra>, /*ty::Visibility<Id>,*/ Span) {
     fn to_name_binding(self, arenas: &'ra ResolverArenas<'ra>) -> NameBinding<'ra> {
         arenas.alloc_name_binding(NameBindingData {
             kind: NameBindingKind::Module(self.0),
@@ -39,11 +29,10 @@ impl<'ra> ToNameBinding<'ra> for (Res<NodeId>, /*ty::Visibility<Id>,*/ Span) {
     }
 }
 
-
 impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
     pub fn define<T>(&mut self, parent: Module<'ra>, ident: Ident, ns: Namespace, def: T)
     where
-    T: ToNameBinding<'ra>,
+        T: ToNameBinding<'ra>,
     {
         let binding = def.to_name_binding(self.arenas);
         let key = self.new_binding_key(ident, ns);
@@ -65,7 +54,6 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         let mut resolution = self.resolution(module, key).borrow_mut();
 
         if let Some(old_binding) = resolution.binding {
-
             // エラー回復: 新しいバインディングが Res::Err で、既存がそうでない場合、
             // 既存の有効な定義を上書きしない。
             if new_res == Res::Err && old_binding.res() != Res::Err {
@@ -89,7 +77,10 @@ impl<'ra, 'tcx> Resolver<'ra, 'tcx> {
         parent_module: Module<'ra>,
     ) {
         collect_definitions(self, stelo);
-        let mut visitor = ModuleGraphBuilder { r: self, parent_module };
+        let mut visitor = ModuleGraphBuilder {
+            r: self,
+            parent_module,
+        };
         visitor.visit_stelo(stelo);
     }
 }
@@ -100,7 +91,6 @@ struct ModuleGraphBuilder<'r, 'ra, 'tcx> {
 }
 
 impl<'r, 'ra, 'tcx> ModuleGraphBuilder<'r, 'ra, 'tcx> {
-
     // まだ Statement は Item をとりうらないので、匿名モジュールとして収集する必要はない。
     fn block_needs_anonymous_module(&mut self, _block: &Block) -> bool {
         // もし Statements が Item を含むなら、匿名モジュールとして作る必要がある
@@ -113,7 +103,12 @@ impl<'r, 'ra, 'tcx> ModuleGraphBuilder<'r, 'ra, 'tcx> {
 
     fn build_module_graph_for_item(&mut self, item: &Item) {
         let parent = self.parent_module;
-        let Item { kind, id, span, ident } = item;
+        let Item {
+            kind,
+            id,
+            span,
+            ident,
+        } = item;
         let local_def_id = self.r.node_id_to_def_id.get(id).unwrap();
         let def_id = local_def_id.to_def_id();
         let def_kind = self.r.tcx.def_kind(def_id);
@@ -121,18 +116,20 @@ impl<'r, 'ra, 'tcx> ModuleGraphBuilder<'r, 'ra, 'tcx> {
 
         match kind {
             ItemKind::Fn(..) => {
-                self.r.define(parent, *ident, Namespace::ValueNS, (res, /* vis,*/ *span ));
-            },
+                self.r
+                    .define(parent, *ident, Namespace::ValueNS, (res, /* vis,*/ *span));
+            }
             ItemKind::Mod(..) => {
                 let module = self.r.new_module(
                     Some(parent),
                     ModuleKind::Def(def_kind, def_id, Some(ident.name)),
-                    *span
+                    *span,
                 );
 
-                self.r.define(parent, *ident, Namespace::TypeNS, (module, /*vis,*/ *span));
+                self.r
+                    .define(parent, *ident, Namespace::TypeNS, (module, /*vis,*/ *span));
                 self.parent_module = module;
-            },
+            }
         }
     }
 

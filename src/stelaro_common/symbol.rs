@@ -1,6 +1,11 @@
-use std::{cell::RefCell, collections::HashMap, fmt, hash::{Hash, Hasher}};
+use std::{
+    cell::RefCell,
+    collections::HashMap,
+    fmt,
+    hash::{Hash, Hasher},
+};
 
-use super::{span::Span, SESSION_GLOBALS};
+use super::{SESSION_GLOBALS, span::Span};
 
 #[derive(Debug, Clone, Copy, Eq, PartialOrd, Ord)]
 pub struct Ident {
@@ -36,7 +41,6 @@ impl fmt::Display for Ident {
         write!(f, "{}", self.name.as_str())
     }
 }
-
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash)]
 pub struct Symbol(u32);
@@ -82,9 +86,8 @@ pub struct Interner(RefCell<InternerInner>);
 struct InternerInner {
     strings: HashMap<&'static str, u32>,
     symbols: Vec<&'static str>,
-    next_idx: u32
+    next_idx: u32,
 }
-
 
 impl Interner {
     pub fn new() -> Self {
@@ -114,7 +117,7 @@ impl InternerInner {
         // SAFETY: Internerが生きている間しかこの参照にアクセスできない
         // また、&'static str は外部へ持ち込まれない
         // ライフタイムを'static に拡張
-        let string: &'static str = unsafe {&*(string as *const str) };
+        let string: &'static str = unsafe { &*(string as *const str) };
 
         self.strings.insert(string, idx);
         self.next_idx += 1;
@@ -133,20 +136,13 @@ impl Default for Interner {
             next_idx: 0,
         };
 
-        PREFILLED_STRINGS.iter().for_each(
-            |str| {
-                inner.intern(str);
-            }
-        );
+        PREFILLED_STRINGS.iter().for_each(|str| {
+            inner.intern(str);
+        });
 
-        Interner(
-            RefCell::new(
-                inner
-            )
-        )
+        Interner(RefCell::new(inner))
     }
 }
-
 
 /// 事前定義する文字列から、
 /// `sym::KEYWORD` 形式のシンボル定数と、

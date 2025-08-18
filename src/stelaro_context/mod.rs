@@ -3,12 +3,17 @@ pub mod sir_map;
 use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap};
 
-use crate::stelaro_common::{DefId, Arena, IndexVec, LocalDefId, Span, StableSteloId, Symbol, STELO_DEF_ID};
+use crate::stelaro_common::{
+    Arena, DefId, IndexVec, LocalDefId, STELO_DEF_ID, Span, StableSteloId, Symbol,
+};
 use crate::stelaro_diagnostics::DiagCtxtHandle;
 use crate::stelaro_session::Session;
-use crate::stelaro_sir::{sir, def::DefKind, definitions::{self, Definitions}};
+use crate::stelaro_sir::{
+    def::DefKind,
+    definitions::{self, Definitions},
+    sir,
+};
 use crate::stelaro_ty::{Ty, TyKind};
-
 
 #[derive(Clone, Copy)]
 pub struct TyCtxt<'tcx> {
@@ -34,7 +39,6 @@ pub struct GlobalCtxt<'tcx> {
 
     /// AST Lowering 後の Stelo
     pub sir_stelo: RefCell<Option<&'tcx sir::Stelo<'tcx>>>,
-
     // std, core 実装時など、複数のStelo解析の際に使われる
     // /// インターンされた [StableSteloId] のマップ
     // pub stable_stelo_ids: IndexMap<StableSteloId, SteloNum, BuildHasherDefault<Unhasher>>,
@@ -47,7 +51,6 @@ impl<'tcx> Deref for TyCtxt<'tcx> {
         &self.gcx
     }
 }
-
 
 impl<'tcx> TyCtxt<'tcx> {
     pub fn dcx(self) -> DiagCtxtHandle<'tcx> {
@@ -121,7 +124,6 @@ impl<'tcx> TyCtxt<'tcx> {
         self.opt_parent(id.to_def_id()).map(DefId::expect_local)
     }
 }
-
 
 impl<'tcx> TyCtxt<'tcx> {
     pub fn new(gcx: &'tcx GlobalCtxt<'tcx>) -> Self {

@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 use crate::stelaro_common::{IndexVec, LocalDefId, SortedMap, Span};
-use crate::stelaro_sir::{
-    sir::{self, *},
-    sir_id::{ItemLocalId, OwnerId, SirId, STELO_SIR_ID},
-    visit, Visitor,
-};
 use crate::stelaro_context::TyCtxt;
-
+use crate::stelaro_sir::{
+    Visitor,
+    sir::{self, *},
+    sir_id::{ItemLocalId, OwnerId, STELO_SIR_ID, SirId},
+    visit,
+};
 
 /// SIR を巡回して `Node` を収集し、SIR マップに格納するビジター。
 struct NodeCollector<'a, 'sir> {
@@ -33,12 +33,21 @@ pub fn index_sir<'sir>(
     item: sir::OwnerNode<'sir>,
     bodies: &SortedMap<ItemLocalId, &'sir Body<'sir>>,
     num_nodes: usize,
-) -> (IndexVec<ItemLocalId, ParentedNode<'sir>>, HashMap<LocalDefId, ItemLocalId>) {
-    let err_node = ParentedNode { parent: ItemLocalId::ZERO, node: Node::Err(item.span()) };
+) -> (
+    IndexVec<ItemLocalId, ParentedNode<'sir>>,
+    HashMap<LocalDefId, ItemLocalId>,
+) {
+    let err_node = ParentedNode {
+        parent: ItemLocalId::ZERO,
+        node: Node::Err(item.span()),
+    };
     let mut nodes = IndexVec::from_elem_n(err_node, num_nodes);
     // このノードの親は決してアクセスされるべきではありません。
     // 使用された場合に内部コンパイラエラーを強制的に発生させるよう、無効な値に設定している。
-    nodes[ItemLocalId::ZERO] = ParentedNode { parent: ItemLocalId::INVALID, node: item.into() };
+    nodes[ItemLocalId::ZERO] = ParentedNode {
+        parent: ItemLocalId::INVALID,
+        node: item.into(),
+    };
     let mut collector = NodeCollector {
         tcx,
         owner: item.def_id(),
@@ -48,17 +57,17 @@ pub fn index_sir<'sir>(
         parenting: Default::default(),
     };
 
-
     match item {
-        OwnerNode::Stelo(sitem) => {
-            collector.visit_mod(sitem, sitem.spans.inner_span, STELO_SIR_ID)
-        }
+        OwnerNode::Stelo(sitem) => collector.visit_mod(sitem, sitem.spans.inner_span, STELO_SIR_ID),
         OwnerNode::Item(item) => collector.visit_item(item),
     };
 
     for (local_id, node) in collector.nodes.iter_enumerated() {
         if let Node::Err(_) = node.node {
-            let sir_id = SirId { owner: item.def_id(), local_id };
+            let sir_id = SirId {
+                owner: item.def_id(),
+                local_id,
+            };
             panic!("アイテムのSIRを走査する際に、ID {sir_id} に遭遇しませんでした");
         }
     }
@@ -68,30 +77,35 @@ pub fn index_sir<'sir>(
 
 impl<'a, 'sir> NodeCollector<'a, 'sir> {
     fn insert(&mut self, span: Span, sir_id: SirId, node: Node<'sir>) {
-       debug_assert_eq!(self.owner, sir_id.owner);
-       debug_assert_ne!(sir_id.local_id.as_u32(), 0);
-       debug_assert_ne!(sir_id.local_id, self.parent_node);
+        debug_assert_eq!(self.owner, sir_id.owner);
+        debug_assert_ne!(sir_id.local_id.as_u32(), 0);
+        debug_assert_ne!(sir_id.local_id, self.parent_node);
 
         // あるノードのDepNodeが、そのノードのSirId ownerと一致することを確認します。
         if cfg!(debug_assertions) && sir_id.owner != self.owner {
-                panic!(
-                   "{:?} において {node:?} に対する SirId が矛盾しています: \
+            panic!(
+                "{:?} において {node:?} に対する SirId が矛盾しています: \
                     current_dep_node_owner={} ({:?}), sir_id.owner={} ({:?})",
-                   span,
-                   self.tcx.definitions
-                       .borrow()
-                       .def_path(self.owner.def_id)
-                       .to_string_no_stelo_verbose(),
-                   self.owner,
-                   self.tcx.definitions
-                       .borrow()
-                       .def_path(sir_id.owner.def_id)
-                       .to_string_no_stelo_verbose(),
-                   sir_id.owner,
-               )
+                span,
+                self.tcx
+                    .definitions
+                    .borrow()
+                    .def_path(self.owner.def_id)
+                    .to_string_no_stelo_verbose(),
+                self.owner,
+                self.tcx
+                    .definitions
+                    .borrow()
+                    .def_path(sir_id.owner.def_id)
+                    .to_string_no_stelo_verbose(),
+                sir_id.owner,
+            )
         }
 
-        self.nodes[sir_id.local_id] = ParentedNode { parent: self.parent_node, node };
+        self.nodes[sir_id.local_id] = ParentedNode {
+            parent: self.parent_node,
+            node,
+        };
     }
 
     fn with_parent<F: FnOnce(&mut Self)>(&mut self, parent_node_id: SirId, f: F) {
@@ -160,7 +174,11 @@ impl<'a, 'sir> Visitor<'sir> for NodeCollector<'a, 'sir> {
     }
 
     fn visit_path_segment(&mut self, path_segment: &'sir PathSegment) -> Self::Result {
-        self.insert(path_segment.ident.span, path_segment.sir_id, Node::PathSegment(path_segment));
+        self.insert(
+            path_segment.ident.span,
+            path_segment.sir_id,
+            Node::PathSegment(path_segment),
+        );
 
         self.with_parent(path_segment.sir_id, |this| {
             visit::walk_path_segment(this, path_segment);

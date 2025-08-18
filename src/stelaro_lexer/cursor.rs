@@ -12,7 +12,7 @@ impl<'a> Cursor<'a> {
     pub fn new(src: &'a str) -> Self {
         Cursor {
             chars: src.chars(),
-            prev: EOF_CHAR
+            prev: EOF_CHAR,
         }
     }
 

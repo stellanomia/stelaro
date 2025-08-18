@@ -27,9 +27,11 @@ impl LitKind {
                         match ch.parse::<char>() {
                             Ok(ch) => ch,
                             Err(err) => {
-                                panic!("bug: Lexer が適切に char リテラルを処理できていません。\
-                                `{ch}` のアンエスケープに失敗しました: {err}")
-                            },
+                            panic!(
+                                "bug: Lexer が適切に char リテラルを処理できていません。\
+                                `{ch}` のアンエスケープに失敗しました: {err}"
+                            )
+                        }
                         }
                     };
                     LitKind::Char(
@@ -77,7 +79,9 @@ fn integer_lit(symbol: Symbol) -> Result<LitKind, LitError> {
 #[inline]
 pub fn unescape_char(ch: &str) -> char {
     let mut chars = ch.chars();
-    if let Some('\\') = chars.next() && let Some(e) = chars.next() {
+    if let Some('\\') = chars.next()
+        && let Some(e) = chars.next()
+    {
         match e {
             'n' => '\n',
             'r' => '\r',
@@ -86,10 +90,13 @@ pub fn unescape_char(ch: &str) -> char {
             '\'' => '\'',
             '"' => '\"',
             '\\' => '\\',
-            _ => unreachable!("未定義のエスケープシーケンス: {e}")
+            _ => unreachable!("未定義のエスケープシーケンス: {e}"),
         }
     } else {
-        unreachable!("エスケープシーケンスを含む char である必要がある: {}", chars.as_str())
+        unreachable!(
+            "エスケープシーケンスを含む char である必要がある: {}",
+            chars.as_str()
+        )
     }
 }
 

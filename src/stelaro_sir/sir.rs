@@ -1,11 +1,13 @@
 use std::{collections::HashMap, fmt};
 
 use crate::stelaro_ast::ast::{BinOp, UnOp};
+use crate::stelaro_common::{Ident, IndexVec, LocalDefId, SortedMap, Span, Spanned, Symbol, sym};
 use crate::stelaro_diagnostics::ErrorEmitted;
-use crate::stelaro_common::{sym, Ident, IndexVec, LocalDefId, Span, SortedMap, Spanned, Symbol};
-use crate::stelaro_sir::{def::Res, sir_id::{OwnerId, ItemLocalId, SirId, STELO_SIR_ID}};
+use crate::stelaro_sir::{
+    def::Res,
+    sir_id::{ItemLocalId, OwnerId, STELO_SIR_ID, SirId},
+};
 use crate::stelaro_ty::ty::{FloatTy, IntTy, UintTy};
-
 
 #[derive(Copy, Clone, Debug)]
 pub enum OwnerNode<'sir> {
@@ -17,7 +19,10 @@ impl<'sir> OwnerNode<'sir> {
     pub fn span(&self) -> Span {
         match self {
             OwnerNode::Item(Item { span, .. }) => *span,
-            OwnerNode::Stelo(Mod { spans: ModSpan { inner_span, .. }, .. }) => *inner_span,
+            OwnerNode::Stelo(Mod {
+                spans: ModSpan { inner_span, .. },
+                ..
+            }) => *inner_span,
         }
     }
 
@@ -63,7 +68,6 @@ impl<'tcx> OwnerNodes<'tcx> {
         self.nodes[ItemLocalId::ZERO].node.as_owner().unwrap()
     }
 }
-
 
 impl fmt::Debug for OwnerNodes<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -112,7 +116,8 @@ impl<'tcx> MaybeOwner<'tcx> {
     }
 
     pub fn unwrap(self) -> &'tcx OwnerInfo<'tcx> {
-        self.as_owner().unwrap_or_else(|| panic!("SIR の所有者ではありません"))
+        self.as_owner()
+            .unwrap_or_else(|| panic!("SIR の所有者ではありません"))
     }
 }
 
@@ -120,7 +125,6 @@ impl<'tcx> MaybeOwner<'tcx> {
 pub struct Stelo<'sir> {
     pub owners: IndexVec<LocalDefId, MaybeOwner<'sir>>,
 }
-
 
 #[derive(Debug, Clone, Copy)]
 pub struct Path<'sir, R = Res<SirId>> {
@@ -130,7 +134,6 @@ pub struct Path<'sir, R = Res<SirId>> {
     /// パス内のセグメント。`::` によって区切られたものです。
     pub segments: &'sir [PathSegment],
 }
-
 
 /// パスのセグメント。識別子や型の集合から構成されます。
 #[derive(Debug, Clone, Copy)]
@@ -156,13 +159,16 @@ pub struct Block<'sir> {
 impl<'sir> Block<'sir> {
     pub fn innermost_block(&self) -> &Block<'sir> {
         let mut block = self;
-        while let Some(Expr { kind: ExprKind::Block(inner_block), .. }) = block.expr {
+        while let Some(Expr {
+            kind: ExprKind::Block(inner_block),
+            ..
+        }) = block.expr
+        {
             block = inner_block;
         }
         block
     }
 }
-
 
 #[derive(Debug, Clone, Copy)]
 pub struct Pat {
@@ -238,7 +244,6 @@ pub enum StmtKind<'sir> {
     Loop(&'sir Block<'sir>, LoopSource, Span),
 }
 
-
 /// `let` 文を表す (i.e., `let <pat>:<ty> = <init>;`).
 #[derive(Debug, Clone, Copy)]
 pub struct LetStmt<'sir> {
@@ -255,7 +260,6 @@ pub struct LetStmt<'sir> {
 pub struct BodyId {
     pub sir_id: SirId,
 }
-
 
 /// 関数の本体。
 /// 本体には、関数本体(という式)そのものだけでなく、引数のパターンも含まれます。
@@ -280,7 +284,9 @@ pub struct Body<'sir> {
 
 impl<'sir> Body<'sir> {
     pub fn id(&self) -> BodyId {
-        BodyId { sir_id: self.value.sir_id }
+        BodyId {
+            sir_id: self.value.sir_id,
+        }
     }
 }
 
@@ -354,7 +360,6 @@ pub struct Item<'sir> {
     pub span: Span,
 }
 
-
 impl<'sir> Item<'sir> {
     #[inline]
     pub fn sir_id(&self) -> SirId {
@@ -363,7 +368,9 @@ impl<'sir> Item<'sir> {
     }
 
     pub fn item_id(&self) -> ItemId {
-        ItemId { owner_id: self.owner_id }
+        ItemId {
+            owner_id: self.owner_id,
+        }
     }
 }
 
@@ -502,7 +509,6 @@ pub enum LitKind {
     Err(ErrorEmitted),
 }
 
-
 #[derive(Copy, Clone, Debug)]
 pub enum Node<'sir> {
     Param(&'sir Param<'sir>),
@@ -532,8 +538,7 @@ impl<'sir> Node<'sir> {
         match self {
             Node::Item(Item {
                 owner_id,
-                kind:
-                    | ItemKind::Fn { body, .. },
+                kind: ItemKind::Fn { body, .. },
                 ..
             }) => Some((owner_id.def_id, *body)),
 

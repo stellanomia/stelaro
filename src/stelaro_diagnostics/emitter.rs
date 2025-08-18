@@ -1,9 +1,8 @@
-use crate::stelaro_common::SourceMap;
 use super::diag::{DiagInner, Level};
+use crate::stelaro_common::SourceMap;
 
-use std::rc::Rc;
 use ariadne::{Label, Report, Source};
-
+use std::rc::Rc;
 
 pub type DynEmitter = dyn Emitter;
 
@@ -21,7 +20,9 @@ pub struct AriadneEmitter {
 
 impl AriadneEmitter {
     pub fn new(source_map: Rc<SourceMap>) -> Self {
-        AriadneEmitter { source_map: Some(source_map) }
+        AriadneEmitter {
+            source_map: Some(source_map),
+        }
     }
 }
 
@@ -41,7 +42,7 @@ impl Emitter for AriadneEmitter {
 
         let mut report = Report::build(
             level_to_ariadne_kind(diag.level),
-            (name, diag.span.as_range_usize())
+            (name, diag.span.as_range_usize()),
         );
 
         if !diag.msg.is_empty() {
@@ -81,7 +82,6 @@ impl Emitter for AriadneEmitter {
         self.source_map.as_deref()
     }
 }
-
 
 fn level_to_ariadne_kind(level: Level) -> ariadne::ReportKind<'static> {
     match level {

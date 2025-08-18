@@ -62,7 +62,9 @@ impl VisitorResult for () {
     type Residual = !;
 
     fn output() -> Self {}
-    fn from_residual(redidual: Self::Residual) -> Self { match redidual {} }
+    fn from_residual(redidual: Self::Residual) -> Self {
+        match redidual {}
+    }
     fn from_branch(b: ControlFlow<Self::Residual>) -> Self {
         match b {
             ControlFlow::Continue(c) => c,

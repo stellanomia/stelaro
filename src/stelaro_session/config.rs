@@ -4,11 +4,10 @@ use crate::Args;
 
 pub struct Options {
     pub stelo_name: Option<String>,
-    pub working_dir: PathBuf
+    pub working_dir: PathBuf, 
     // pub error_format: ErrorOutputType,
     // pub target_triple: TargetTuple,
 }
-
 
 pub(crate) fn build_session_options(args: &Args) -> Options {
     let stelo_name = args.stelo_name.clone();
@@ -25,8 +24,5 @@ pub(crate) fn build_session_options(args: &Args) -> Options {
 
 pub enum Input {
     File(PathBuf),
-    Str {
-        name: String,
-        input: String,
-    },
+    Str { name: String, input: String },
 }

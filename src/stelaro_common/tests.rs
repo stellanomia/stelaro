@@ -1,12 +1,12 @@
-use std::path::PathBuf;
 use std::hash::Hasher;
+use std::path::PathBuf;
 
-use crate::stelaro_common::*;
 use crate::stelaro_common::idx::{Idx, IntoSliceIdx};
-use crate::stelaro_common::symbol::{Symbol, Interner};
-use crate::stelaro_common::unhash::{UnhashMap, UnhashSet, Unhasher};
-use crate::stelaro_common::source_map::{SourceFile, SourceFileId};
 use crate::stelaro_common::lit_utils::*;
+use crate::stelaro_common::source_map::{SourceFile, SourceFileId};
+use crate::stelaro_common::symbol::{Interner, Symbol};
+use crate::stelaro_common::unhash::{UnhashMap, UnhashSet, Unhasher};
+use crate::stelaro_common::*;
 
 #[test]
 fn interner_tests() {
@@ -41,7 +41,6 @@ fn test_symbol() {
     });
 }
 
-
 #[test]
 fn test_typed_arena_alloc() {
     let arena: TypedArena<i32> = TypedArena::new();
@@ -64,7 +63,11 @@ fn test_typed_arena_alloc_slice_copy() {
     let slice = &[1, 2, 3, 4, 5];
     let copied = arena.alloc_slice_copy(slice);
     assert_eq!(copied, slice);
-    assert_ne!(copied.as_ptr(), slice.as_ptr(), "コピーされたスライスは元のスライスと異なるメモリアドレスを指すはず");
+    assert_ne!(
+        copied.as_ptr(),
+        slice.as_ptr(),
+        "コピーされたスライスは元のスライスと異なるメモリアドレスを指すはず"
+    );
 }
 
 #[test]
@@ -82,7 +85,6 @@ fn test_typed_arena_empty_slice() {
     assert_eq!(copied.len(), 0);
     assert!(copied.is_empty());
 }
-
 
 #[test]
 fn test_stelo_num() {
@@ -149,7 +151,9 @@ fn test_local_def_id() {
     assert_eq!(def_id.stelo, LOCAL_STELO);
     assert_eq!(def_id.index, index);
 
-    let converted_back: LocalDefId = def_id.try_into().expect("DefId は LocalDefId に変換できるはず");
+    let converted_back: LocalDefId = def_id
+        .try_into()
+        .expect("DefId は LocalDefId に変換できるはず");
     assert_eq!(converted_back.local_def_index, index);
 
     let root_local_id = STELO_DEF_ID; // STELO_DEF_ID はトップレベルモジュールを表す LocalDefId 定数と想定
@@ -175,14 +179,19 @@ fn test_stable_stelo_id_consistency() {
         let stelo_name = Symbol::intern("test_stelo");
         let stelo_id1 = StableSteloId::new(stelo_name);
         let stelo_id2 = StableSteloId::new(stelo_name);
-        assert_eq!(stelo_id1, stelo_id2, "同じシンボルから生成されたIDは等しいはず");
+        assert_eq!(
+            stelo_id1, stelo_id2,
+            "同じシンボルから生成されたIDは等しいはず"
+        );
 
         let other_name = Symbol::intern("other_stelo");
         let other_id = StableSteloId::new(other_name);
-        assert_ne!(stelo_id1, other_id, "異なるシンボルから生成されたIDは異なるはず");
+        assert_ne!(
+            stelo_id1, other_id,
+            "異なるシンボルから生成されたIDは異なるはず"
+        );
     });
 }
-
 
 #[test]
 fn test_fingerprint_combine_operations() {
@@ -195,7 +204,10 @@ fn test_fingerprint_combine_operations() {
 
     let combined_commutative1 = fp1.combine_commutative(fp2);
     let combined_commutative2 = fp2.combine_commutative(fp1);
-    assert_eq!(combined_commutative1, combined_commutative2, "可換な結合は順序に依存しないはず");
+    assert_eq!(
+        combined_commutative1, combined_commutative2,
+        "可換な結合は順序に依存しないはず"
+    );
 }
 
 #[test]
@@ -205,8 +217,6 @@ fn test_fingerprint_byte_conversion_roundtrip() {
     let restored_fp = Fingerprint::from_le_bytes(bytes);
     assert_eq!(original_fp, restored_fp);
 }
-
-
 
 #[test]
 fn test_hash64_operations() {
@@ -218,7 +228,7 @@ fn test_hash64_operations() {
     assert_eq!(sum.as_u64(), 142);
 
     let mut h3 = Hash64::new(10); // 2進数: 1010
-    h3 ^= 5u64;                  // 2進数: 0101
+    h3 ^= 5u64; // 2進数: 0101
     assert_eq!(h3.as_u64(), 15); // 2進数: 1111
 }
 
@@ -231,7 +241,11 @@ fn test_hash64_edge_cases_wrapping() {
     assert_eq!(h_max.as_u64(), u64::MAX);
 
     let sum_overflow = h_max.wrapping_add(Hash64::new(1));
-    assert_eq!(sum_overflow.as_u64(), 0, "wrapping_add は0にオーバーフローするはず");
+    assert_eq!(
+        sum_overflow.as_u64(),
+        0,
+        "wrapping_add は0にオーバーフローするはず"
+    );
 }
 
 #[test]
@@ -249,9 +263,12 @@ fn test_hash128_operations() {
     let large_val = (u64::MAX as u128) + 10;
     let h_large = Hash128::new(large_val);
     let truncated_large = h_large.truncate();
-    assert_eq!(truncated_large.as_u64(), (large_val as u64), "切り捨ては下位ビットを取得するはず");
+    assert_eq!(
+        truncated_large.as_u64(),
+        (large_val as u64),
+        "切り捨ては下位ビットを取得するはず"
+    );
 }
-
 
 #[test]
 fn test_idx_trait_for_primitives() {
@@ -273,7 +290,7 @@ fn test_idx_trait_for_primitives() {
 
 #[test]
 fn test_into_slice_idx_trait_for_ranges() {
-    use std::ops::{Range, RangeFrom, RangeTo, RangeInclusive, RangeToInclusive};
+    use std::ops::{Range, RangeFrom, RangeInclusive, RangeTo, RangeToInclusive};
 
     let slice_data = [10, 20, 30, 40, 50];
 
@@ -286,27 +303,34 @@ fn test_into_slice_idx_trait_for_ranges() {
 
     // Case 2: Range<usize>
     let range_val: Range<usize> = 1..4;
-    let resolved_idx_range = <Range<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_val);
+    let resolved_idx_range =
+        <Range<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_val);
     assert_eq!(&slice_data[resolved_idx_range], &[20, 30, 40]);
 
     // Case 3: RangeFrom<usize>
     let range_from_val: RangeFrom<usize> = 3..;
-    let resolved_idx_range_from = <RangeFrom<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_from_val);
+    let resolved_idx_range_from =
+        <RangeFrom<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_from_val);
     assert_eq!(&slice_data[resolved_idx_range_from], &[40, 50]);
 
     // Case 4: RangeTo<usize>
     let range_to_val: RangeTo<usize> = ..3;
-    let resolved_idx_range_to = <RangeTo<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_to_val);
+    let resolved_idx_range_to =
+        <RangeTo<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_to_val);
     assert_eq!(&slice_data[resolved_idx_range_to], &[10, 20, 30]);
 
     // Case 5: RangeInclusive<usize>
     let range_inclusive_val: RangeInclusive<usize> = 1..=3;
-    let resolved_idx_range_inclusive = <RangeInclusive<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_inclusive_val);
+    let resolved_idx_range_inclusive =
+        <RangeInclusive<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_inclusive_val);
     assert_eq!(&slice_data[resolved_idx_range_inclusive], &[20, 30, 40]);
 
     // Case 6: RangeToInclusive<usize>
     let range_to_inclusive_val: RangeToInclusive<usize> = ..=2;
-    let resolved_idx_range_to_inclusive = <RangeToInclusive<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(range_to_inclusive_val);
+    let resolved_idx_range_to_inclusive =
+        <RangeToInclusive<usize> as IntoSliceIdx<usize, [i32]>>::into_slice_idx(
+            range_to_inclusive_val,
+        );
     assert_eq!(&slice_data[resolved_idx_range_to_inclusive], &[10, 20, 30]);
 }
 
@@ -355,7 +379,6 @@ fn test_index_vec_iterators() {
     assert_eq!(collected_pairs, vec![(0, &10), (1, &20), (2, &30)]);
 }
 
-
 #[test]
 fn test_index_vec_creation_methods() {
     let raw_vec_data = vec![1, 2, 3];
@@ -393,7 +416,11 @@ fn test_index_vec_option_element_methods() {
     assert_eq!(vec[3], Some("hello".to_string()));
 
     let old_val_at_3_overwrite = vec.insert(3, "world".to_string());
-    assert_eq!(old_val_at_3_overwrite, Some("hello".to_string()), "上書き挿入は古い値を返すはず");
+    assert_eq!(
+        old_val_at_3_overwrite,
+        Some("hello".to_string()),
+        "上書き挿入は古い値を返すはず"
+    );
     assert_eq!(vec[3], Some("world".to_string()));
 
     let val_at_4_ref = vec.get_or_insert_with(4, || "inserted".to_string());
@@ -402,14 +429,22 @@ fn test_index_vec_option_element_methods() {
 
     assert!(vec.contains(3), "インデックス3に要素が含まれているはず");
     assert!(vec.contains(4), "インデックス4に要素が含まれているはず");
-    assert!(!vec.contains(2), "インデックス2に要素は含まれていないはず (None のまま)");
+    assert!(
+        !vec.contains(2),
+        "インデックス2に要素は含まれていないはず (None のまま)"
+    );
 
     let removed_val_at_3 = vec.remove(3);
     assert_eq!(removed_val_at_3, Some("world".to_string()));
-    assert!(!vec.contains(3), "削除後、インデックス3に要素は含まれていないはず");
-    assert_eq!(vec[3], None, "削除後、インデックス3の要素は None になるはず");
+    assert!(
+        !vec.contains(3),
+        "削除後、インデックス3に要素は含まれていないはず"
+    );
+    assert_eq!(
+        vec[3], None,
+        "削除後、インデックス3の要素は None になるはず"
+    );
 }
-
 
 #[test]
 fn test_index_slice_access_and_properties() {
@@ -441,12 +476,14 @@ fn test_index_slice_iterators() {
     assert_eq!(sum, 150);
 
     let collected_pairs: Vec<(usize, &i32)> = slice.iter_enumerated().collect();
-    assert_eq!(collected_pairs, vec![(0, &10), (1, &20), (2, &30), (3, &40), (4, &50)]);
+    assert_eq!(
+        collected_pairs,
+        vec![(0, &10), (1, &20), (2, &30), (3, &40), (4, &50)]
+    );
 
     let collected_indices: Vec<usize> = slice.indices().collect();
     assert_eq!(collected_indices, vec![0, 1, 2, 3, 4]);
 }
-
 
 #[test]
 fn test_index_slice_mut_operations() {
@@ -461,7 +498,8 @@ fn test_index_slice_mut_operations() {
     assert_eq!(slice[4], 10);
     // 現在の状態: [50, 20, 35, 40, 10]
 
-    if let Some(value_ref) = slice.get_mut(1) { // 20 を取得
+    if let Some(value_ref) = slice.get_mut(1) {
+        // 20 を取得
         *value_ref = 25;
     }
     assert_eq!(slice[1], 25);
@@ -499,9 +537,21 @@ fn test_index_slice_binary_search() {
     let slice = vec_data.as_slice();
 
     assert_eq!(slice.binary_search(&30), Ok(2), "存在する要素の検索");
-    assert_eq!(slice.binary_search(&5), Err(0), "全要素より小さい要素の検索");
-    assert_eq!(slice.binary_search(&35), Err(3), "中間に存在しない要素の検索");
-    assert_eq!(slice.binary_search(&55), Err(5), "全要素より大きい要素の検索");
+    assert_eq!(
+        slice.binary_search(&5),
+        Err(0),
+        "全要素より小さい要素の検索"
+    );
+    assert_eq!(
+        slice.binary_search(&35),
+        Err(3),
+        "中間に存在しない要素の検索"
+    );
+    assert_eq!(
+        slice.binary_search(&55),
+        Err(5),
+        "全要素より大きい要素の検索"
+    );
 
     let empty_vec: IndexVec<usize, i32> = IndexVec::new();
     assert_eq!(empty_vec.as_slice().binary_search(&10), Err(0));
@@ -569,14 +619,24 @@ fn test_symbol_interning_and_properties() {
 
         assert_eq!(sym_hello1.as_str(), "hello");
         assert_eq!(sym_world.as_str(), "world");
-        assert_eq!(sym_hello1, sym_hello2, "同じ文字列から作られたシンボルは等しいはず");
-        assert_ne!(sym_hello1, sym_world, "異なる文字列から作られたシンボルは異なるはず");
+        assert_eq!(
+            sym_hello1, sym_hello2,
+            "同じ文字列から作られたシンボルは等しいはず"
+        );
+        assert_ne!(
+            sym_hello1, sym_world,
+            "異なる文字列から作られたシンボルは異なるはず"
+        );
 
         let underscore_symbol = Symbol::intern("_");
         assert!(underscore_symbol == sym::UNDERSCORE);
         assert!(sym_hello1 != sym::UNDERSCORE);
 
-        assert_ne!(sym_hello1.as_usize(), underscore_symbol.as_usize(), "ユーザーシンボルのインデックスは UNDERSCORE と異なるはず (もし 'hello' がそれにマップされない限り)");
+        assert_ne!(
+            sym_hello1.as_usize(),
+            underscore_symbol.as_usize(),
+            "ユーザーシンボルのインデックスは UNDERSCORE と異なるはず (もし 'hello' がそれにマップされない限り)"
+        );
         assert_ne!(sym_world.as_usize(), underscore_symbol.as_usize());
         assert_ne!(sym_hello1.as_usize(), sym_world.as_usize());
         assert_eq!(sym_hello1.as_usize(), sym_hello2.as_usize());
@@ -600,14 +660,12 @@ fn test_ident_creation_and_properties() {
     });
 }
 
-
 #[test]
 fn test_unhasher_simple_write_finish() {
     let mut hasher = Unhasher::default();
     hasher.write_u64(42);
     assert_eq!(hasher.finish(), 42); // 単純な u64 の Unhasher の場合
 }
-
 
 #[test]
 fn test_unhash_map_basic_crud() {
@@ -701,8 +759,14 @@ fn test_sorted_map_creation_and_iterators() {
 
     assert_eq!(map.len(), 3);
     assert_eq!(map.keys().collect::<Vec<_>>(), vec![&1, &2, &3]);
-    assert_eq!(map.values().copied().collect::<Vec<_>>(), vec!["a", "b", "c"]);
-    assert_eq!(map.iter().collect::<Vec<_>>(), vec![&(1, "a"), &(2, "b"), &(3, "c")]);
+    assert_eq!(
+        map.values().copied().collect::<Vec<_>>(),
+        vec!["a", "b", "c"]
+    );
+    assert_eq!(
+        map.iter().collect::<Vec<_>>(),
+        vec![&(1, "a"), &(2, "b"), &(3, "c")]
+    );
 
     // from_presorted_elements
     let sorted_data = vec![(10, "x"), (20, "y")];
@@ -715,8 +779,14 @@ fn test_sorted_map_range_and_bulk_operations() {
     let mut map = SortedMap::from_iter((1..=5).map(|i| (i, i.to_string())));
 
     // range
-    assert_eq!(map.range(2..4), &[(2, "2".to_string()), (3, "3".to_string())]);
-    assert_eq!(map.range(..=2), &[(1, "1".to_string()), (2, "2".to_string())]);
+    assert_eq!(
+        map.range(2..4),
+        &[(2, "2".to_string()), (3, "3".to_string())]
+    );
+    assert_eq!(
+        map.range(..=2),
+        &[(1, "1".to_string()), (2, "2".to_string())]
+    );
     assert!(!map.range_is_empty(2..=4));
     assert!(map.range_is_empty(6..8));
 
@@ -783,9 +853,12 @@ fn test_source_file_creation_and_properties() {
     assert_eq!(*file.src, content_str);
 
     let expected_id = SourceFileId::from_file_name(&file_path);
-    assert_eq!(file.file_id.0.as_u128(), expected_id.0.as_u128(), "File ID は生成されたIDと一致するはず");
+    assert_eq!(
+        file.file_id.0.as_u128(),
+        expected_id.0.as_u128(),
+        "File ID は生成されたIDと一致するはず"
+    );
 }
-
 
 #[test]
 fn test_session_globals_creation_and_access() {
@@ -798,7 +871,10 @@ fn test_session_globals_creation_and_access() {
 
     create_default_session_globals_then(|| {
         let symbol_in_default = Symbol::intern("symbol_in_default_globals_direct");
-        assert_eq!(symbol_in_default.as_str(), "symbol_in_default_globals_direct");
+        assert_eq!(
+            symbol_in_default.as_str(),
+            "symbol_in_default_globals_direct"
+        );
 
         let result_from_with = with_session_globals(|globals| {
             let sym = globals.symbol_interner.intern("symbol_in_with_globals");

@@ -1,6 +1,9 @@
 use std::path::PathBuf;
 
-use crate::{stelaro_common::FileLoader, stelaro_session::config::{self, Input}};
+use crate::{
+    stelaro_common::FileLoader,
+    stelaro_session::config::{self, Input},
+};
 
 /// コンパイラのコンフィグ
 pub struct Config {

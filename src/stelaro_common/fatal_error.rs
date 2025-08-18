@@ -1,4 +1,3 @@
-
 #[derive(Copy, Clone, Debug)]
 pub struct FatalError;
 

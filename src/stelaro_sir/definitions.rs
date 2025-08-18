@@ -1,10 +1,13 @@
-use std::{collections::HashMap, fmt::{self, Write}, hash::Hash};
-
-use crate::stelaro_common::{
-    sym, DefIndex, DefPathHash, Hash64, IndexVec, LocalDefId,
-    StableHasher, StableSteloId, SteloNum, Symbol, LOCAL_STELO, STELO_ROOT_INDEX,
+use std::{
+    collections::HashMap,
+    fmt::{self, Write},
+    hash::Hash,
 };
 
+use crate::stelaro_common::{
+    DefIndex, DefPathHash, Hash64, IndexVec, LOCAL_STELO, LocalDefId, STELO_ROOT_INDEX,
+    StableHasher, StableSteloId, SteloNum, Symbol, sym,
+};
 
 /// `DefPathTable` は、`DefIndex` と `DefKey` を相互に対応付けます。
 /// 内部的には、`DefPathTable` は `DefKey` の木構造を保持しており、各 `DefKey` にはその親の `DefIndex` が格納されています。
@@ -104,7 +107,10 @@ impl DefKey {
 
         parent.hash(&mut hasher);
 
-        let DisambiguatedDefPathData { ref data, disambiguator } = self.disambiguated_data;
+        let DisambiguatedDefPathData {
+            ref data,
+            disambiguator,
+        } = self.disambiguated_data;
 
         std::mem::discriminant(data).hash(&mut hasher);
         if let Some(name) = data.get_opt_name() {
@@ -157,10 +163,8 @@ impl DisambiguatedDefPathData {
         } else {
             writer.write_str(name.as_str())
         }
-
     }
 }
-
 
 impl fmt::Display for DisambiguatedDefPathData {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -214,12 +218,10 @@ pub enum DefPathData {
 
     // /// Item `use` を表す。
     // Use,
-
     /// 型名前空間に属するもの。
     TypeNs(Option<Symbol>),
     /// 値名前空間に属するもの。
     ValueNs(Symbol),
-
     // アイテムの構成要素:
     // /// ユニット型あるいはタプル様の構造体、またはenumバリアントの暗黙的なコンストラクタ。
     // Ctor,
@@ -251,7 +253,9 @@ impl Definitions {
     /// (ただし、パスは外部ステロへのパスから始まります)
     pub fn def_path(&self, id: LocalDefId) -> DefPath {
         DefPath::make(LOCAL_STELO, id.local_def_index, |index| {
-            self.def_key(LocalDefId { local_def_index: index })
+            self.def_key(LocalDefId {
+                local_def_index: index,
+            })
         })
     }
 
@@ -270,14 +274,18 @@ impl Definitions {
 
         // ルートとなる定義を作成する
         let mut table = DefPathTable::new(stable_stelo_id);
-        let root = LocalDefId { local_def_index: table.allocate(key, def_path_hash) };
+        let root = LocalDefId {
+            local_def_index: table.allocate(key, def_path_hash),
+        };
         assert_eq!(root.local_def_index, STELO_ROOT_INDEX);
 
-        Definitions { table, next_disambiguator: Default::default() }
+        Definitions {
+            table,
+            next_disambiguator: Default::default(),
+        }
     }
 
     pub fn create_def(&mut self, parent: LocalDefId, data: DefPathData) -> LocalDefId {
-
         // ルートノードは create_def() によって作られるべきではない
         assert!(data != DefPathData::SteloRoot);
 
@@ -290,13 +298,18 @@ impl Definitions {
 
         let key = DefKey {
             parent: Some(parent.local_def_index),
-            disambiguated_data: DisambiguatedDefPathData { data, disambiguator },
+            disambiguated_data: DisambiguatedDefPathData {
+                data,
+                disambiguator,
+            },
         };
 
         let parent_hash = self.table.def_path_hash(parent.local_def_index);
         let def_path_hash = key.compute_stable_hash(parent_hash);
 
-        LocalDefId { local_def_index: self.table.allocate(key, def_path_hash) }
+        LocalDefId {
+            local_def_index: self.table.allocate(key, def_path_hash),
+        }
     }
 }
 
@@ -308,7 +321,7 @@ impl DefPathData {
 
             ValueNs(name) => Some(name),
 
-            Self::SteloRoot => None
+            Self::SteloRoot => None,
         }
     }
 }

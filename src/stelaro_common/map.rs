@@ -1,1 +1,1 @@
-pub use indexmap::IndexMap as IndexMap;
+pub use indexmap::IndexMap;

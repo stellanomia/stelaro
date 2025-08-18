@@ -22,7 +22,10 @@ mod diagnostics;
 mod tests;
 
 pub use arena::{Arena, TypedArena};
-pub use def_id::{DefId, DefPathHash, StableSteloId, LocalDefId, DefIndex, SteloNum, LOCAL_STELO, STELO_DEF_ID, STELO_ROOT_INDEX};
+pub use def_id::{
+    DefId, DefIndex, DefPathHash, LOCAL_STELO, LocalDefId, STELO_DEF_ID, STELO_ROOT_INDEX,
+    StableSteloId, SteloNum,
+};
 pub use fatal_error::FatalError;
 pub use fingerprint::{Fingerprint, FingerprintComponent};
 pub use hashes::{Hash64, Hash128};
@@ -31,12 +34,12 @@ pub use index_vec::IndexVec;
 pub use map::IndexMap;
 pub use slice::IndexSlice;
 pub use sorted_map::SortedMap;
-pub use source_map::{SourceMap, SourceMapInputs, RealFileLoader, FileLoader};
-pub use span::{Span, Spanned, DUMMY_SPAN};
+pub use source_map::{FileLoader, RealFileLoader, SourceMap, SourceMapInputs};
+pub use span::{DUMMY_SPAN, Span, Spanned};
 // impl_hash_stable_trivial は stelaro_common 外部に公開されるべきではない
-pub use stable_hasher::{StableHasher, StableHasherHash, FromStableHash};
+pub use stable_hasher::{FromStableHash, StableHasher, StableHasherHash};
 pub use stack::ensure_sufficient_stack;
-pub use symbol::{Symbol, Ident, sym};
+pub use symbol::{Ident, Symbol, sym};
 pub use visit_utils::VisitorResult;
 
 use std::{fmt, rc::Rc};

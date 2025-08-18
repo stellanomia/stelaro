@@ -12,7 +12,6 @@ pub struct Spanned<T> {
     pub span: Span,
 }
 
-
 pub const DUMMY_SPAN: Span = Span { start: 0, end: 0 };
 
 impl Span {
@@ -54,7 +53,10 @@ impl Span {
 
 impl From<Range<u32>> for Span {
     fn from(value: Range<u32>) -> Self {
-        Span { start: value.start, end: value.end }
+        Span {
+            start: value.start,
+            end: value.end,
+        }
     }
 }
 
@@ -92,6 +94,9 @@ impl From<(u32, u32)> for Span {
 impl From<(usize, usize)> for Span {
     fn from((start, end): (usize, usize)) -> Self {
         assert!(start <= end && end <= u32::MAX as usize);
-        Span { start: start as u32, end: end as u32 }
+        Span {
+            start: start as u32,
+            end: end as u32,
+        }
     }
 }

@@ -1,12 +1,11 @@
 use crate::stelaro_common::{DefId, DefPathHash, LocalDefId};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir::{
-    sir::{Body, BodyId, Item, ItemId, Node, OwnerNode, OwnerNodes, Mod},
-    sir_id::{SirId, OwnerId, ItemLocalId, STELO_OWNER_ID},
-    visit::SirTyCtxt,
     DefKey, DefPath,
+    sir::{Body, BodyId, Item, ItemId, Mod, Node, OwnerNode, OwnerNodes},
+    sir_id::{ItemLocalId, OwnerId, STELO_OWNER_ID, SirId},
+    visit::SirTyCtxt,
 };
-
 
 impl<'tcx> TyCtxt<'tcx> {
     #[inline]
@@ -53,7 +52,10 @@ impl<'tcx> TyCtxt<'tcx> {
             let parent_local_id = self.sir_owner_nodes(owner).nodes[local_id].parent;
             // HIRのインデックス付けでチェックされているはずです。
             debug_assert_ne!(parent_local_id, local_id);
-            SirId { owner, local_id: parent_local_id }
+            SirId {
+                owner,
+                local_id: parent_local_id,
+            }
         }
     }
 
