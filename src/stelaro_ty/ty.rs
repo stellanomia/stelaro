@@ -32,6 +32,9 @@ pub enum TyKind<'tcx> {
     // () 型。ボトム型として機能する
     // タプルが実装できた際に、これを削除し空のTupleがUnitを表すように変更する
     Unit,
+
+    // 発散型
+    Never,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
