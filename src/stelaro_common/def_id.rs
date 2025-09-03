@@ -148,7 +148,7 @@ impl Default for DefPathHash {
 }
 
 /// ステロ内の定義を一意に識別するインデックス。
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[repr(transparent)]
 pub struct DefIndex(u32);
 
@@ -281,7 +281,7 @@ impl std::fmt::Debug for DefId {
 
 /// ローカルステロ内の定義のみを指すことを保証する DefId。
 /// LocalDefId は DefId が stelo == LOCAL_STELO のときと等しい。
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Default, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct LocalDefId {
     pub local_def_index: DefIndex,
 }
