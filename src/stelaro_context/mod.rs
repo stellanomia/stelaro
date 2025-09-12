@@ -1,3 +1,4 @@
+pub mod context;
 pub mod sir_map;
 
 use std::ops::Deref;
@@ -6,6 +7,7 @@ use std::{cell::RefCell, collections::HashMap};
 use crate::stelaro_common::{
     Arena, DefId, IndexVec, LocalDefId, STELO_DEF_ID, Span, StableSteloId, Symbol,
 };
+use crate::stelaro_context::context::CommonTypes;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
 use crate::stelaro_session::Session;
 use crate::stelaro_sir::{
@@ -24,6 +26,8 @@ pub struct GlobalCtxt<'tcx> {
     pub arena: &'tcx Arena,
     pub sir_arena: &'tcx Arena,
     pub sess: &'tcx Session,
+
+    pub types: CommonTypes<'tcx>,
 
     /// DefId から実際の定義へのマップ
     pub definitions: RefCell<Definitions>,
@@ -145,6 +149,7 @@ impl<'tcx> TyCtxt<'tcx> {
             source_span: RefCell::new(IndexVec::new()),
             def_kind_table: RefCell::new(IndexVec::new()),
             sir_stelo: None.into(),
+            types: CommonTypes::new(todo!(), sess),
         }
     }
 }
