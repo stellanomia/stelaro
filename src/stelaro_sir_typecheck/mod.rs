@@ -1,10 +1,12 @@
 pub mod result;
+mod expr;
 
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 
 use crate::stelaro_common::{LocalDefId, Span};
 use crate::stelaro_context::TyCtxt;
+use crate::stelaro_diagnostics::DiagCtxtHandle;
 use crate::stelaro_sir::sir_id::SirId;
 use crate::stelaro_sir_typecheck::result::TypeckResults;
 use crate::stelaro_ty::Ty;
@@ -58,6 +60,7 @@ impl<'tcx> TypeCheckCtxt<'tcx> {
     }
 }
 
+
 pub struct FnCtxt<'a, 'tcx> {
     pub tccx: &'a TypeCheckCtxt<'tcx>,
     pub owner_id: LocalDefId,
@@ -96,8 +99,14 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         }
     }
 
+    #[inline]
     pub fn tcx(&self) -> TyCtxt<'tcx> {
         self.tccx.tcx
+    }
+
+    #[inline]
+    pub fn dcx(&self) -> DiagCtxtHandle<'_> {
+        self.tccx.tcx.dcx()
     }
 
     pub fn record_type(&self, sir_id: SirId, ty: Ty<'tcx>) {
@@ -111,14 +120,14 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         results.record_type(sir_id.local_id, ty);
     }
 
-        pub fn record_error(&self) {
+    pub fn record_error(&self) {
         let mut results = self.tccx.results_for(self.owner_id);
         results.tainted_by_errors = true;
     }
 
     /// エラーを報告し、`tainted_by_errors`フラグを立てます。
     pub fn report_error(&self, message: &str, span: Span) {
-        let mut diag = self.tcx().dcx().struct_err(span);
+        let mut diag = self.dcx().struct_err(span);
         diag.set_message(message.to_string());
         diag.emit();
         self.record_error();

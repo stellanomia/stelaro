@@ -1,4 +1,4 @@
-use crate::stelaro_common::{DefId, Symbol};
+use crate::{stelaro_common::{DefId, Symbol}, stelaro_diagnostics::ErrorEmitted};
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub struct Ty<'tcx>(&'tcx TyKind<'tcx>);
@@ -35,6 +35,17 @@ pub enum TyKind<'tcx> {
 
     // 発散型
     Never,
+    Error(ErrorEmitted),
+}
+
+impl<'tcx> Ty<'tcx> {
+    pub fn kind(&self) -> &'tcx TyKind<'tcx> {
+        self.0
+    }
+
+    pub fn is_error(&self) -> bool {
+        matches!(self.kind(), TyKind::Error(_))
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
