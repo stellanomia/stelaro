@@ -1,12 +1,13 @@
 use crate::{stelaro_common::{DefId, Symbol}, stelaro_diagnostics::ErrorEmitted};
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub struct Ty<'tcx>(&'tcx TyKind<'tcx>);
+pub struct Ty<'tcx>(pub &'tcx TyKind<'tcx>);
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum TyKind<'tcx> {
     Bool,
     Char,
+    Str,
     Int(IntTy),
     Uint(UintTy),
     Float(FloatTy),

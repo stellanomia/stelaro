@@ -67,6 +67,16 @@ impl<'sess> Parser<'sess> {
             )?
         }
 
+        if self.token.kind == TokenKind::LBrace {
+            Err(
+                DiagsParser::missing_function_parentheses(
+                    self.dcx(),
+                    ident,
+                    self.token.span,
+                ).emit()
+            )?
+        }
+
         let sig = self.parse_fn_sig()?;
 
         let prev_span = self.prev_token.span;
