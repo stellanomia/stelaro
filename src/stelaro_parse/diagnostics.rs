@@ -546,4 +546,18 @@ mod tests {
         assert!(is_err);
         assert!(sess.dcx().has_err_code(ErrorCode::UnclosedDelimiter.into()));
     }
+
+    #[test]
+    fn test_missing_function_parentheses() {
+        let (sess, is_err) = get_sess_after_stelo_parse(
+            r#"
+    fn main {
+        return;
+    }
+"#.trim()
+        );
+
+        assert!(is_err);
+        assert!(sess.dcx().has_err_code(ErrorCode::MissingFunctionParentheses.into()));
+    }
 }
