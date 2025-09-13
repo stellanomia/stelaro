@@ -1,5 +1,5 @@
 use crate::stelaro_ast::ast;
-use crate::stelaro_common::{Arena, StableSteloId, Symbol, sym};
+use crate::stelaro_common::{Arena, StableSteloId, Symbol, TypedArena, sym};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_parse::{new_parser_from_file, new_parser_from_source_str};
 use crate::stelaro_session::{Session, config::Input};
@@ -26,6 +26,7 @@ pub fn create_and_enter_global_ctxt<T, F: for<'tcx> FnOnce(TyCtxt<'tcx>) -> T>(
 
     let arena = Arena::new();
     let sir_arena = Arena::new();
+    let types_arena = TypedArena::new();
     let stable_stelo_id = StableSteloId::new(stelo_name);
 
     let gcx = TyCtxt::create_global_ctxt(
@@ -33,6 +34,7 @@ pub fn create_and_enter_global_ctxt<T, F: for<'tcx> FnOnce(TyCtxt<'tcx>) -> T>(
         stable_stelo_id,
         &arena,
         &sir_arena,
+        &types_arena,
     );
 
     let tcx = TyCtxt::new(&gcx);

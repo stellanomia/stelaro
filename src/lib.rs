@@ -79,6 +79,8 @@ pub fn run() {
             let stelo = tcx.sir_arena.alloc(sir_stelo);
             tcx.sir_stelo.replace(Some(stelo));
 
+            sess.dcx().abort_if_errors();
+
             dbg!(&tcx.sir_stelo.borrow().unwrap());
         });
     });

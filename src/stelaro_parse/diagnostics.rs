@@ -1,5 +1,5 @@
 use crate::stelaro_ast::token::{Lit, Token, TokenKind};
-use crate::stelaro_common::Span;
+use crate::stelaro_common::{Ident, Span};
 use crate::stelaro_diagnostics::{Diag, DiagCtxtHandle, ErrorEmitted};
 
 pub struct DiagsParser;
@@ -274,6 +274,28 @@ impl<'dcx> DiagsParser {
 
         diag
     }
+
+    pub fn missing_function_parentheses(
+        dcx: DiagCtxtHandle<'dcx>,
+        name: Ident,
+        lbrace: Span,
+    ) -> Diag<'dcx, ErrorEmitted> {
+        let mut diag = dcx.struct_err(name.span);
+        diag.set_code(ErrorCode::MissingFunctionParentheses.into());
+        diag.set_message("宣言された関数の開き括弧がありません".to_string());
+
+        diag.set_label(
+            (name.span.end..lbrace.start).into(),
+            format!(
+                "関数 `{}` の引数リスト `(` が存在しません",
+                name,
+            ),
+        );
+
+        diag.set_help("たとえ引数が空であっても括弧を記述してください".to_string());
+
+        diag
+    }
 }
 
 #[repr(i32)]
@@ -291,6 +313,7 @@ enum ErrorCode {
     CannotUseUnderscoreAsIdentifier = 210,
     UnexpectedTokenForItem = 211,
     UnclosedDelimiter = 212,
+    MissingFunctionParentheses = 213,
 }
 
 impl From<ErrorCode> for i32 {

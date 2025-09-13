@@ -5,7 +5,7 @@ use std::ops::Deref;
 use std::{cell::RefCell, collections::HashMap};
 
 use crate::stelaro_common::{
-    Arena, DefId, IndexVec, LocalDefId, STELO_DEF_ID, Span, StableSteloId, Symbol,
+    Arena, DefId, IndexVec, LocalDefId, STELO_DEF_ID, Span, StableSteloId, Symbol, TypedArena,
 };
 use crate::stelaro_context::context::CommonTypes;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
@@ -139,6 +139,7 @@ impl<'tcx> TyCtxt<'tcx> {
         stable_stelo_id: StableSteloId,
         arena: &'tcx Arena,
         sir_arena: &'tcx Arena,
+        types_arena: &'tcx TypedArena<'tcx, TyKind<'tcx>>
     ) -> GlobalCtxt<'tcx> {
         GlobalCtxt {
             arena,
@@ -148,8 +149,8 @@ impl<'tcx> TyCtxt<'tcx> {
             types_interner: RefCell::new(HashMap::new()),
             source_span: RefCell::new(IndexVec::new()),
             def_kind_table: RefCell::new(IndexVec::new()),
-            sir_stelo: None.into(),
-            types: CommonTypes::new(todo!(), sess),
+            sir_stelo: RefCell::new(None),
+            types: CommonTypes::new(types_arena),
         }
     }
 }

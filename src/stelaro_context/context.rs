@@ -1,4 +1,5 @@
-use crate::{stelaro_common::TypedArena, stelaro_session::Session, stelaro_ty::{Ty, TyKind}};
+use crate::stelaro_common::TypedArena;
+use crate::stelaro_ty::{Ty, TyKind, ty::{FloatTy, IntTy, UintTy}};
 
 
 pub struct CommonTypes<'tcx> {
@@ -26,32 +27,34 @@ pub struct CommonTypes<'tcx> {
 impl<'tcx> CommonTypes<'tcx> {
     pub fn new(
         interner: &'tcx TypedArena<'tcx, TyKind<'tcx>>,
-        sess: &Session,
     ) -> CommonTypes<'tcx> {
-        let mk = |ty| interner.alloc(ty);
+        let mk = |ty| Ty(interner.alloc(ty));
+
+        use TyKind::*;
+        use IntTy::*;
+        use UintTy::*;
+        use FloatTy::*;
 
         CommonTypes {
-            unit: (),
-            bool: (),
-            char: (),
-            isize: (),
-            i8: (),
-            i16: (),
-            i32: (),
-            i64: (),
-            i128: (),
-            usize: (),
-            u8: (),
-            u16: (),
-            u32: (),
-            u64: (),
-            u128: (),
-            f16: (),
-            f32: (),
-            f64: (),
-            f128: (),
-            str_: (),
-            never: (),
+            unit: mk(Unit),
+            bool: mk(Bool),
+            char: mk(Char),
+            isize: mk(Int(Isize)),
+            i8: mk(Int(I8)),
+            i16: mk(Int(I16)),
+            i32: mk(Int(I32)),
+            i64: mk(Int(I64)),
+            i128: mk(Int(I128)),
+            usize: mk(Uint(Usize)),
+            u8: mk(Uint(U8)),
+            u16: mk(Uint(U16)),
+            u32: mk(Uint(U32)),
+            u64: mk(Uint(U64)),
+            u128: mk(Uint(U128)),
+            f32: mk(Float(F32)),
+            f64: mk(Float(F64)),
+            str_: mk(Str),
+            never: mk(Never),
         }
     }
 }
