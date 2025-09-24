@@ -21,7 +21,10 @@ pub mod stelaro_sir_typecheck;
 pub mod stelaro_ty;
 
 use clap::Parser;
+use std::fs::OpenOptions;
+use std::io::{self, BufWriter, Write};
 use std::path::PathBuf;
+use std::process;
 
 use crate::stelaro_ast_lowering::lower_to_sir;
 use crate::stelaro_interface::passes::create_and_enter_global_ctxt;
@@ -81,7 +84,56 @@ pub fn run() {
 
             sess.dcx().abort_if_errors();
 
-            dbg!(&tcx.sir_stelo.borrow().unwrap());
+            let output = format!("{:#?}", &tcx.sir_stelo.borrow().unwrap());
+
+            if let Some(file) = &sess.paths.output_file {
+                match OpenOptions::new()
+                    .write(true)
+                    .create(true)
+                    .truncate(true)
+                    .open(
+                        file
+                    )
+                {
+                    Ok(f) => {
+                        let mut writer = BufWriter::new(f);
+                        if let Err(e) = writer.write_all(output.as_bytes()) {
+                            eprintln!(
+                                "Error: ファイルに書き込めませんでした '{}': {}",
+                                file.display(),
+                                e
+                            );
+                            process::exit(1);
+                        }
+                    },
+                    Err(e) => {
+                        match e.kind() {
+                            io::ErrorKind::PermissionDenied => {
+                                eprintln!(
+                                    "Error: 書き込み権限がありません。ファイル '{}' を開けませんでした。",
+                                    file.display()
+                                );
+                            }
+                            io::ErrorKind::NotFound => {
+                                eprintln!(
+                                    "Error: ファイル '{}' の親ディレクトリが存在しません。",
+                                    file.display()
+                                );
+                            }
+                            _ => {
+                                eprintln!(
+                                    "Error: 書き込み用にファイル '{}' を開けませんでした: {}",
+                                    file.display(),
+                                    e
+                                );
+                            }
+                        }
+                        process::exit(1);
+                    }
+                }
+            } else {
+                println!("{output}");
+            }
         });
     });
 }

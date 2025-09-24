@@ -11,6 +11,7 @@ ariadne = "0.5.1"
 bumpalo = { version = "3.19.0", features = ["collections"] }
 clap = { version = "4.5.45", features = ["derive"] }
 dirs = "6.0.0"
+ena = "0.14.3"
 indexmap = "2.10.0"
 rustc-stable-hash = "0.1.2"
 scoped-tls = "1.0.1"
