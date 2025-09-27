@@ -1,4 +1,4 @@
-use crate::stelaro_common::{DefId, Symbol};
+use crate::stelaro_common::{DefId, Idx, Symbol};
 use crate::stelaro_diagnostics::ErrorEmitted;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -87,6 +87,27 @@ pub struct IntVid(pub u32);
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 pub struct FloatVid(pub u32);
+
+
+impl TyVid {
+    pub(crate) fn as_u32(&self) -> u32 {
+        self.0
+    }
+
+    pub(crate) fn from_u32(value: u32) -> Self {
+        Self(value)
+    }
+}
+
+impl Idx for TyVid {
+    fn new(idx: usize) -> Self {
+        Self(idx as u32)
+    }
+
+    fn index(self) -> usize {
+        self.0 as usize
+    }
+}
 
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

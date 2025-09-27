@@ -1,6 +1,7 @@
-pub mod result;
 mod expectation;
 mod expr;
+mod infer;
+pub mod result;
 
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
@@ -9,11 +10,11 @@ use crate::stelaro_common::{LocalDefId, Span};
 use crate::stelaro_context::TyCtxt;
 use crate::stelaro_diagnostics::DiagCtxtHandle;
 use crate::stelaro_sir::sir_id::SirId;
-use crate::stelaro_sir_typecheck::result::TypeckResults;
+use crate::stelaro_sir_typecheck::{infer::InferCtxt, result::TypeckResults};
 use crate::stelaro_ty::Ty;
 
 pub struct TypeCheckCtxt<'tcx> {
-    pub tcx: TyCtxt<'tcx>,
+    pub infcx: InferCtxt<'tcx>,
 
     /// 各オーナーの型チェック結果を格納するマップ。
     results_map: RefCell<HashMap<LocalDefId, TypeckResults<'tcx>>>,
@@ -38,13 +39,6 @@ pub struct BreakableScope<'tcx> {
 }
 
 impl<'tcx> TypeCheckCtxt<'tcx> {
-    pub fn new(tcx: TyCtxt<'tcx>) -> Self {
-        Self {
-            tcx,
-            results_map: RefCell::new(HashMap::new()),
-        }
-    }
-
     /// 指定されたオーナーの`TypeckResults`への可変参照を取得し、存在しない場合は新しく作成する。
     pub(crate) fn results_for(&self, owner_id: LocalDefId) -> std::cell::RefMut<'_, TypeckResults<'tcx>> {
         let mut map = self.results_map.borrow_mut();
@@ -102,12 +96,12 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
 
     #[inline]
     pub fn tcx(&self) -> TyCtxt<'tcx> {
-        self.tccx.tcx
+        self.tccx.infcx.tcx
     }
 
     #[inline]
     pub fn dcx(&self) -> DiagCtxtHandle<'_> {
-        self.tccx.tcx.dcx()
+        self.tccx.infcx.tcx.dcx()
     }
 
     pub fn record_type(&self, sir_id: SirId, ty: Ty<'tcx>) {
