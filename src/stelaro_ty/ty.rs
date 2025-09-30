@@ -50,6 +50,10 @@ impl<'tcx> Ty<'tcx> {
     pub fn is_error(&self) -> bool {
         matches!(self.kind(), TyKind::Error(_))
     }
+
+    pub fn is_ty_var(&self) -> bool {
+        matches!(self.kind(), TyKind::Infer(InferTy::TyVar(_)))
+    }
 }
 
 /// まだ型が確定していない「未推論の型」を表すためのプレースホルダ。
@@ -96,6 +100,10 @@ impl TyVid {
 
     pub(crate) fn from_u32(value: u32) -> Self {
         Self(value)
+    }
+
+    pub(crate) fn from_usize(value: usize) -> Self {
+        Self(value as u32)
     }
 }
 
