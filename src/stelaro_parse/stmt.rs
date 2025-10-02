@@ -94,6 +94,8 @@ impl Parser<'_> {
                         (start+1..start+1).into(),
                     ).emit()
                 )?
+            } else {
+                self.bump();
             }
 
             LocalKind::Init(Box::new(expr))
