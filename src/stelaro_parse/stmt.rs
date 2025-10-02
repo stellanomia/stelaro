@@ -1,4 +1,5 @@
 use crate::stelaro_ast::{ast::*, token::TokenKind};
+use crate::stelaro_parse::diagnostics::DiagsParser;
 
 use super::{parser::Parser, PResult};
 
@@ -85,7 +86,15 @@ impl Parser<'_> {
         } else {
             self.eat(TokenKind::Equal, self.token.span)?;
             let expr = self.parse_expr()?;
-            self.eat(TokenKind::Semicolon, self.token.span)?;
+            if !matches!(self.token.kind, TokenKind::Semicolon) {
+                let start = self.prev_token.span.start;
+                Err(
+                    DiagsParser::missing_semicolon(
+                        self.dcx(),
+                        (start+1..start+1).into(),
+                    ).emit()
+                )?
+            }
 
             LocalKind::Init(Box::new(expr))
         };
