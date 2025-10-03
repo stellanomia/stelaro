@@ -1,21 +1,25 @@
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::marker::PhantomData;
 
-use ena::unify::{NoError, InPlaceUnificationTable, UnifyKey, UnifyValue};
+use ena::unify::{InPlaceUnificationTable, NoError, UnificationTableStorage, UnifyKey, UnifyValue};
 
 use crate::stelaro_common::{DefId, IndexVec, Span};
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_ty::Ty;
-use crate::stelaro_ty::ty::TyVid;
+use crate::stelaro_ty::ty::IntVid;
+use crate::stelaro_ty::{Ty, ty::TyVid};
 
 pub struct InferCtxt<'tcx> {
     pub tcx: TyCtxt<'tcx>,
     pub inner: RefCell<InferCtxtInner<'tcx>>,
+
+    /// エラーが発生した際に、それに派生するエラーを抑制するためのフラグ。
+    tainted_by_errors: Cell<bool>,
 }
 
 #[derive(Clone)]
 pub struct InferCtxtInner<'tcx> {
     type_variable_storage: TypeVariableStorage<'tcx>,
+    // int_unification_storage: UnificationTableStorage<IntVid>,
 }
 
 #[derive(Clone, Default)]
