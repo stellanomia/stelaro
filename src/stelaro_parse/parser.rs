@@ -187,7 +187,7 @@ impl<'sess> Parser<'sess> {
                             Err(
                                 DiagsParser::missing_semicolon(
                                     self.dcx(),
-                                    self.token.span
+                                    self.token.span,
                                 ).emit()
                             )?
                         }

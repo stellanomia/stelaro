@@ -184,8 +184,10 @@ impl<'dcx> DiagsParser {
         diag
     }
 
-    // 式文解析時にセミコロンがない場合使用される
-    pub fn missing_semicolon(dcx: DiagCtxtHandle<'dcx>, span: Span) -> Diag<'dcx, ErrorEmitted> {
+    pub fn missing_semicolon(
+        dcx: DiagCtxtHandle<'dcx>,
+        span: Span
+    ) -> Diag<'dcx, ErrorEmitted> {
         let mut diag = dcx.struct_err(span);
         diag.set_code(ErrorCode::MissingSemicolon.into());
         diag.set_message("セミコロンがありません".to_string());
