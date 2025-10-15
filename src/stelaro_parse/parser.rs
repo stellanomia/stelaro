@@ -3,12 +3,12 @@ use crate::stelaro_ast::{
     ast::*,
     token::{Lit, LitKind, Token, TokenKind, TokenStream},
 };
+use crate::stelaro_parse::diagnostics::DiagsParser;
 use crate::stelaro_common::{Ident, Span};
 use crate::stelaro_diagnostics::{DiagCtxtHandle, ErrorEmitted};
 use crate::stelaro_session::ParseSess;
 
 use super::PResult;
-use super::diagnostics::DiagsParser;
 
 pub struct Parser<'sess> {
     pub psess: &'sess ParseSess,
@@ -187,7 +187,7 @@ impl<'sess> Parser<'sess> {
                             Err(
                                 DiagsParser::missing_semicolon(
                                     self.dcx(),
-                                    self.token.span
+                                    self.token.span,
                                 ).emit()
                             )?
                         }
