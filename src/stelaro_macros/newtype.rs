@@ -98,8 +98,6 @@ impl Parse for Newtype {
         Ok(Self(quote! {
             #(#attrs)*
             #[derive(Clone, Copy, PartialEq, Eq, Hash, #(#derive_paths),*)]
-            #[cfg_attr(rustc_layout_scalar_valid_range_end(#max))]
-            #[cfg_attr(rustc_pass_by_value)]
             #vis struct #name {
                 private_use_as_methods_instead: u32,
             }
@@ -207,7 +205,7 @@ impl Parse for Newtype {
                 }
             }
 
-            impl rustc_index::Idx for #name {
+            impl crate::stelaro_common::Idx for #name {
                 #[inline]
                 fn new(value: usize) -> Self {
                     Self::from_usize(value)

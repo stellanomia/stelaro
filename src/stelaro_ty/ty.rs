@@ -1,4 +1,4 @@
-use crate::stelaro_common::{DefId, Idx, Symbol};
+use crate::stelaro_common::{DefId, Symbol};
 use crate::stelaro_diagnostics::ErrorEmitted;
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
@@ -83,40 +83,23 @@ pub enum InferTy {
     FloatVar(FloatVid),
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub struct TyVid(pub u32);
-
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub struct IntVid(pub u32);
-
-#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
-pub struct FloatVid(pub u32);
-
-
-impl TyVid {
-    pub(crate) fn as_u32(&self) -> u32 {
-        self.0
-    }
-
-    pub(crate) fn from_u32(value: u32) -> Self {
-        Self(value)
-    }
-
-    pub(crate) fn from_usize(value: usize) -> Self {
-        Self(value as u32)
-    }
+stelaro_macros::newtype_index! {
+    #[orderable]
+    #[debug_format = "?{}t"]
+    pub struct TyVid {}
 }
 
-impl Idx for TyVid {
-    fn new(idx: usize) -> Self {
-        Self(idx as u32)
-    }
-
-    fn index(self) -> usize {
-        self.0 as usize
-    }
+stelaro_macros::newtype_index! {
+    #[orderable]
+    #[debug_format = "?{}i"]
+    pub struct IntVid {}
 }
 
+stelaro_macros::newtype_index! {
+    #[orderable]
+    #[debug_format = "?{}f"]
+    pub struct FloatVid {}
+}
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum IntTy {
