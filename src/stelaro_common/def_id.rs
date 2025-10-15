@@ -3,52 +3,14 @@
 use super::{Hash64, Idx, StableHasher, Symbol, fingerprint::Fingerprint};
 use std::{fmt, hash::Hash};
 
-// NOTE: std, core 実装まで使われない
-/// stelo を一意に識別する番号。
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-#[repr(transparent)]
-pub struct SteloNum(u32);
-
-pub const LOCAL_STELO: SteloNum = SteloNum(0);
-
-impl SteloNum {
-    #[inline]
-    pub fn new(id: u32) -> Self {
-        SteloNum(id)
-    }
-    #[inline]
-    pub fn as_u32(self) -> u32 {
-        self.0
-    }
+stelaro_macros::newtype_index! {
+    // NOTE: std, core 実装まで使われない
+    /// stelo を一意に識別する番号。
+    #[orderable]
+    #[debug_format = "stelo{}"]
+    pub struct SteloNum {}
 }
-
-impl fmt::Display for SteloNum {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        fmt::Display::fmt(&self.as_u32(), f)
-    }
-}
-
-impl Idx for SteloNum {
-    fn new(idx: usize) -> Self {
-        Self(Idx::new(idx))
-    }
-
-    fn index(self) -> usize {
-        self.into()
-    }
-}
-
-impl From<SteloNum> for usize {
-    fn from(value: SteloNum) -> Self {
-        value.0 as usize
-    }
-}
-
-impl From<SteloNum> for u32 {
-    fn from(value: SteloNum) -> Self {
-        value.0
-    }
-}
+pub const LOCAL_STELO: SteloNum = SteloNum::ZERO;
 
 /// `DefPathHash` は `DefPath` を固定長ハッシュで表現した構造体です。
 /// これは2つの独立した64ビットハッシュから構成されます。
@@ -214,7 +176,7 @@ impl DefId {
 
 impl std::fmt::Debug for DefId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "DefId({}:{})", self.stelo.0, self.index.index())?;
+        write!(f, "DefId({}:{})", self.stelo.index(), self.index.index())?;
         if self.is_local() {
             write!(f, " (local)")?;
         }
