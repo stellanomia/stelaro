@@ -147,68 +147,14 @@ impl Default for DefPathHash {
     }
 }
 
-/// ステロ内の定義を一意に識別するインデックス。
-#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
-#[repr(transparent)]
-pub struct DefIndex(u32);
-
-/// ステロのルートモジュールを表すインデックス。
-/// このインデックスを持つ定義は、そのステロのトップレベルモジュールとなる。
-pub const STELO_ROOT_INDEX: DefIndex = DefIndex(0);
-
-impl DefIndex {
-    #[inline]
-    pub fn new(index: u32) -> Self {
-        DefIndex(index)
-    }
-    #[inline]
-    pub fn from_usize(index: usize) -> Self {
-        DefIndex(
-            index
-                .try_into()
-                .expect("bug: u32 の最大値を超えた DefIndex 変換"),
-        )
-    }
-    #[inline]
-    pub fn as_u32(self) -> u32 {
-        self.0
-    }
-    pub fn as_usize(self) -> usize {
-        self.0 as usize
-    }
-}
-
-impl Idx for DefIndex {
-    fn new(idx: usize) -> Self {
-        Self(Idx::new(idx))
-    }
-
-    fn index(self) -> usize {
-        self.into()
-    }
-}
-
-impl From<DefIndex> for usize {
-    fn from(value: DefIndex) -> Self {
-        value.0 as usize
-    }
-}
-
-impl From<DefIndex> for u32 {
-    fn from(value: DefIndex) -> Self {
-        value.0
-    }
-}
-
-impl From<usize> for DefIndex {
-    fn from(value: usize) -> Self {
-        DefIndex(value as u32)
-    }
-}
-
-impl From<u32> for DefIndex {
-    fn from(value: u32) -> Self {
-        DefIndex(value)
+stelaro_macros::newtype_index! {
+    /// ステロ内の定義を一意に識別するインデックス。
+    #[orderable]
+    #[debug_format = "DefIndex({})"]
+    pub struct DefIndex {
+        /// ステロのルートモジュールを表すインデックス。
+        /// このインデックスを持つ定義は、そのステロのトップレベルモジュールとなる。
+        const STELO_ROOT_INDEX = 0;
     }
 }
 
@@ -268,7 +214,7 @@ impl DefId {
 
 impl std::fmt::Debug for DefId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "DefId({}:{})", self.stelo.0, self.index.0)?;
+        write!(f, "DefId({}:{})", self.stelo.0, self.index.index())?;
         if self.is_local() {
             write!(f, " (local)")?;
         }
@@ -281,7 +227,7 @@ impl std::fmt::Debug for DefId {
 
 /// ローカルステロ内の定義のみを指すことを保証する DefId。
 /// LocalDefId は DefId が stelo == LOCAL_STELO のときと等しい。
-#[derive(Default, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct LocalDefId {
     pub local_def_index: DefIndex,
 }
@@ -327,13 +273,13 @@ impl Idx for LocalDefId {
 
 impl From<LocalDefId> for usize {
     fn from(value: LocalDefId) -> Self {
-        value.local_def_index.0 as usize
+        value.local_def_index.index()
     }
 }
 
 impl From<LocalDefId> for u32 {
     fn from(value: LocalDefId) -> Self {
-        value.local_def_index.0
+        value.local_def_index.as_u32()
     }
 }
 

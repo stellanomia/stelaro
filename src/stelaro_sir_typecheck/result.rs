@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 /// 型チェックの成果物を集約する構造体。
 /// SIRのオーナーごとに1つ生成される。
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct TypeckResults<'tcx> {
     /// この結果がどのオーナーに属するかを示すID。
     pub owner_id: LocalDefId,
