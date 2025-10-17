@@ -31,23 +31,15 @@ Stelo {
                                         span: Span {[SPAN]},
                                     },
                                     body: Block {
-                                        id: NodeId(
-                                            48,
-                                        ),
+                                        id: NodeId(48),
                                         stmts: [
                                             Stmt {
-                                                id: NodeId(
-                                                    47,
-                                                ),
+                                                id: NodeId(47),
                                                 kind: Let(
                                                     Local {
-                                                        id: NodeId(
-                                                            46,
-                                                        ),
+                                                        id: NodeId(46),
                                                         pat: Pat {
-                                                            id: NodeId(
-                                                                1,
-                                                            ),
+                                                            id: NodeId(1),
                                                             kind: Ident(
                                                                 Ident {
                                                                     name: Symbol([ID]),
@@ -58,37 +50,27 @@ Stelo {
                                                         },
                                                         kind: Init(
                                                             Expr {
-                                                                id: NodeId(
-                                                                    45,
-                                                                ),
+                                                                id: NodeId(45),
                                                                 kind: If(
                                                                     Expr {
-                                                                        id: NodeId(
-                                                                            16,
-                                                                        ),
+                                                                        id: NodeId(16),
                                                                         kind: Binary(
                                                                             Spanned {
                                                                                 node: Eq,
                                                                                 span: Span {[SPAN]},
                                                                             },
                                                                             Expr {
-                                                                                id: NodeId(
-                                                                                    14,
-                                                                                ),
+                                                                                id: NodeId(14),
                                                                                 kind: If(
                                                                                     Expr {
-                                                                                        id: NodeId(
-                                                                                            4,
-                                                                                        ),
+                                                                                        id: NodeId(4),
                                                                                         kind: Binary(
                                                                                             Spanned {
                                                                                                 node: Lt,
                                                                                                 span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
-                                                                                                id: NodeId(
-                                                                                                    2,
-                                                                                                ),
+                                                                                                id: NodeId(2),
                                                                                                 kind: Lit(
                                                                                                     Lit {
                                                                                                         kind: Integer,
@@ -98,9 +80,7 @@ Stelo {
                                                                                                 span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
-                                                                                                id: NodeId(
-                                                                                                    3,
-                                                                                                ),
+                                                                                                id: NodeId(3),
                                                                                                 kind: Lit(
                                                                                                     Lit {
                                                                                                         kind: Integer,
@@ -113,19 +93,13 @@ Stelo {
                                                                                         span: Span {[SPAN]},
                                                                                     },
                                                                                     Block {
-                                                                                        id: NodeId(
-                                                                                            7,
-                                                                                        ),
+                                                                                        id: NodeId(7),
                                                                                         stmts: [
                                                                                             Stmt {
-                                                                                                id: NodeId(
-                                                                                                    6,
-                                                                                                ),
+                                                                                                id: NodeId(6),
                                                                                                 kind: Expr(
                                                                                                     Expr {
-                                                                                                        id: NodeId(
-                                                                                                            5,
-                                                                                                        ),
+                                                                                                        id: NodeId(5),
                                                                                                         kind: Lit(
                                                                                                             Lit {
                                                                                                                 kind: Integer,
@@ -142,33 +116,23 @@ Stelo {
                                                                                     },
                                                                                     Some(
                                                                                         Expr {
-                                                                                            id: NodeId(
-                                                                                                13,
-                                                                                            ),
+                                                                                            id: NodeId(13),
                                                                                             kind: Block(
                                                                                                 Block {
-                                                                                                    id: NodeId(
-                                                                                                        12,
-                                                                                                    ),
+                                                                                                    id: NodeId(12),
                                                                                                     stmts: [
                                                                                                         Stmt {
-                                                                                                            id: NodeId(
-                                                                                                                11,
-                                                                                                            ),
+                                                                                                            id: NodeId(11),
                                                                                                             kind: Expr(
                                                                                                                 Expr {
-                                                                                                                    id: NodeId(
-                                                                                                                        10,
-                                                                                                                    ),
+                                                                                                                    id: NodeId(10),
                                                                                                                     kind: Binary(
                                                                                                                         Spanned {
                                                                                                                             node: Add,
                                                                                                                             span: Span {[SPAN]},
                                                                                                                         },
                                                                                                                         Expr {
-                                                                                                                            id: NodeId(
-                                                                                                                                8,
-                                                                                                                            ),
+                                                                                                                            id: NodeId(8),
                                                                                                                             kind: Lit(
                                                                                                                                 Lit {
                                                                                                                                     kind: Integer,
@@ -178,9 +142,7 @@ Stelo {
                                                                                                                             span: Span {[SPAN]},
                                                                                                                         },
                                                                                                                         Expr {
-                                                                                                                            id: NodeId(
-                                                                                                                                9,
-                                                                                                                            ),
+                                                                                                                            id: NodeId(9),
                                                                                                                             kind: Lit(
                                                                                                                                 Lit {
                                                                                                                                     kind: Integer,
@@ -206,9 +168,7 @@ Stelo {
                                                                                 span: Span {[SPAN]},
                                                                             },
                                                                             Expr {
-                                                                                id: NodeId(
-                                                                                    15,
-                                                                                ),
+                                                                                id: NodeId(15),
                                                                                 kind: Lit(
                                                                                     Lit {
                                                                                         kind: Integer,
@@ -221,23 +181,15 @@ Stelo {
                                                                         span: Span {[SPAN]},
                                                                     },
                                                                     Block {
-                                                                        id: NodeId(
-                                                                            40,
-                                                                        ),
+                                                                        id: NodeId(40),
                                                                         stmts: [
                                                                             Stmt {
-                                                                                id: NodeId(
-                                                                                    22,
-                                                                                ),
+                                                                                id: NodeId(22),
                                                                                 kind: Let(
                                                                                     Local {
-                                                                                        id: NodeId(
-                                                                                            21,
-                                                                                        ),
+                                                                                        id: NodeId(21),
                                                                                         pat: Pat {
-                                                                                            id: NodeId(
-                                                                                                17,
-                                                                                            ),
+                                                                                            id: NodeId(17),
                                                                                             kind: Ident(
                                                                                                 Ident {
                                                                                                     name: Symbol([ID]),
@@ -248,9 +200,7 @@ Stelo {
                                                                                         },
                                                                                         kind: Init(
                                                                                             Expr {
-                                                                                                id: NodeId(
-                                                                                                    20,
-                                                                                                ),
+                                                                                                id: NodeId(20),
                                                                                                 kind: Lit(
                                                                                                     Lit {
                                                                                                         kind: Integer,
@@ -262,9 +212,7 @@ Stelo {
                                                                                         ),
                                                                                         ty: Some(
                                                                                             Ty {
-                                                                                                id: NodeId(
-                                                                                                    19,
-                                                                                                ),
+                                                                                                id: NodeId(19),
                                                                                                 kind: Path(
                                                                                                     Path {
                                                                                                         span: Span {[SPAN]},
@@ -274,9 +222,7 @@ Stelo {
                                                                                                                     name: Symbol([ID]),
                                                                                                                     span: Span {[SPAN]},
                                                                                                                 },
-                                                                                                                id: NodeId(
-                                                                                                                    18,
-                                                                                                                ),
+                                                                                                                id: NodeId(18),
                                                                                                             },
                                                                                                         ],
                                                                                                     },
@@ -290,23 +236,17 @@ Stelo {
                                                                                 span: Span {[SPAN]},
                                                                             },
                                                                             Stmt {
-                                                                                id: NodeId(
-                                                                                    36,
-                                                                                ),
+                                                                                id: NodeId(36),
                                                                                 kind: While(
                                                                                     Expr {
-                                                                                        id: NodeId(
-                                                                                            26,
-                                                                                        ),
+                                                                                        id: NodeId(26),
                                                                                         kind: Binary(
                                                                                             Spanned {
                                                                                                 node: Lt,
                                                                                                 span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
-                                                                                                id: NodeId(
-                                                                                                    24,
-                                                                                                ),
+                                                                                                id: NodeId(24),
                                                                                                 kind: Path(
                                                                                                     Path {
                                                                                                         span: Span {[SPAN]},
@@ -316,9 +256,7 @@ Stelo {
                                                                                                                     name: Symbol([ID]),
                                                                                                                     span: Span {[SPAN]},
                                                                                                                 },
-                                                                                                                id: NodeId(
-                                                                                                                    23,
-                                                                                                                ),
+                                                                                                                id: NodeId(23),
                                                                                                             },
                                                                                                         ],
                                                                                                     },
@@ -326,9 +264,7 @@ Stelo {
                                                                                                 span: Span {[SPAN]},
                                                                                             },
                                                                                             Expr {
-                                                                                                id: NodeId(
-                                                                                                    25,
-                                                                                                ),
+                                                                                                id: NodeId(25),
                                                                                                 kind: Lit(
                                                                                                     Lit {
                                                                                                         kind: Integer,
@@ -341,24 +277,16 @@ Stelo {
                                                                                         span: Span {[SPAN]},
                                                                                     },
                                                                                     Block {
-                                                                                        id: NodeId(
-                                                                                            35,
-                                                                                        ),
+                                                                                        id: NodeId(35),
                                                                                         stmts: [
                                                                                             Stmt {
-                                                                                                id: NodeId(
-                                                                                                    34,
-                                                                                                ),
+                                                                                                id: NodeId(34),
                                                                                                 kind: Semi(
                                                                                                     Expr {
-                                                                                                        id: NodeId(
-                                                                                                            33,
-                                                                                                        ),
+                                                                                                        id: NodeId(33),
                                                                                                         kind: Assign(
                                                                                                             Expr {
-                                                                                                                id: NodeId(
-                                                                                                                    28,
-                                                                                                                ),
+                                                                                                                id: NodeId(28),
                                                                                                                 kind: Path(
                                                                                                                     Path {
                                                                                                                         span: Span {[SPAN]},
@@ -368,9 +296,7 @@ Stelo {
                                                                                                                                     name: Symbol([ID]),
                                                                                                                                     span: Span {[SPAN]},
                                                                                                                                 },
-                                                                                                                                id: NodeId(
-                                                                                                                                    27,
-                                                                                                                                ),
+                                                                                                                                id: NodeId(27),
                                                                                                                             },
                                                                                                                         ],
                                                                                                                     },
@@ -378,18 +304,14 @@ Stelo {
                                                                                                                 span: Span {[SPAN]},
                                                                                                             },
                                                                                                             Expr {
-                                                                                                                id: NodeId(
-                                                                                                                    32,
-                                                                                                                ),
+                                                                                                                id: NodeId(32),
                                                                                                                 kind: Binary(
                                                                                                                     Spanned {
                                                                                                                         node: Add,
                                                                                                                         span: Span {[SPAN]},
                                                                                                                     },
                                                                                                                     Expr {
-                                                                                                                        id: NodeId(
-                                                                                                                            30,
-                                                                                                                        ),
+                                                                                                                        id: NodeId(30),
                                                                                                                         kind: Path(
                                                                                                                             Path {
                                                                                                                                 span: Span {[SPAN]},
@@ -399,9 +321,7 @@ Stelo {
                                                                                                                                             name: Symbol([ID]),
                                                                                                                                             span: Span {[SPAN]},
                                                                                                                                         },
-                                                                                                                                        id: NodeId(
-                                                                                                                                            29,
-                                                                                                                                        ),
+                                                                                                                                        id: NodeId(29),
                                                                                                                                     },
                                                                                                                                 ],
                                                                                                                             },
@@ -409,9 +329,7 @@ Stelo {
                                                                                                                         span: Span {[SPAN]},
                                                                                                                     },
                                                                                                                     Expr {
-                                                                                                                        id: NodeId(
-                                                                                                                            31,
-                                                                                                                        ),
+                                                                                                                        id: NodeId(31),
                                                                                                                         kind: Lit(
                                                                                                                             Lit {
                                                                                                                                 kind: Integer,
@@ -437,14 +355,10 @@ Stelo {
                                                                                 span: Span {[SPAN]},
                                                                             },
                                                                             Stmt {
-                                                                                id: NodeId(
-                                                                                    39,
-                                                                                ),
+                                                                                id: NodeId(39),
                                                                                 kind: Expr(
                                                                                     Expr {
-                                                                                        id: NodeId(
-                                                                                            38,
-                                                                                        ),
+                                                                                        id: NodeId(38),
                                                                                         kind: Path(
                                                                                             Path {
                                                                                                 span: Span {[SPAN]},
@@ -454,9 +368,7 @@ Stelo {
                                                                                                             name: Symbol([ID]),
                                                                                                             span: Span {[SPAN]},
                                                                                                         },
-                                                                                                        id: NodeId(
-                                                                                                            37,
-                                                                                                        ),
+                                                                                                        id: NodeId(37),
                                                                                                     },
                                                                                                 ],
                                                                                             },
@@ -471,24 +383,16 @@ Stelo {
                                                                     },
                                                                     Some(
                                                                         Expr {
-                                                                            id: NodeId(
-                                                                                44,
-                                                                            ),
+                                                                            id: NodeId(44),
                                                                             kind: Block(
                                                                                 Block {
-                                                                                    id: NodeId(
-                                                                                        43,
-                                                                                    ),
+                                                                                    id: NodeId(43),
                                                                                     stmts: [
                                                                                         Stmt {
-                                                                                            id: NodeId(
-                                                                                                42,
-                                                                                            ),
+                                                                                            id: NodeId(42),
                                                                                             kind: Expr(
                                                                                                 Expr {
-                                                                                                    id: NodeId(
-                                                                                                        41,
-                                                                                                    ),
+                                                                                                    id: NodeId(41),
                                                                                                     kind: Lit(
                                                                                                         Lit {
                                                                                                             kind: Integer,
@@ -522,9 +426,7 @@ Stelo {
                                     },
                                 },
                             ),
-                            id: NodeId(
-                                49,
-                            ),
+                            id: NodeId(49),
                             span: Span {[SPAN]},
                             ident: Ident {
                                 name: Symbol([ID]),
@@ -537,9 +439,7 @@ Stelo {
                     },
                 ),
             ),
-            id: NodeId(
-                50,
-            ),
+            id: NodeId(50),
             span: Span {[SPAN]},
             ident: Ident {
                 name: Symbol([ID]),
@@ -550,7 +450,5 @@ Stelo {
     span: ModSpan {
         inner_span: Span {[SPAN]},
     },
-    id: NodeId(
-        0,
-    ),
+    id: NodeId(0),
 }

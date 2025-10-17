@@ -112,42 +112,21 @@ impl fmt::Display for SirId {
     }
 }
 
-/// `ItemLocalId` は、`sir::Item` の内部にある要素を、一意に識別します。
-/// ある `ItemLocalId` の数値が、所有者アイテム内におけるノードの位置に
-/// 何らかの形で対応するという保証はありません。
-/// しかし、一つの `owner` 内にある `ItemLocalId` 群は、
-/// 0から始まる隙間のない整数の範囲を占めるという保証があります。
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct ItemLocalId(u32);
 
-impl Idx for ItemLocalId {
-    #[inline]
-    fn new(idx: usize) -> Self {
-        ItemLocalId(Idx::new(idx))
-    }
-
-    #[inline]
-    fn index(self) -> usize {
-        self.0 as usize
-    }
+stelaro_macros::newtype_index! {
+    /// `ItemLocalId` は、`sir::Item` の内部にある要素を、一意に識別します。
+    /// ある `ItemLocalId` の数値が、所有者アイテム内におけるノードの位置に
+    /// 何らかの形で対応するという保証はありません。
+    /// しかし、一つの `owner` 内にある `ItemLocalId` 群は、
+    /// 0から始まる隙間のない整数の範囲を占めるという保証があります。
+    #[orderable]
+    pub struct ItemLocalId {}
 }
 
+
 impl ItemLocalId {
-    pub const ZERO: ItemLocalId = ItemLocalId(0);
-    /// 使用すべきでないローカル ID を示す。
-    pub const INVALID: ItemLocalId = ItemLocalId(u32::MAX);
-
-    pub fn new(idx: usize) -> Self {
-        Self(Idx::new(idx))
-    }
-
-    pub fn as_usize(&self) -> usize {
-        self.0 as usize
-    }
-
-    pub fn as_u32(&self) -> u32 {
-        self.0
-    }
+    /// 使われるべきでない単一のローカルIDを表す。
+    pub const INVALID: ItemLocalId = ItemLocalId::MAX;
 }
 
 /// `STELO_NODE_ID` と `STELO_DEF_ID` に対応する `SirId`。
