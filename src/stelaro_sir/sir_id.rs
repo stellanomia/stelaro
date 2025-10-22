@@ -112,7 +112,6 @@ impl fmt::Display for SirId {
     }
 }
 
-
 stelaro_macros::newtype_index! {
     /// `ItemLocalId` は、`sir::Item` の内部にある要素を、一意に識別します。
     /// ある `ItemLocalId` の数値が、所有者アイテム内におけるノードの位置に
@@ -122,7 +121,6 @@ stelaro_macros::newtype_index! {
     #[orderable]
     pub struct ItemLocalId {}
 }
-
 
 impl ItemLocalId {
     /// 使われるべきでない単一のローカルIDを表す。

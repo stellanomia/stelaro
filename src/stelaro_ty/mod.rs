@@ -1,4 +1,6 @@
 pub mod ty;
+pub mod fold;
+pub mod visit;
 
 use std::collections::HashMap;
 
