@@ -1,8 +1,10 @@
 use std::fmt;
+use std::sync::Arc;
 
-use crate::stelaro_common::VisitorResult;
+use crate::stelaro_common::{Idx, IndexVec, VisitorResult};
 use crate::stelaro_diagnostics::ErrorEmitted;
 use crate::stelaro_ty::Ty;
+use crate::{try_visit, walk_visitable_list};
 
 /// このトレイトは、訪問可能なすべての型に実装され、
 /// トラバーサルの骨格を提供します。
@@ -79,3 +81,89 @@ impl<'tcx> TypeVisitable<'tcx> for ErrorEmitted {
         visitor.visit_error(*self)
     }
 }
+
+impl<'tcx, T: TypeVisitable<'tcx>, U: TypeVisitable<'tcx>> TypeVisitable<'tcx> for (T, U) {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        try_visit!(self.0.visit_with(visitor));
+        self.1.visit_with(visitor)
+    }
+}
+
+impl<'tcx, A: TypeVisitable<'tcx>, B: TypeVisitable<'tcx>, C: TypeVisitable<'tcx>> TypeVisitable<'tcx>
+    for (A, B, C)
+{
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        try_visit!(self.0.visit_with(visitor));
+        try_visit!(self.1.visit_with(visitor));
+        self.2.visit_with(visitor)
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>> TypeVisitable<'tcx> for Option<T> {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        match self {
+            Some(v) => v.visit_with(visitor),
+            None => V::Result::output(),
+        }
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>, E: TypeVisitable<'tcx>> TypeVisitable<'tcx> for Result<T, E> {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        match self {
+            Ok(v) => v.visit_with(visitor),
+            Err(e) => e.visit_with(visitor),
+        }
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>> TypeVisitable<'tcx> for Arc<T> {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        (**self).visit_with(visitor)
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>> TypeVisitable<'tcx> for Box<T> {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        (**self).visit_with(visitor)
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>> TypeVisitable<'tcx> for Vec<T> {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        walk_visitable_list!(visitor, self.iter());
+        V::Result::output()
+    }
+}
+
+// `TypeFoldable` は `&[T]` に対しては実装されていません。
+// 一般的なケースでは新しいスライスを返すことができないため、これは意味をなしません。
+// ただし、他の場所には特定のスライス型に対する `TypeFoldable` の自明な実装がいくつか存在します。
+impl<'tcx, T: TypeVisitable<'tcx>> TypeVisitable<'tcx> for &[T] {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        walk_visitable_list!(visitor, self.iter());
+        V::Result::output()
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>> TypeVisitable<'tcx> for Box<[T]> {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        walk_visitable_list!(visitor, self.iter());
+        V::Result::output()
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>, Ix: Idx> TypeVisitable<'tcx> for IndexVec<Ix, T> {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        walk_visitable_list!(visitor, self.iter());
+        V::Result::output()
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>, S> TypeVisitable<'tcx> for indexmap::IndexSet<T, S> {
+    fn visit_with<V: TypeVisitor<'tcx>>(&self, visitor: &mut V) -> V::Result {
+        walk_visitable_list!(visitor, self.iter());
+        V::Result::output()
+    }
+}
+

@@ -8,6 +8,7 @@ path = "src/lib.rs"
 
 [dependencies]
 ariadne = "0.5.1"
+bitflags = "2.10.0"
 bumpalo = { version = "3.19.0", features = ["collections"] }
 clap = { version = "4.5.49", features = ["derive"] }
 dirs = "6.0.0"
