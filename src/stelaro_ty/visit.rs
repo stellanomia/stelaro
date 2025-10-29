@@ -3,8 +3,10 @@ use std::sync::Arc;
 
 use crate::stelaro_common::{Idx, IndexVec, VisitorResult};
 use crate::stelaro_diagnostics::ErrorEmitted;
-use crate::stelaro_ty::Ty;
+use crate::stelaro_ty::{Ty, TyKind};
 use crate::{try_visit, walk_visitable_list};
+
+use bitflags::bitflags;
 
 /// このトレイトは、訪問可能なすべての型に実装され、
 /// トラバーサルの骨格を提供します。
@@ -167,3 +169,57 @@ impl<'tcx, T: TypeVisitable<'tcx>, S> TypeVisitable<'tcx> for indexmap::IndexSet
     }
 }
 
+
+bitflags! {
+    /// 型が内部にどのような要素を含んでいるかを要約するフラグ。
+    /// これにより、高コストな再帰的走査を避け、高速なチェックが可能になる。
+    #[derive(Debug, PartialEq, Eq, Clone, Copy, Default)]
+    pub struct TypeFlags: u8 {
+        /// この型に `TyKind::Infer` が含まれている。
+        const HAS_TY_INFER = 1 << 0;
+        /// この型に `TyKind::Error` が含まれている。
+        const HAS_ERROR    = 1 << 1;
+    }
+}
+
+#[derive(Debug)]
+pub struct FlagComputation {
+    pub flags: TypeFlags,
+}
+
+impl<'tcx> FlagComputation {
+    fn new() -> FlagComputation {
+        FlagComputation { flags: TypeFlags::empty() }
+    }
+
+    fn add_flags(&mut self, flags: TypeFlags) {
+        self.flags |= flags;
+    }
+
+    fn add_kind(&mut self, kind: &TyKind<'tcx>) {
+        match *kind {
+            TyKind::Bool
+            | TyKind::Char
+            | TyKind::Str
+            | TyKind::Int(_)
+            | TyKind::Uint(_)
+            | TyKind::Float(_)
+            | TyKind::FnDef(_)
+            | TyKind::Unit
+            | TyKind::Never => {}
+
+            TyKind::Infer(_) => self.add_flags(TypeFlags::HAS_TY_INFER),
+            TyKind::Error(_) => self.add_flags(TypeFlags::HAS_ERROR),
+
+            TyKind::Tuple(tys) => {
+                for &ty in tys {
+                    self.add_ty(ty);
+                }
+            }
+        }
+    }
+
+    fn add_ty(&mut self, ty: Ty<'_>) {
+        todo!()
+    }
+}
