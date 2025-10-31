@@ -196,6 +196,12 @@ impl<'tcx> FlagComputation {
         self.flags |= flags;
     }
 
+    pub fn for_kind(kind: &TyKind<'tcx>) -> FlagComputation {
+        let mut result = FlagComputation::new();
+        result.add_kind(kind);
+        result
+    }
+
     fn add_kind(&mut self, kind: &TyKind<'tcx>) {
         match *kind {
             TyKind::Bool
@@ -211,15 +217,7 @@ impl<'tcx> FlagComputation {
             TyKind::Infer(_) => self.add_flags(TypeFlags::HAS_TY_INFER),
             TyKind::Error(_) => self.add_flags(TypeFlags::HAS_ERROR),
 
-            TyKind::Tuple(tys) => {
-                for &ty in tys {
-                    self.add_ty(ty);
-                }
-            }
+            TyKind::Tuple(_) => unreachable!(),
         }
-    }
-
-    fn add_ty(&mut self, ty: Ty<'_>) {
-        todo!()
     }
 }
