@@ -1,6 +1,7 @@
 mod expectation;
 mod expr;
 mod infer;
+mod resolve;
 pub mod result;
 
 use std::cell::{Cell, RefCell};
@@ -127,4 +128,20 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         diag.emit();
         self.record_error();
     }
+
+    // /// 可能な場合、`value`内の型変数を最終的な値で置換します。
+    // /// また、型変数が未統合の場合はそのまま保持されます。
+    // /// この操作は冪等性を有しており、推論状態に一切の
+    // /// 影響を与えないため、任意のタイミングで実行可能です。
+    // pub fn resolve_vars_if_possible<T>(&self, value: T) -> T
+    // where
+    //     T: TypeFoldable<'tcx>,
+    // {
+    //     if let Err(guar) = value.error_reported() {
+    //         self.set_tainted_by_errors(guar);
+    //     }
+    //     let mut r = resolve::OpportunisticVarResolver::new(self);
+    //     value.fold_with(&mut r)
+    // }
+
 }

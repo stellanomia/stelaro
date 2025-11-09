@@ -1,5 +1,3 @@
-use std::convert::Infallible;
-
 use crate::{
     stelaro_context::TyCtxt,
     stelaro_diagnostics::ErrorEmitted,
@@ -54,7 +52,16 @@ pub trait TypeSuperFoldable<'tcx>: TypeFoldable<'tcx> {
     fn super_fold_with<F: TypeFolder<'tcx>>(self, folder: &mut F) -> Self;
 }
 
-/// 失敗する可能性のあるフォールディング走査のための、基本となるトレイト。
+/// 失敗しないフォールディング走査のためのトレイト。
+pub trait TypeFolder<'tcx>: Sized {
+    fn tcx(&self) -> TyCtxt<'tcx>;
+
+    fn fold_ty(&mut self, t: Ty<'tcx>) -> Ty<'tcx> {
+        t.super_fold_with(self)
+    }
+}
+
+/// 失敗する可能性のあるフォールディング走査のためのトレイト。
 pub trait FallibleTypeFolder<'tcx>: Sized {
     type Error;
 
@@ -63,27 +70,7 @@ pub trait FallibleTypeFolder<'tcx>: Sized {
     fn try_fold_ty(&mut self, t: Ty<'tcx>) -> Result<Ty<'tcx>, Self::Error> {
         t.try_super_fold_with(self)
     }
-
-    // 将来、Constなどの「興味のある型」が増えたら、ここに対応するメソッドを追加します。
-    // fn try_fold_const(&mut self, c: Const<'tcx>) -> Result<Const<'tcx>, Self::Error> { ... }
 }
-
-/// 失敗しないフォールディング走査のためのトレイト。
-///
-/// 実質的には、`FallibleTypeFolder` の `Error` 型が `Infallible` であることを
-/// 示すためのマーカー/ラッパートレイトです。
-pub trait TypeFolder<'tcx>: FallibleTypeFolder<'tcx, Error = Infallible> {
-    /// 失敗しないバージョンの `fold_ty` を提供します。
-    /// `try_fold_ty` の結果を `unwrap` することで実装されますが、
-    /// `Error = Infallible` のため、この `unwrap` は決してパニックしません。
-    fn fold_ty(&mut self, t: Ty<'tcx>) -> Ty<'tcx> {
-        self.try_fold_ty(t).unwrap()
-    }
-}
-
-/// `Error = Infallible` であるすべての `FallibleTypeFolder` は、自動的に `TypeFolder` になります。
-/// これにより、`TypeFolder` トレイト境界を持つ `fold_with` メソッドに渡せるようになります。
-impl<'tcx, F> TypeFolder<'tcx> for F where F: FallibleTypeFolder<'tcx, Error = Infallible> {}
 
 impl<'tcx> TypeFoldable<'tcx> for Ty<'tcx> {
     fn try_fold_with<F: FallibleTypeFolder<'tcx>>(self, folder: &mut F) -> Result<Self, F::Error> {
@@ -123,11 +110,12 @@ impl<'tcx> TypeSuperFoldable<'tcx> for Ty<'tcx> {
         // Ok(tcx.mk_ty(kind))
     }
 
-    fn super_fold_with<F: TypeFolder<'tcx>>(self, folder: &mut F) -> Self {
-        match self.try_super_fold_with(folder) {
-            Ok(t) => t,
-            Err(e) => match e {}, // `e` is of type `Infallible`
+    fn super_fold_with<F: TypeFolder<'tcx>>(self, _folder: &mut F) -> Self {
+        if let TyKind::Tuple(_) = self.kind() {
+            unimplemented!()
         }
+
+        self
     }
 }
 
