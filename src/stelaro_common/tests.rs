@@ -904,3 +904,36 @@ fn test_unescape() {
         );
     })
 }
+
+#[test]
+fn test_delayed_map_switches_to_caching_after_cutoff() {
+    let mut map = DelayedMap::<i32, &'static str>::default();
+
+    for i in 0..32 {
+        assert!(map.insert(i, "dummy"));
+    }
+    assert_eq!(map.get(&0), None, "get should return None before cutoff");
+
+    assert!(map.insert(100, "cached_value"));
+    assert_eq!(map.get(&0), None, "data before cutoff should not be cached");
+    assert_eq!(map.get(&100), Some(&"cached_value"), "data after cutoff should be cached");
+
+    assert!(!map.insert(100, "new_value"), "inserting a duplicate key should return false");
+    assert_eq!(map.get(&100), Some(&"new_value"));
+}
+
+#[test]
+fn test_delayed_set_switches_to_caching_after_cutoff() {
+    let mut set = DelayedSet::<i32>::default();
+
+    for i in 0..32 {
+        assert!(set.insert(i));
+    }
+    assert!(!set.contains(&0), "contains should return false before cutoff");
+
+    assert!(set.insert(100));
+    assert!(!set.contains(&0), "data before cutoff should not be in the set");
+    assert!(set.contains(&100), "data after cutoff should be in the set");
+
+    assert!(!set.insert(100), "inserting a duplicate value should return false");
+}

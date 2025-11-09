@@ -1,5 +1,6 @@
 pub mod arena;
 pub mod def_id;
+pub mod delayed_map;
 pub mod fatal_error;
 pub mod fingerprint;
 pub mod hashes;
@@ -26,6 +27,7 @@ pub use def_id::{
     DefId, DefIndex, DefPathHash, LOCAL_STELO, LocalDefId, STELO_DEF_ID, STELO_ROOT_INDEX,
     StableSteloId, SteloNum,
 };
+pub use delayed_map::{DelayedMap, DelayedSet};
 pub use fatal_error::FatalError;
 pub use fingerprint::{Fingerprint, FingerprintComponent};
 pub use hashes::{Hash64, Hash128};
