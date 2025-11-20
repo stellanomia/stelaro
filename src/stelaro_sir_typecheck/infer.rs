@@ -1,11 +1,12 @@
 use std::cell::{Cell, RefCell};
 use std::marker::PhantomData;
 
-use ena::unify::{InPlaceUnificationTable, NoError, UnificationTableStorage, UnifyKey, UnifyValue};
+use ena::unify::{InPlaceUnificationTable, NoError, UnifyKey, UnifyValue};
 
 use crate::stelaro_common::{DefId, IndexVec, Span};
 use crate::stelaro_context::TyCtxt;
-use crate::stelaro_ty::ty::IntVid;
+use crate::stelaro_ty::TyKind;
+use crate::stelaro_ty::ty::InferTy;
 use crate::stelaro_ty::{Ty, ty::TyVid};
 
 pub struct InferCtxt<'tcx> {
@@ -19,7 +20,23 @@ pub struct InferCtxt<'tcx> {
 #[derive(Clone)]
 pub struct InferCtxtInner<'tcx> {
     type_variable_storage: TypeVariableStorage<'tcx>,
+
+    // NOTE: デフォルトの整数型は i32 として存在するため、
+    // 現時点ではRustと異なって実装する必要がない。
     // int_unification_storage: UnificationTableStorage<IntVid>,
+}
+
+impl<'tcx> InferCtxtInner<'tcx> {
+    fn new() -> InferCtxtInner<'tcx> {
+        InferCtxtInner {
+            type_variable_storage: Default::default(),
+        }
+    }
+
+    #[inline]
+    fn type_variables(&mut self) -> TypeVariableTable<'_, 'tcx> {
+        TypeVariableTable { storage: &mut self.type_variable_storage }
+    }
 }
 
 #[derive(Clone, Default)]
@@ -232,5 +249,22 @@ impl<'a, 'tcx> TypeVariableTable<'a, 'tcx> {
                 }
             })
             .collect()
+    }
+}
+
+impl<'tcx> InferCtxt<'tcx> {
+    pub fn shallow_resolve(&self, ty: Ty<'tcx>) -> Ty<'tcx> {
+        if let TyKind::Infer(InferTy::TyVar(v)) = *ty.kind() {
+            // ここは完全に自明ではなく、もし `ty` が型変数であっても、
+            // それは整数/浮動小数点数変数に解決される可能性があり、
+            // その変数はさらに再帰的に解決される可能性があります。そのため、
+            // 再帰呼び出しを行っていますが、型変数が他の型変数に直接unifyされることは
+            // （構造的に埋め込まれる場合を除き）避けるようにしており、また、どのような場合でも循環は
+            // 防止されているため、この再帰の深さは常に非常に限定的であるはずです。
+            let known = self.inner.borrow_mut().type_variables().probe(v).known();
+            known.map_or(ty, |t| self.shallow_resolve(t))
+        } else {
+            ty
+        }
     }
 }
