@@ -1,3 +1,5 @@
+use ena::unify::{NoError, UnifyKey, UnifyValue};
+
 use crate::stelaro_common::{DefId, Symbol};
 use crate::stelaro_diagnostics::ErrorEmitted;
 
@@ -83,24 +85,6 @@ pub enum InferTy {
     FloatVar(FloatVid),
 }
 
-stelaro_macros::newtype_index! {
-    #[orderable]
-    #[debug_format = "?{}t"]
-    pub struct TyVid {}
-}
-
-stelaro_macros::newtype_index! {
-    #[orderable]
-    #[debug_format = "?{}i"]
-    pub struct IntVid {}
-}
-
-stelaro_macros::newtype_index! {
-    #[orderable]
-    #[debug_format = "?{}f"]
-    pub struct FloatVid {}
-}
-
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum IntTy {
     Isize,
@@ -132,3 +116,129 @@ pub struct ParamTy {
     pub index: u32,
     pub name: Symbol,
 }
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum IntVarValue {
+    Unknown,
+    IntType(IntTy),
+    UintType(UintTy),
+}
+
+
+impl IntVarValue {
+    pub fn is_known(self) -> bool {
+        match self {
+            IntVarValue::IntType(_) | IntVarValue::UintType(_) => true,
+            IntVarValue::Unknown => false,
+        }
+    }
+
+    pub fn is_unknown(self) -> bool {
+        !self.is_known()
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum FloatVarValue {
+    Unknown,
+    Known(FloatTy),
+}
+
+impl FloatVarValue {
+    pub fn is_known(self) -> bool {
+        match self {
+            FloatVarValue::Known(_) => true,
+            FloatVarValue::Unknown => false,
+        }
+    }
+
+    pub fn is_unknown(self) -> bool {
+        !self.is_known()
+    }
+}
+
+stelaro_macros::newtype_index! {
+    #[orderable]
+    #[debug_format = "?{}t"]
+    pub struct TyVid {}
+}
+
+stelaro_macros::newtype_index! {
+    #[orderable]
+    #[debug_format = "?{}i"]
+    pub struct IntVid {}
+}
+
+stelaro_macros::newtype_index! {
+    #[orderable]
+    #[debug_format = "?{}f"]
+    pub struct FloatVid {}
+}
+
+impl UnifyValue for IntVarValue {
+    type Error = NoError;
+
+    fn unify_values(value1: &Self, value2: &Self) -> Result<Self, Self::Error> {
+        match (*value1, *value2) {
+            (IntVarValue::Unknown, IntVarValue::Unknown) => Ok(IntVarValue::Unknown),
+            (
+                IntVarValue::Unknown,
+                known @ (IntVarValue::UintType(_) | IntVarValue::IntType(_)),
+            )
+            | (
+                known @ (IntVarValue::UintType(_) | IntVarValue::IntType(_)),
+                IntVarValue::Unknown,
+            ) => Ok(known),
+            // この `unify_values` が呼び出される前に、異なる整数型同士の矛盾は先に解決されているべき
+            _ => panic!("異なる整数型は、先に解決されているべきでした"),
+        }
+    }
+}
+
+impl UnifyKey for IntVid {
+    type Value = IntVarValue;
+    #[inline]
+    fn index(&self) -> u32 {
+        self.as_u32()
+    }
+    #[inline]
+    fn from_index(i: u32) -> IntVid {
+        IntVid::from_u32(i)
+    }
+    fn tag() -> &'static str {
+        "IntVid"
+    }
+}
+
+impl UnifyValue for FloatVarValue {
+    type Error = NoError;
+
+    fn unify_values(value1: &Self, value2: &Self) -> Result<Self, Self::Error> {
+        match (*value1, *value2) {
+            (FloatVarValue::Unknown, FloatVarValue::Unknown) => Ok(FloatVarValue::Unknown),
+            (FloatVarValue::Unknown, FloatVarValue::Known(known))
+            | (FloatVarValue::Known(known), FloatVarValue::Unknown) => {
+                Ok(FloatVarValue::Known(known))
+            }
+            (FloatVarValue::Known(_), FloatVarValue::Known(_)) => {
+                panic!("異なる浮動小数点型は、先に解決されているべきでした")
+            }
+        }
+    }
+}
+
+impl UnifyKey for FloatVid {
+    type Value = FloatVarValue;
+    #[inline]
+    fn index(&self) -> u32 {
+        self.as_u32()
+    }
+    #[inline]
+    fn from_index(i: u32) -> FloatVid {
+        FloatVid::from_u32(i)
+    }
+    fn tag() -> &'static str {
+        "FloatVid"
+    }
+}
+

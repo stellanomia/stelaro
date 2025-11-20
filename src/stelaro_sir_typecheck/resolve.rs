@@ -1,6 +1,7 @@
 use crate::stelaro_common::DelayedMap;
 use crate::stelaro_sir_typecheck::infer::InferCtxt;
 use crate::stelaro_ty::Ty;
+use crate::stelaro_ty::fold::TypeFolder;
 
 
 /// 型変数を、現時点で判明している情報で自分勝手に (opportunistically) 解決するフォルダー。
@@ -23,6 +24,22 @@ impl<'a, 'tcx> OpportunisticVarResolver<'a, 'tcx> {
         OpportunisticVarResolver {
             infcx,
             cache: DelayedMap::default(),
+        }
+    }
+}
+
+
+impl<'a, 'tcx> TypeFolder<'tcx> for OpportunisticVarResolver<'a, 'tcx> {
+    fn tcx(&self) -> crate::stelaro_context::TyCtxt<'tcx> {
+        self.infcx.tcx
+    }
+
+    #[inline]
+    fn fold_ty(&mut self, t: Ty<'tcx>) -> Ty<'tcx> {
+        if let Some(ty) = self.cache.get(&t) {
+            *ty
+        } else {
+            todo!()
         }
     }
 }

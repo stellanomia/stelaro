@@ -56,7 +56,6 @@ impl<'tcx> TypeCheckCtxt<'tcx> {
     }
 }
 
-
 pub struct FnCtxt<'a, 'tcx> {
     pub tccx: &'a TypeCheckCtxt<'tcx>,
     pub owner_id: LocalDefId,
