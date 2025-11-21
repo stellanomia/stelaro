@@ -1,8 +1,32 @@
+use std::fmt;
+
 use crate::stelaro_common::DelayedMap;
+use crate::stelaro_context::TyCtxt;
 use crate::stelaro_sir_typecheck::infer::InferCtxt;
 use crate::stelaro_ty::Ty;
-use crate::stelaro_ty::fold::{TypeFolder, TypeSuperFoldable};
+use crate::stelaro_ty::fold::{FallibleTypeFolder, TypeFoldable, TypeFolder, TypeSuperFoldable};
+use crate::stelaro_ty::ty::TyVid;
+use crate::stelaro_ty::visit::{Flags, TypeFlags};
 
+/// `fully_resolve` が失敗したときに返されるエラー。
+/// 型推論が完了した後も、解決されずに残った型変数が存在することを示す。
+#[derive(Copy, Clone, Debug)]
+pub struct UnresolvedInferVar {
+    /// 解決できなかった型変数のID。
+    vid: TyVid,
+}
+
+impl UnresolvedInferVar {
+    pub fn new(vid: TyVid) -> Self {
+        Self { vid }
+    }
+}
+
+impl fmt::Display for UnresolvedInferVar {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "型を推論できませんでした。型注釈を追加する必要があります。 (未解決の変数: {:?})", self.vid)
+    }
+}
 
 /// 型変数を、現時点で判明している情報で自分勝手に (opportunistically) 解決するフォルダー。
 ///
@@ -44,5 +68,37 @@ impl<'a, 'tcx> TypeFolder<'tcx> for OpportunisticVarResolver<'a, 'tcx> {
             assert!(self.cache.insert(t, res));
             res
         }
+    }
+}
+
+/// `fully_resolve` は、すべての型変数それらの具体的な結果で置き換えます。
+/// もし、いずれかの変数が置き換えられない場合（一度も unify されなかったなど）、
+/// `Err` の結果が返されます。
+pub fn fully_resolve<'tcx, T>(infcx: &InferCtxt<'tcx>, value: T) -> Result<T, UnresolvedInferVar>
+where
+    T: TypeFoldable<'tcx>,
+{
+    value.try_fold_with(&mut FullTypeResolver { infcx })
+}
+
+/// すべての型変数を完全に解決しようと試みるフォルダー。
+/// 未解決の変数が残っていた場合、`Err`を返す。
+pub struct FullTypeResolver<'a, 'tcx> {
+    infcx: &'a InferCtxt<'tcx>,
+}
+
+impl<'a, 'tcx> FallibleTypeFolder<'tcx> for FullTypeResolver<'a, 'tcx> {
+    type Error = UnresolvedInferVar;
+
+    fn tcx(&self) -> TyCtxt<'tcx> {
+        self.infcx.tcx
+    }
+
+    fn try_fold_ty(&mut self, ty: Ty<'tcx>) -> Result<Ty<'tcx>, Self::Error> {
+        if !ty.flags().contains(TypeFlags::HAS_TY_INFER) {
+            return Ok(ty);
+        }
+
+        todo!()
     }
 }
