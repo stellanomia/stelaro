@@ -147,8 +147,8 @@ impl<'tcx> UnifyValue for TypeVariableValue<'tcx> {
 
             // 片方が Known、もう片方が Unknown。
             // この場合、統合後の値は Known の方になります。
-            (TypeVariableValue::Known {..}, TypeVariableValue::Unknown) => Ok(value1.clone()),
-            (TypeVariableValue::Unknown, TypeVariableValue::Known {..}) => Ok(value2.clone()),
+            (TypeVariableValue::Known {..}, TypeVariableValue::Unknown) => Ok(*value1),
+            (TypeVariableValue::Unknown, TypeVariableValue::Known {..}) => Ok(*value2),
 
             // 両方とも Unknown。
             // 統合後の値も Unknown のままです。universe のような追加情報がないため、

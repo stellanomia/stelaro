@@ -1,10 +1,25 @@
+use std::cmp::Ordering;
+use std::fmt;
+use std::hash::Hasher;
+use std::ops::Deref;
+
 use ena::unify::{NoError, UnifyKey, UnifyValue};
 
 use crate::stelaro_common::{DefId, Symbol};
 use crate::stelaro_diagnostics::ErrorEmitted;
+use crate::stelaro_ty::visit::{Flags, TypeFlags};
 
-#[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
-pub struct Ty<'tcx>(pub &'tcx TyKind<'tcx>);
+#[derive(PartialEq, Eq, Hash, Clone, Copy)]
+pub struct Ty<'tcx>(pub &'tcx WithCachedTypeInfo<TyKind<'tcx>>);
+
+/// インターニングされるデータと、そのキャッシュ情報をまとめるジェネリックなラッパー。
+#[derive(Copy, Clone)]
+pub struct WithCachedTypeInfo<T> {
+    pub internee: T,
+
+    /// 事前に計算された型情報のフラグ。
+    pub flags: TypeFlags,
+}
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 pub enum TyKind<'tcx> {
@@ -55,6 +70,12 @@ impl<'tcx> Ty<'tcx> {
 
     pub fn is_ty_var(&self) -> bool {
         matches!(self.kind(), TyKind::Infer(InferTy::TyVar(_)))
+    }
+}
+
+impl fmt::Debug for Ty<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_tuple("Ty").field(&self.kind()).finish()
     }
 }
 
@@ -239,6 +260,50 @@ impl UnifyKey for FloatVid {
     }
     fn tag() -> &'static str {
         "FloatVid"
+    }
+}
+
+impl Flags for Ty<'_> {
+    fn flags(&self) -> TypeFlags {
+        self.0.flags
+    }
+}
+
+impl<T: PartialEq> PartialEq for WithCachedTypeInfo<T> {
+    #[inline]
+    fn eq(&self, other: &Self) -> bool {
+        self.internee.eq(&other.internee)
+    }
+}
+
+impl<T: Eq> Eq for WithCachedTypeInfo<T> {}
+
+
+impl<T: Ord> PartialOrd for WithCachedTypeInfo<T> {
+    fn partial_cmp(&self, other: &WithCachedTypeInfo<T>) -> Option<Ordering> {
+        Some(self.internee.cmp(&other.internee))
+    }
+}
+
+impl<T: Ord> Ord for WithCachedTypeInfo<T> {
+    fn cmp(&self, other: &WithCachedTypeInfo<T>) -> Ordering {
+        self.internee.cmp(&other.internee)
+    }
+}
+
+impl<T> Deref for WithCachedTypeInfo<T> {
+    type Target = T;
+
+    #[inline]
+    fn deref(&self) -> &T {
+        &self.internee
+    }
+}
+
+impl<T: std::hash::Hash> std::hash::Hash for WithCachedTypeInfo<T> {
+    #[inline]
+    fn hash<H: Hasher>(&self, s: &mut H) {
+        self.internee.hash(s)
     }
 }
 

@@ -1,4 +1,5 @@
 use std::fmt;
+use std::ops::ControlFlow;
 use std::sync::Arc;
 
 use crate::stelaro_common::{Idx, IndexVec, VisitorResult};
@@ -219,5 +220,96 @@ impl<'tcx> FlagComputation {
 
             TyKind::Tuple(_) => unreachable!(),
         }
+    }
+}
+
+pub trait Flags {
+    fn flags(&self) -> TypeFlags;
+}
+
+pub trait TypeVisitableExt<'tcx>: TypeVisitable<'tcx> {
+    fn has_type_flags(&self, flags: TypeFlags) -> bool;
+
+    fn references_error(&self) -> bool {
+        self.has_type_flags(TypeFlags::HAS_ERROR)
+    }
+
+    fn error_reported(&self) -> Result<(), ErrorEmitted>;
+
+    fn has_infer_types(&self) -> bool {
+        self.has_type_flags(TypeFlags::HAS_TY_INFER)
+    }
+}
+
+impl<'tcx, T: TypeVisitable<'tcx>> TypeVisitableExt<'tcx> for T {
+    fn has_type_flags(&self, flags: TypeFlags) -> bool {
+        let res =
+            self.visit_with(&mut HasTypeFlagsVisitor { flags }) == ControlFlow::Break(FoundFlags);
+        res
+    }
+
+    fn error_reported(&self) -> Result<(), ErrorEmitted> {
+        if self.references_error() {
+            if let ControlFlow::Break(guar) = self.visit_with(&mut HasErrorVisitor) {
+                Err(guar)
+            } else {
+                panic!("type flags said there was an error, but now there is not")
+            }
+        } else {
+            Ok(())
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Copy, Clone)]
+struct FoundFlags;
+
+struct HasTypeFlagsVisitor {
+    flags: TypeFlags,
+}
+
+impl std::fmt::Debug for HasTypeFlagsVisitor {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.flags.fmt(fmt)
+    }
+}
+
+impl<'tcx> TypeVisitor<'tcx> for HasTypeFlagsVisitor {
+    type Result = ControlFlow<FoundFlags>;
+
+    /// `visit_ty` は、型に遭遇するたびに呼び出されます。
+    /// これがこのビジターの主要なロジックです。
+    #[inline]
+    fn visit_ty(&mut self, t: Ty<'tcx>) -> Self::Result {
+        // `Ty` が持つ計算済みの `flags` と、探している `flags` を比較します。
+        if t.flags().intersects(self.flags) {
+            // もし共通のフラグがあれば、目的は達成された
+            ControlFlow::Break(FoundFlags)
+        } else {
+            ControlFlow::Continue(())
+        }
+    }
+
+    /// `visit_error` は、エラー型に遭遇したときに呼び出されます。
+    #[inline]
+    fn visit_error(&mut self, _guar: ErrorEmitted) -> Self::Result {
+        // もし探しているフラグに `HAS_ERROR` が含まれていれば、
+        // エラーが見つかったので走査を終了させます。
+        if self.flags.contains(TypeFlags::HAS_ERROR) {
+            ControlFlow::Break(FoundFlags)
+        } else {
+            // `HAS_ERROR` を探していない場合は、走査を続行します。
+            ControlFlow::Continue(())
+        }
+    }
+}
+
+struct HasErrorVisitor;
+
+impl<'tcx> TypeVisitor<'tcx> for HasErrorVisitor {
+    type Result = ControlFlow<ErrorEmitted>;
+
+    fn visit_error(&mut self, guar: ErrorEmitted) -> Self::Result {
+        ControlFlow::Break(guar)
     }
 }
